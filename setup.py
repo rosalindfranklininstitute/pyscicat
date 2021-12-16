@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 import sys
 import versioneer
 
-min_version = (3, 9)
+min_version = (3, 7)
 if sys.version_info < min_version:
     error = """
 pyscicat does not support Python {0}.{1}.
