@@ -5,22 +5,22 @@ from pydantic import BaseModel
 
 
 class DatasetType(str, enum.Enum):
-    """type of Dataset
-    """
+    """type of Dataset"""
+
     raw = "raw"
     derived = "derived"
 
 
 class Ownable(BaseModel):
-    """ Many objects in SciCat are ownable
-    """
+    """Many objects in SciCat are ownable"""
+
     ownerGroup: str
     accessGroups: List[str]
 
 
 class MongoQueryable(BaseModel):
-    """ Many objects in SciCat are mongo queryable
-    """
+    """Many objects in SciCat are mongo queryable"""
+
     createdBy: Optional[str]
     updatedBy: Optional[str]
     updatedAt: Optional[str]
@@ -29,8 +29,9 @@ class MongoQueryable(BaseModel):
 
 class Dataset(Ownable, MongoQueryable):
     """
-        A dataset in SciCat
+    A dataset in SciCat
     """
+
     pid: Optional[str]
     owner: str
     ownerEmail: Optional[str]
@@ -69,6 +70,7 @@ class DataFile(MongoQueryable):
     to the Dataset's sourceFolder parameter
 
     """
+
     path: str
     size: int
     time: Optional[str]
@@ -81,6 +83,7 @@ class Datablock(Ownable):
     """
     A Datablock maps between a Dataset and contains DataFiles
     """
+
     id: Optional[str]
     # archiveId: str = None  listed in catamel model, but comes back invalid?
     size: int
@@ -93,8 +96,9 @@ class Datablock(Ownable):
 
 class Attachment(Ownable):
     """
-        Attachments can be any base64 encoded string...thumbnails are attachments
+    Attachments can be any base64 encoded string...thumbnails are attachments
     """
+
     id: Optional[str]
     thumbnail: str
     caption: Optional[str]

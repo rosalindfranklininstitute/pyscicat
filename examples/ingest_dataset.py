@@ -2,18 +2,12 @@ from datetime import datetime
 from pathlib import Path
 
 from pyscicat.client import encode_thumbnail, ScicatClient
-from pyscicat.model import (
-    Attachment,
-    Datablock,
-    DataFile,
-    Dataset,
-    Ownable
-)
+from pyscicat.model import Attachment, Datablock, DataFile, Dataset, Ownable
 
 # Create a client object. The account used should have the ingestor role in SciCat
-scicat = ScicatClient(base_url="http://localhost:3000/api/v3",
-                      username="Zaphod",
-                      password="heartofgold")
+scicat = ScicatClient(
+    base_url="http://localhost:3000/api/v3", username="Zaphod", password="heartofgold"
+)
 
 # Create an Ownable that will get reused for several other Model objects
 ownable = Ownable(ownerGroup="magrathea", accessGroups=["deep_though"])
@@ -37,16 +31,15 @@ dataset = Dataset(
     sourceFolder="/foo/bar",
     scientificMetadata={"a": "field"},
     sampleId="gargleblaster",
-    **ownable.dict())
+    **ownable.dict()
+)
 dataset_id = scicat.upload_raw_dataset(dataset)
 
 # Create Datablock with DataFiles
 data_file = DataFile(path="file.h5", size=42)
-data_block = Datablock(size=42,
-                       version=1,
-                       datasetId=dataset_id,
-                       dataFileList=[data_file],
-                       **ownable.dict())
+data_block = Datablock(
+    size=42, version=1, datasetId=dataset_id, dataFileList=[data_file], **ownable.dict()
+)
 scicat.upload_datablock(data_block)
 
 # Create Attachment

@@ -9,19 +9,15 @@ import logging
 import requests  # for HTTP requests
 
 
-from .model import (
-    Attachment,
-    Datablock,
-    Dataset
-)
+from .model import Attachment, Datablock, Dataset
 
 logger = logging.getLogger("splash_ingest")
 can_debug = logger.isEnabledFor(logging.DEBUG)
 
 
 class ScicatCommError(Exception):
-    """Represents an error encountered during communication with SciCat.
-    """
+    """Represents an error encountered during communication with SciCat."""
+
     def __init__(self, message):
         self.message = message
 
@@ -31,11 +27,12 @@ class Severity(str, enum.Enum):
     fatal = "fatal"
 
 
-class ScicatClient():
-    """Responsible for communicating with the Scicat Catamel server via http
-    """
+class ScicatClient:
+    """Responsible for communicating with the Scicat Catamel server via http"""
 
-    def __init__(self, base_url: str, username: str, password: str, timeout_seconds: int = None):
+    def __init__(
+        self, base_url: str, username: str, password: str, timeout_seconds: int = None
+    ):
         """Initialize a new instance. This method attempts to create a tokenad_a
         from the provided username and password
 
@@ -51,9 +48,11 @@ class ScicatClient():
             timeout in seconds to wait for http connections to return, by default None
         """
         self._base_url = base_url
-        self._timeout_seconds = timeout_seconds  # we are hitting a transmission timeout...
+        self._timeout_seconds = (
+            timeout_seconds  # we are hitting a transmission timeout...
+        )
         self._username = username  # default username
-        self._password = password     # default password
+        self._password = password  # default password
         self._token = None  # store token here
 
         logger.info(f"Starting ingestor talking to scicat at: {self._base_url}")
@@ -79,10 +78,12 @@ class ScicatClient():
             verify=True,
         )
         if not response.ok:
-            logger.error(f' ** Error received: {response}')
+            logger.error(f" ** Error received: {response}")
             err = response.json()["error"]
             logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
-            self.add_error(f'error getting token {err["name"]}, {err["statusCode"]}: {err["message"]}')
+            self.add_error(
+                f'error getting token {err["name"]}, {err["statusCode"]}: {err["message"]}'
+            )
             return None
 
         data = response.json()
@@ -93,7 +94,7 @@ class ScicatClient():
         return token
 
     def _send_to_scicat(self, url, dataDict=None, cmd="post"):
-        """ sends a command to the SciCat API server using url and token, returns the response JSON
+        """sends a command to the SciCat API server using url and token, returns the response JSON
         Get token with the getToken method"""
         if cmd == "post":
             response = requests.post(
@@ -106,7 +107,8 @@ class ScicatClient():
             )
         elif cmd == "delete":
             response = requests.delete(
-                url, params={"access_token": self._token},
+                url,
+                params={"access_token": self._token},
                 timeout=self._timeout_seconds,
                 stream=False,
                 verify=self.sslVerify,
@@ -176,7 +178,7 @@ class ScicatClient():
         if not resp.ok:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error creating raw dataset {err}")
-        new_pid = resp.json().get('pid')
+        new_pid = resp.json().get("pid")
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
@@ -195,13 +197,18 @@ class ScicatClient():
         """
         datasetType = "RawDatasets"
 
-        url = self._base_url + f"{datasetType}/{urllib.parse.quote_plus(datablock.datasetId)}/origdatablocks"
+        url = (
+            self._base_url
+            + f"{datasetType}/{urllib.parse.quote_plus(datablock.datasetId)}/origdatablocks"
+        )
         resp = self._send_to_scicat(url, datablock.dict(exclude_none=True))
         if not resp.ok:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error creating datablock. {err}")
 
-    def upload_attachment(self, attachment: Attachment, datasetType: str = "RawDatasets"):
+    def upload_attachment(
+        self, attachment: Attachment, datasetType: str = "RawDatasets"
+    ):
         """Upload an Attachment.  Note that datasetType can be provided to determine the type of dataset
         that this attachment is attached to. This is required for creating the url that SciCat uses.
 
@@ -217,15 +224,19 @@ class ScicatClient():
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        url = self._base_url + f"{datasetType}/{urllib.parse.quote_plus(attachment.datasetId)}/attachments"
+        url = (
+            self._base_url
+            + f"{datasetType}/{urllib.parse.quote_plus(attachment.datasetId)}/attachments"
+        )
         logging.debug(url)
         resp = requests.post(
-                    url,
-                    params={"access_token": self._token},
-                    timeout=self._timeout_seconds,
-                    stream=False,
-                    json=attachment.dict(exclude_none=True),
-                    verify=True)
+            url,
+            params={"access_token": self._token},
+            timeout=self._timeout_seconds,
+            stream=False,
+            json=attachment.dict(exclude_none=True),
+            verify=True,
+        )
         if not resp.ok:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
@@ -242,13 +253,13 @@ def get_checksum(pathobj):
         return hashlib.md5(file_to_check.read()).hexdigest()
 
 
-def encode_thumbnail(filename, imType='jpg'):
+def encode_thumbnail(filename, imType="jpg"):
     logging.info(f"Creating thumbnail for dataset: {filename}")
     header = "data:image/{imType};base64,".format(imType=imType)
-    with open(filename, 'rb') as f:
+    with open(filename, "rb") as f:
         data = f.read()
     dataBytes = base64.b64encode(data)
-    dataStr = dataBytes.decode('UTF-8')
+    dataStr = dataBytes.decode("UTF-8")
     return header + dataStr
 
 
