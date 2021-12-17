@@ -53,6 +53,6 @@ jobs:
         publish_branch: gh-pages
         publish_dir: ./docs/build/html
         # external_repository: ${{ env.REPOSITORY_NAME }}
-        # destination_dir: docs/build
+        destination_dir: /docs/build
         keep_files: true  # Keep old files.
         force_orphan: false  # Keep git history.
