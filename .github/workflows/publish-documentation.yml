@@ -52,6 +52,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
         publish_dir: /docs/build/html
-        destination_dir: ${{ env.REPOSITORY_NAME }}
+        destination_dir: docs/build
         keep_files: true  # Keep old files.
         force_orphan: false  # Keep git history.
