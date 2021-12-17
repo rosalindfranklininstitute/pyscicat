@@ -38,26 +38,14 @@ setup(
     name="pyscicat",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description="Code for communicating to a SciCat backend server ython",
+    description="Code for communicating to a SciCat backend server python",
     long_description=readme,
     author="Dylan McReynolds",
     author_email="dmcreynolds@lbl.gov",
-    url="https://github.com/dylanmcreynolds/pyscicat",
+    url="https://github.com/scicatproject/pyscicat",
     python_requires=">={}".format(".".join(str(n) for n in min_version)),
     packages=find_packages(exclude=["docs", "tests"]),
-    # entry_points={
-    #     'console_scripts': [
-    #         # 'command = some.module:some_function',
-    #     ],
-    # },
     include_package_data=True,
-    # package_data={
-    #     'pyscicat': [
-    #         # When adding files here, remember to update MANIFEST.in as well,
-    #         # or else they will not be included in the distribution on PyPI!
-    #         # 'path/to/data_file',
-    #     ]
-    # },
     install_requires=requirements,
     license="BSD (3-clause)",
     classifiers=[
