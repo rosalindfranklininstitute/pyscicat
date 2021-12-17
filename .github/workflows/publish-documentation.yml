@@ -43,7 +43,7 @@ jobs:
       shell: bash -l {0}
       run: make -C docs/ html
 
-    - name: Deploy documentation to blueskyproject.io.
+    - name: Deploy documentation to scicatproject.github.io
       # We pin to the SHA, not the tag, for security reasons.
       # https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/security-hardening-for-github-actions#using-third-party-actions
       uses: peaceiris/actions-gh-pages@bbdfb200618d235585ad98e965f4aafc39b4c501  # v3.7.3
