@@ -1,6 +1,13 @@
 ```{include} ../../README.md
 ```
 
+
+```{toctree}
+reference/release-history
+
+```
+
+
 ```{toctree}
 :caption: Configuration
 installation
