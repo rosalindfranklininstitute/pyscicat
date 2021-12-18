@@ -43,6 +43,10 @@ jobs:
       shell: bash -l {0}
       run: make -C docs/ html
 
+    - name: list
+      run: |
+        ls -al /home/runner/work/pyscicat/pyscicat/docs/build
+
     - name: Deploy documentation
       # We pin to the SHA, not the tag, for security reasons.
       # https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/security-hardening-for-github-actions#using-third-party-actions
