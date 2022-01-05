@@ -270,9 +270,8 @@ class ScicatClient:
             query_fields = {}
         query_fields = json.dumps(query_fields)
         query = f'fields={query_fields}&limits={{"skip":{skip},"limit":{limit},"order":"creationTime:desc"}}'
-        print(query)
-        url = f"{self._base_url}/Datasets/fullquery?{query}"
 
+        url = f"{self._base_url}/Datasets/fullquery?{query}"
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
             err = response.json()["error"]
@@ -304,7 +303,6 @@ class ScicatClient:
 
         filter_fields = json.dumps(filter_fields)
         url = f'{self._base_url}/Datasets/?filter={{"where":{filter_fields}}}'
-        print(url)
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
             err = response.json()["error"]
