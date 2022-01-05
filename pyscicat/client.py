@@ -1,10 +1,11 @@
 from datetime import datetime
 import enum
 
-import hashlib
-import urllib
 import base64
+import hashlib
 import logging
+import json
+import urllib
 
 import requests  # for HTTP requests
 
@@ -20,7 +21,8 @@ class ScicatLoginError(Exception):
 
     def __init__(self, message):
         self.message = message
-        
+
+
 class ScicatCommError(Exception):
     """Represents an error encountered during communication with SciCat."""
 
@@ -113,8 +115,7 @@ class ScicatClient:
                 url,
                 params={"access_token": self._token},
                 timeout=self._timeout_seconds,
-                stream=False,
-                verify=self.sslVerify,
+                stream=False
             )
         elif cmd == "get":
             response = requests.get(
@@ -122,8 +123,7 @@ class ScicatClient:
                 params={"access_token": self._token},
                 json=dataDict,
                 timeout=self._timeout_seconds,
-                stream=False,
-                verify=self.sslVerify,
+                stream=False
             )
         elif cmd == "patch":
             response = requests.patch(
@@ -131,8 +131,7 @@ class ScicatClient:
                 params={"access_token": self._token},
                 json=dataDict,
                 timeout=self._timeout_seconds,
-                stream=False,
-                verify=self.sslVerify,
+                stream=False
             )
         return response
 
@@ -244,17 +243,75 @@ class ScicatClient:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
-    def get_my_raw_datasets(self):
-        fields = 'fields={"mode"%3A{}}&limits={"skip"%3A0%2C"limit"%3A25%2C"order"%3A"creationTime%3Adesc"}'
-        url = f"{self.baseurl}/RawDatasets/fullquery?{fields}"
+    def get_datasets_full_query(self, skip=0, limit=25, query_fields=None):
+        """Gets datasets using the fullQuery mechanism of SciCat. This is
+        appropriate for cases where might want paging and cases where you want to perform
+        a text search on the Datasets collection. The full features of fullQuery search
+        are beyond this document.
+
+        There is no known mechanism to query for fields that are missing or contain a
+        a null value.
+
+        To query based on the full text search, send `{"text": "<text to query"}` as query field
+
+        Parameters
+        ----------
+        skip : int
+            number of items to skip
+
+        limit : int
+            number of items to return
+
+        query_fields : dict
+            dictionary of terms to send to the query (must be json serializable)
+
+        """
+        if not query_fields:
+            query_fields = {}
+        query_fields = json.dumps(query_fields)
+        query = f'fields={query_fields}&limits={{"skip":{skip},"limit":{limit},"order":"creationTime:desc"}}'
+        print(query)
+        url = f"{self._base_url}/Datasets/fullquery?{query}"
+
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            logger.error(f'{self.job_id} ** Error received: {response}')
             err = response.json()["error"]
-            logger.error(f'{self.job_id} {err["name"]}, {err["statusCode"]}: {err["message"]}')
-            # self.add_error(f'error getting token {err["name"]}, {err["statusCode"]}: {err["message"]}')
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
+
+    def get_datasets(self, filter_fields=None):
+        """ Gets datasets using the simple fiter mechanism. This
+        is appropriate when you do not require paging or text search, but
+        want to be able to limit results based on items in the Dataset object.
+
+        For example, a search for Datasets of a given proposalId would have
+        ```python
+        filterField = {"proposalId": "1234"}
+        ```
+        A search for Datasets  with no proposalId would be:
+        ```python
+        filterField = {"proposalId": ""}
+        ```
+
+        Parameters
+        ----------
+        filter_fields : dict
+            Dictionary of filtering fields. Must be json serializable.
+        """
+        if not filter_fields:
+            filter_fields = {}
+
+        filter_fields = json.dumps(filter_fields)
+        url = f'{self._base_url}/Datasets/?filter={{"where":{filter_fields}}}'
+        print(url)
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
+
 
 def get_file_size(pathobj):
     filesize = pathobj.lstat().st_size
