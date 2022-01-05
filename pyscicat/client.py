@@ -15,6 +15,12 @@ logger = logging.getLogger("splash_ingest")
 can_debug = logger.isEnabledFor(logging.DEBUG)
 
 
+class ScicatLoginError(Exception):
+    """Represents an error encountered logging into SciCat"""
+
+    def __init__(self, message):
+        self.message = message
+        
 class ScicatCommError(Exception):
     """Represents an error encountered during communication with SciCat."""
 
@@ -81,10 +87,7 @@ class ScicatClient:
             logger.error(f" ** Error received: {response}")
             err = response.json()["error"]
             logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
-            self.add_error(
-                f'error getting token {err["name"]}, {err["statusCode"]}: {err["message"]}'
-            )
-            return None
+            raise ScicatLoginError(response.content)
 
         data = response.json()
         # print("Response:", data)
@@ -241,6 +244,17 @@ class ScicatClient:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
+    def get_my_raw_datasets(self):
+        fields = 'fields={"mode"%3A{}}&limits={"skip"%3A0%2C"limit"%3A25%2C"order"%3A"creationTime%3Adesc"}'
+        url = f"{self.baseurl}/RawDatasets/fullquery?{fields}"
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            logger.error(f'{self.job_id} ** Error received: {response}')
+            err = response.json()["error"]
+            logger.error(f'{self.job_id} {err["name"]}, {err["statusCode"]}: {err["message"]}')
+            # self.add_error(f'error getting token {err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
 
 def get_file_size(pathobj):
     filesize = pathobj.lstat().st_size
