@@ -7,6 +7,6 @@ set -vxeuo pipefail
 python -m pip install --upgrade pip setuptools wheel numpy
 # Versioneer uses the most recent git tag to generate __version__, which appears
 # in the published documentation.
-git fetch --tags
+git fetch --tags --force
 python -m pip install '.'
 python -m pip list
