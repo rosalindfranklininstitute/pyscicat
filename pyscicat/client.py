@@ -246,7 +246,7 @@ class ScicatClient:
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
     def get_datasets_full_query(self, skip=0, limit=25, query_fields=None):
-        """ Gets datasets using the fullQuery mechanism of SciCat. This is
+        """Gets datasets using the fullQuery mechanism of SciCat. This is
         appropriate for cases where might want paging and cases where you want to perform
         a text search on the Datasets collection. The full features of fullQuery search
         are beyond this document.
@@ -282,7 +282,7 @@ class ScicatClient:
         return response.json()
 
     def get_datasets(self, filter_fields=None) -> List[Dataset]:
-        """ Gets datasets using the simple fiter mechanism. This
+        """Gets datasets using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
         want to be able to limit results based on items in the Dataset object.
 
