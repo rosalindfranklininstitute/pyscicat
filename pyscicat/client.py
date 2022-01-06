@@ -1,11 +1,14 @@
 from datetime import datetime
 import enum
 
-import hashlib
-import urllib
 import base64
+import hashlib
 import logging
+import json
+from typing import List
+import urllib
 
+from pydantic import parse_obj_as
 import requests  # for HTTP requests
 
 
@@ -13,6 +16,13 @@ from .model import Attachment, Datablock, Dataset
 
 logger = logging.getLogger("splash_ingest")
 can_debug = logger.isEnabledFor(logging.DEBUG)
+
+
+class ScicatLoginError(Exception):
+    """Represents an error encountered logging into SciCat"""
+
+    def __init__(self, message):
+        self.message = message
 
 
 class ScicatCommError(Exception):
@@ -81,10 +91,7 @@ class ScicatClient:
             logger.error(f" ** Error received: {response}")
             err = response.json()["error"]
             logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
-            self.add_error(
-                f'error getting token {err["name"]}, {err["statusCode"]}: {err["message"]}'
-            )
-            return None
+            raise ScicatLoginError(response.content)
 
         data = response.json()
         # print("Response:", data)
@@ -111,7 +118,6 @@ class ScicatClient:
                 params={"access_token": self._token},
                 timeout=self._timeout_seconds,
                 stream=False,
-                verify=self.sslVerify,
             )
         elif cmd == "get":
             response = requests.get(
@@ -120,7 +126,6 @@ class ScicatClient:
                 json=dataDict,
                 timeout=self._timeout_seconds,
                 stream=False,
-                verify=self.sslVerify,
             )
         elif cmd == "patch":
             response = requests.patch(
@@ -129,7 +134,6 @@ class ScicatClient:
                 json=dataDict,
                 timeout=self._timeout_seconds,
                 stream=False,
-                verify=self.sslVerify,
             )
         return response
 
@@ -240,6 +244,73 @@ class ScicatClient:
         if not resp.ok:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
+
+    def get_datasets_full_query(self, skip=0, limit=25, query_fields=None):
+        """Gets datasets using the fullQuery mechanism of SciCat. This is
+        appropriate for cases where might want paging and cases where you want to perform
+        a text search on the Datasets collection. The full features of fullQuery search
+        are beyond this document.
+
+        There is no known mechanism to query for fields that are missing or contain a
+        a null value.
+
+        To query based on the full text search, send `{"text": "<text to query"}` as query field
+
+        Parameters
+        ----------
+        skip : int
+            number of items to skip
+
+        limit : int
+            number of items to return
+
+        query_fields : dict
+            dictionary of terms to send to the query (must be json serializable)
+
+        """
+        if not query_fields:
+            query_fields = {}
+        query_fields = json.dumps(query_fields)
+        query = f'fields={query_fields}&limits={{"skip":{skip},"limit":{limit},"order":"creationTime:desc"}}'
+
+        url = f"{self._base_url}/Datasets/fullquery?{query}"
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
+
+    def get_datasets(self, filter_fields=None) -> List[Dataset]:
+        """Gets datasets using the simple fiter mechanism. This
+        is appropriate when you do not require paging or text search, but
+        want to be able to limit results based on items in the Dataset object.
+
+        For example, a search for Datasets of a given proposalId would have
+        ```python
+        filterField = {"proposalId": "1234"}
+        ```
+        A search for Datasets  with no proposalId would be:
+        ```python
+        filterField = {"proposalId": ""}
+        ```
+
+        Parameters
+        ----------
+        filter_fields : dict
+            Dictionary of filtering fields. Must be json serializable.
+        """
+        if not filter_fields:
+            filter_fields = {}
+
+        filter_fields = json.dumps(filter_fields)
+        url = f'{self._base_url}/Datasets/?filter={{"where":{filter_fields}}}'
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return parse_obj_as(List[Dataset], response.json())
 
 
 def get_file_size(pathobj):
