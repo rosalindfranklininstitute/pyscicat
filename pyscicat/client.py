@@ -117,7 +117,7 @@ class ScicatClient:
                 url,
                 params={"access_token": self._token},
                 timeout=self._timeout_seconds,
-                stream=False
+                stream=False,
             )
         elif cmd == "get":
             response = requests.get(
@@ -125,7 +125,7 @@ class ScicatClient:
                 params={"access_token": self._token},
                 json=dataDict,
                 timeout=self._timeout_seconds,
-                stream=False
+                stream=False,
             )
         elif cmd == "patch":
             response = requests.patch(
@@ -133,7 +133,7 @@ class ScicatClient:
                 params={"access_token": self._token},
                 json=dataDict,
                 timeout=self._timeout_seconds,
-                stream=False
+                stream=False,
             )
         return response
 
@@ -246,7 +246,7 @@ class ScicatClient:
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
     def get_datasets_full_query(self, skip=0, limit=25, query_fields=None):
-        """Gets datasets using the fullQuery mechanism of SciCat. This is
+        """ Gets datasets using the fullQuery mechanism of SciCat. This is
         appropriate for cases where might want paging and cases where you want to perform
         a text search on the Datasets collection. The full features of fullQuery search
         are beyond this document.
