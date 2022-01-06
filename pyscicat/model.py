@@ -41,7 +41,7 @@ class Dataset(Ownable, MongoQueryable):
     creationTime: str
     datasetName: Optional[str]
     type: DatasetType
-    instrumentId: str
+    instrumentId: Optional[str]
     proposalId: str
     dataFormat: str
     principalInvestigator: str

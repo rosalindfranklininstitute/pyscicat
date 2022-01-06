@@ -5,8 +5,10 @@ import base64
 import hashlib
 import logging
 import json
+from typing import List
 import urllib
 
+from pydantic import parse_obj_as
 import requests  # for HTTP requests
 
 
@@ -279,7 +281,7 @@ class ScicatClient:
             return None
         return response.json()
 
-    def get_datasets(self, filter_fields=None):
+    def get_datasets(self, filter_fields=None) -> List[Dataset]:
         """ Gets datasets using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
         want to be able to limit results based on items in the Dataset object.
@@ -308,7 +310,7 @@ class ScicatClient:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
-        return response.json()
+        return parse_obj_as(List[Dataset], response.json())
 
 
 def get_file_size(pathobj):
