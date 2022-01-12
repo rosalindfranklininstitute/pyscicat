@@ -2,7 +2,15 @@ from datetime import datetime
 from pathlib import Path
 
 import requests_mock
-from ..client import ScicatClient, encode_thumbnail, get_file_mod_time, get_file_size
+from ..client import (
+    ScicatClient,
+    from_credentials,
+    from_token,
+    encode_thumbnail,
+    get_file_mod_time,
+    get_file_size,
+)
+
 from ..model import (
     Attachment,
     Datablock,
@@ -11,24 +19,26 @@ from ..model import (
     Ownable,
 )
 
+local_url = "http://localhost:3000/api/v3/"
+
 
 def add_mock_requests(mock_request):
     mock_request.post(
-        "http://localhost:3000/api/v3/Users/login",
+        local_url + "Users/login",
         json={"id": "a_token"},
     )
     mock_request.post(
-        "http://localhost:3000/api/v3/Samples", json={"sampleId": "dataset_id"}
+        local_url + "Samples", json={"sampleId": "dataset_id"}
     )
     mock_request.post(
-        "http://localhost:3000/api/v3/RawDatasets/replaceOrCreate", json={"pid": "42"}
+        local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"}
     )
     mock_request.post(
-        "http://localhost:3000/api/v3/RawDatasets/42/origdatablocks",
+        local_url + "RawDatasets/42/origdatablocks",
         json={"response": "random"},
     )
     mock_request.post(
-        "http://localhost:3000/api/v3/RawDatasets/42/attachments",
+        local_url + "RawDatasets/42/attachments",
         json={"response": "random"},
     )
 
@@ -36,8 +46,8 @@ def add_mock_requests(mock_request):
 def test_scicate_ingest():
     with requests_mock.Mocker() as mock_request:
         add_mock_requests(mock_request)
-        scicat = ScicatClient(
-            base_url="http://localhost:3000/api/v3",
+        scicat = from_credentials(
+            base_url=local_url,
             username="Zaphod",
             password="heartofgold",
         )
@@ -92,3 +102,10 @@ def test_scicate_ingest():
             **ownable.dict()
         )
         scicat.upload_attachment(attachment)
+
+def test_initializers():
+    with requests_mock.Mocker() as mock_request:
+        add_mock_requests(mock_request)
+
+        client = from_token(local_url, "let me in!")
+        assert(client._token == "let me in!")
