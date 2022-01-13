@@ -3,7 +3,6 @@ from pathlib import Path
 
 import requests_mock
 from ..client import (
-    ScicatClient,
     from_credentials,
     from_token,
     encode_thumbnail,
@@ -102,6 +101,7 @@ def test_scicate_ingest():
             **ownable.dict()
         )
         scicat.upload_attachment(attachment)
+
 
 def test_initializers():
     with requests_mock.Mocker() as mock_request:

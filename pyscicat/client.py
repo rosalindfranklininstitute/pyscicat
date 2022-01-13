@@ -8,7 +8,6 @@ import json
 from typing import List
 import urllib
 
-from pydantic import parse_obj_as
 import requests
 
 from .model import Attachment, Datablock, Dataset
@@ -284,7 +283,7 @@ class ScicatClient:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
-        return parse_obj_as(List[Dataset], response.json())
+        return response.json()
 
 
 def get_file_size(pathobj):
