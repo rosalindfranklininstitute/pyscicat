@@ -44,7 +44,7 @@ class ScicatClient:
         token: str,
         username: str = None,
         password: str = None,
-        timeout_seconds: int = None
+        timeout_seconds: int = None,
     ):
         """Initialize a new instance. This method attempts to create a tokenad_a
         from the provided username and password

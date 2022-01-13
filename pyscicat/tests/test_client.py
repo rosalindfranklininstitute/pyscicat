@@ -26,12 +26,8 @@ def add_mock_requests(mock_request):
         local_url + "Users/login",
         json={"id": "a_token"},
     )
-    mock_request.post(
-        local_url + "Samples", json={"sampleId": "dataset_id"}
-    )
-    mock_request.post(
-        local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"}
-    )
+    mock_request.post(local_url + "Samples", json={"sampleId": "dataset_id"})
+    mock_request.post(local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"})
     mock_request.post(
         local_url + "RawDatasets/42/origdatablocks",
         json={"response": "random"},
@@ -108,4 +104,4 @@ def test_initializers():
         add_mock_requests(mock_request)
 
         client = from_token(local_url, "let me in!")
-        assert(client._token == "let me in!")
+        assert client._token == "let me in!"
