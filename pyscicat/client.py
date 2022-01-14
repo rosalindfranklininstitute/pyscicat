@@ -8,9 +8,7 @@ import json
 from typing import List
 import urllib
 
-from pydantic import parse_obj_as
-import requests  # for HTTP requests
-
+import requests
 
 from .model import Attachment, Datablock, Dataset
 
@@ -41,7 +39,12 @@ class ScicatClient:
     """Responsible for communicating with the Scicat Catamel server via http"""
 
     def __init__(
-        self, base_url: str, username: str, password: str, timeout_seconds: int = None
+        self,
+        base_url: str,
+        token: str,
+        username: str = None,
+        password: str = None,
+        timeout_seconds: int = None,
     ):
         """Initialize a new instance. This method attempts to create a tokenad_a
         from the provided username and password
@@ -63,42 +66,12 @@ class ScicatClient:
         )
         self._username = username  # default username
         self._password = password  # default password
-        self._token = None  # store token here
+        self._token = token  # store token here
 
         logger.info(f"Starting ingestor talking to scicat at: {self._base_url}")
-        if self._base_url[-1] != "/":
-            self._base_url = self._base_url + "/"
-            logger.info(f"Baseurl corrected to: {self._base_url}")
-        self._get_token()
 
-    def _get_token(self, username=None, password=None):
-        if username is None:
-            username = self._username
-        if password is None:
-            password = self._password
-        """logs in using the provided username / password combination
-        and receives token for further communication use"""
-        logger.info(f" Getting new token for user {username}")
-
-        response = requests.post(
-            self._base_url + "Users/login",
-            json={"username": username, "password": password},
-            timeout=self._timeout_seconds,
-            stream=False,
-            verify=True,
-        )
-        if not response.ok:
-            logger.error(f" ** Error received: {response}")
-            err = response.json()["error"]
-            logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
-            raise ScicatLoginError(response.content)
-
-        data = response.json()
-        # print("Response:", data)
-        token = data["id"]  # not sure if semantically correct
-        logger.info(f" token: {token}")
-        self._token = token  # store new token
-        return token
+        if not self._token:
+            self._get_token()
 
     def _send_to_scicat(self, url, dataDict=None, cmd="post"):
         """sends a command to the SciCat API server using url and token, returns the response JSON
@@ -310,7 +283,7 @@ class ScicatClient:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
-        return parse_obj_as(List[Dataset], response.json())
+        return response.json()
 
 
 def get_file_size(pathobj):
@@ -338,3 +311,36 @@ def get_file_mod_time(pathobj):
     # may only work on WindowsPath objects...
     # timestamp = pathobj.lstat().st_mtime
     return str(datetime.fromtimestamp(pathobj.lstat().st_mtime))
+
+
+def from_token(base_url: str, token: str):
+    return ScicatClient(base_url, token)
+
+
+def from_credentials(base_url: str, username: str, password: str):
+    token = get_token(base_url, username, password)
+    return from_token(base_url, token)
+
+
+def get_token(base_url, username, password):
+    """logs in using the provided username / password combination
+    and receives token for further communication use"""
+    logger.info(f" Getting new token for user {username}")
+
+    response = requests.post(
+        base_url + "Users/login",
+        json={"username": username, "password": password},
+        stream=False,
+        verify=True,
+    )
+    if not response.ok:
+        logger.error(f" ** Error received: {response}")
+        err = response.json()["error"]
+        logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
+        raise ScicatLoginError(response.content)
+
+    data = response.json()
+    # print("Response:", data)
+    token = data["id"]  # not sure if semantically correct
+    logger.info(f" token: {token}")
+    return token
