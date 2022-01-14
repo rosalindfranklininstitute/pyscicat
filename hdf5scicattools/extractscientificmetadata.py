@@ -3,9 +3,10 @@
 # author: Sofya Laskina, Brian R. Pauw
 # date: 2022.01.10
 
+from unittest import skip
 import h5py
 import hdf5plugin # ESRF's library that extends the read functionality of HDF5 files, adding a couple of compression filters
-from .h5tools import h5py_casting
+from h5tools import h5py_casting
 import logging
 from collections import abc
 
@@ -34,14 +35,17 @@ def build_dictionary( levels, update_data):
     return update_data
 
 
-def unwind(h5f, parent_path, metadata, default = 'none', leaveAsArray = False):
+def unwind(h5f, parent_path, metadata, default = 'none', leaveAsArray = False, skipKeyList:list=[])->dict:
     """
     Current_level is the operating level, that is one level higher that the collected data.
     """
     if isinstance(h5f.get(parent_path), abc.Mapping):
-        new_keys = h5f.get(parent_path).keys()
-        for nk in sorted(new_keys):
-            unwind(h5f, '/'.join([parent_path, nk]), metadata)
+        new_keys = sorted(h5f.get(parent_path).keys())
+        # remove unwanted items before we even get started on it
+        keyList = [newKey for newKey in new_keys if newKey not in skipKeyList]
+
+        for nk in keyList:
+            unwind(h5f, '/'.join([parent_path, nk]), metadata, skipKeyList=skipKeyList)
     else:
         try:
             val = h5f.get(parent_path)[()]
@@ -71,36 +75,32 @@ def unwind(h5f, parent_path, metadata, default = 'none', leaveAsArray = False):
             update_dict = build_dictionary(levels,nested_dict)
             metadata = update_deep(metadata, update_dict)
 
-def extractScientificMetadata(filename, excludeRootEntryList:list = ['Saxslab'], includeRootEntry:bool=False):
+def extractScientificMetadata(filename, excludeRootEntry:bool=True, skipKeyList:list=['Saxslab', 'data']) -> dict:
     """
     Goals:
     --
-    Opens an HDF5 or nexus file and unwinds the structure to add up all the metadata and respective attributes. 
-    This adds the paths and structure as required for SciCat's "scientific metadata" upload. 
+    Opens any HDF5 or nexus file and unwinds the structure to add up all the metadata and respective attributes. 
+    This adds the paths and structure as required for SciCat's "scientific metadata" upload, including units.
 
     Usage:
     --
-    Root branches to omit can be listed using the argument "excludeList". Example:
-    scientificMetadata=extractScientificMetadata(Path('./my_file.h5'), excludeList=['Saxslab']) 
-    The example will only read the /entry, and not the /Saxslab tree. 
+    branches and keys to omit can be listed using the argument "skipKeyList". Example:
+    scientificMetadata=extractScientificMetadata(Path('./my_file.h5'), skipKeyList=['sasdata1']) 
+    If the root branch is singular, it can be omitted from the output dictionary by setting excludeRootEntry to True
 
-    Limitations:
-    --
-    For Reasons, the exclude root entry list will be ignored if you include the root entry/entries.
     """
     with h5py.File(filename, "r") as h5f:
-        prior_keys = list(h5f.keys())
-        [prior_keys.remove(removeKey) for removeKey in excludeRootEntryList if removeKey in prior_keys]
+        # let's see if we can do this simpler
         metadata = dict() #.fromkeys(prior_keys)
+        unwind(h5f, '/', metadata, skipKeyList=skipKeyList)
         
-        # walk through the tree and deposit entries into the dict. 
-        if includeRootEntry: 
-            unwind(h5f, '/', metadata) # todo: this does not skip unwanted entries
-        else: # walk through the list of prior keys 
-            for pk in sorted(prior_keys):
-                unwind(h5f, '/' + str(pk), metadata)            
+    # first metadata entry is empty, so enter one level deeper. 
+    if len(metadata.keys())==1 and list(metadata.keys())[0]=='':
+        metadata= metadata[list(metadata.keys())[0]]
+    
+    if excludeRootEntry and (len(metadata.keys()) > 1): 
+        logging.warning('root entry cannot be excluded when there are more than one in the HDF5 tree. excludeRootEntry flag will be ignored.')
+    if excludeRootEntry and (len(metadata.keys()) == 1):
+        metadata= metadata[list(metadata.keys())[0]]
 
-        if len(metadata.keys())==1:
-            return metadata[list(metadata.keys())[0]]
-        else:
-            return metadata
+    return metadata
