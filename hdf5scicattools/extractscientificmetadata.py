@@ -3,9 +3,11 @@
 # author: Sofya Laskina, Brian R. Pauw
 # date: 2022.01.10
 
-from unittest import skip
+# from unittest import skip # not sure where this import comes from
 import h5py
-import hdf5plugin  # ESRF's library that extends the read functionality of HDF5 files, adding a couple of compression filters
+
+# flake8: noqa: F401
+import hdf5plugin  # ESRF's library that extends the read functionality of HDF5 files
 from h5tools import h5py_casting
 import logging
 from pathlib import Path
@@ -31,7 +33,8 @@ def update_deep(dictionary: dict, path_update: dict) -> dict:
 
 def build_dictionary(levels, update_data: dict) -> dict:
     """"
-    Creates a json-like level based dictionary for the whole path starting from /entry1 or whatever the first child of the root in the datatree is.
+    Creates a json-like level based dictionary for the whole path starting from /entry1 or whatever the
+    first child of the root in the datatree is.
     """
     for level in levels[::-1]:
         update_data = dict({level: update_data})
@@ -60,7 +63,7 @@ def unwind(
         try:
             val = h5f.get(parent_path)[()]
             val = h5py_casting(val, leaveAsArray)
-        except (OSError, TypeError) as e:
+        except (OSError, TypeError):
             logging.warning(
                 f"file has no value at path {parent_path}, setting to default: {default}"
             )
@@ -94,14 +97,15 @@ def extractScientificMetadata(
     """
     Goals:
     --
-    Opens any HDF5 or nexus file and unwinds the structure to add up all the metadata and respective attributes. 
+    Opens any HDF5 or nexus file and unwinds the structure to add up all the metadata and respective attributes.
     This adds the paths and structure as required for SciCat's "scientific metadata" upload, including units.
 
     Usage:
     --
     branches and keys to omit can be listed using the argument "skipKeyList". Example:
-    scientificMetadata=extractScientificMetadata(Path('./my_file.h5'), skipKeyList=['sasdata1']) 
-    If the root branch is singular, it can be omitted from the output dictionary by setting excludeRootEntry to True
+    scientificMetadata=extractScientificMetadata(Path('./my_file.h5'), skipKeyList=['sasdata1'])
+    If the root branch is singular, it can be omitted from the output dictionary by setting
+    excludeRootEntry to True
 
     """
     # ensure the filename argument is of class Path
@@ -120,7 +124,8 @@ def extractScientificMetadata(
 
     if excludeRootEntry and (len(metadata.keys()) > 1):
         logging.warning(
-            "root entry cannot be excluded when there are more than one in the HDF5 tree. excludeRootEntry flag will be ignored."
+            """root entry cannot be excluded when there are more than one in the HDF5 tree.
+            excludeRootEntry flag will be ignored."""
         )
     if excludeRootEntry and (len(metadata.keys()) == 1):
         metadata = metadata[list(metadata.keys())[0]]
