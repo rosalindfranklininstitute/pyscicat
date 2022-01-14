@@ -1,5 +1,2 @@
-pydantic
-requests
 hdf5plugin
 h5py
-logging

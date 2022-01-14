@@ -12,18 +12,25 @@ from extractscientificmetadata import extractScientificMetadata
 
 
 class testESMD(unittest.TestCase):
-    
     def test_readMetadata_withroot(self):
-        p=Path("hdf5scicattools/testdata/cylinderHex_r5_s12_T50_large_ranW_0p5.nxs")        
-        assert p.exists(), f'HDF5/NeXus test file: {p.as_posix()} cannot be found'
-        resultDict = extractScientificMetadata(p, excludeRootEntry=True, skipKeyList=['sasdata1'])
-        self.assertIsNotNone(resultDict, "extractScientificMetadata has not returned anything")
-        
+        p = Path(
+            "hdf5scicattools/_tests/testdata/cylinderHex_r5_s12_T50_large_ranW_0p5.nxs"
+        )
+        assert p.exists(), f"HDF5/NeXus test file: {p.as_posix()} cannot be found"
+        resultDict = extractScientificMetadata(
+            p, excludeRootEntry=True, skipKeyList=["sasdata1"]
+        )
+        self.assertIsNotNone(
+            resultDict, "extractScientificMetadata has not returned anything"
+        )
+
         # make sure the root entry has been skipped
-        self.assertTrue("sasentry1" not in resultDict.keys(), 'Root entry was not excluded')
-                
+        self.assertTrue(
+            "sasentry1" not in resultDict.keys(), "Root entry was not excluded"
+        )
+
         # make sure the skipKeyList item has been skipped
-        self.assertTrue("sasdata1" not in resultDict.keys(), 'skipKey was not skipped')
+        self.assertTrue("sasdata1" not in resultDict.keys(), "skipKey was not skipped")
 
 
 if __name__ == "__main__":

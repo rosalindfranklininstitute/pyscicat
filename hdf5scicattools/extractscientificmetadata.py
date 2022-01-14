@@ -5,12 +5,14 @@
 
 from unittest import skip
 import h5py
-import hdf5plugin # ESRF's library that extends the read functionality of HDF5 files, adding a couple of compression filters
+import hdf5plugin  # ESRF's library that extends the read functionality of HDF5 files, adding a couple of compression filters
 from h5tools import h5py_casting
 import logging
+from pathlib import Path
 from collections import abc
 
-def update_deep(dictionary, path_update):
+
+def update_deep(dictionary: dict, path_update: dict) -> dict:
     """
     Update the main metadata dictionary with the new dictionary.
     """
@@ -19,23 +21,31 @@ def update_deep(dictionary, path_update):
     if k not in dictionary.keys():
         dictionary[k] = v
     else:
-        key_next = list(path_update[k].keys())[0] 
+        key_next = list(path_update[k].keys())[0]
         if key_next in dictionary[k].keys():
             dictionary[k] = update_deep(dictionary.get(k, {}), v)
         else:
             dictionary[k].update(v)
     return dictionary
 
-def build_dictionary( levels, update_data):
+
+def build_dictionary(levels, update_data: dict) -> dict:
     """"
     Creates a json-like level based dictionary for the whole path starting from /entry1 or whatever the first child of the root in the datatree is.
     """
     for level in levels[::-1]:
-        update_data = dict({level:update_data})
+        update_data = dict({level: update_data})
     return update_data
 
 
-def unwind(h5f, parent_path, metadata, default = 'none', leaveAsArray = False, skipKeyList:list=[])->dict:
+def unwind(
+    h5f,
+    parent_path,
+    metadata,
+    default="none",
+    leaveAsArray=False,
+    skipKeyList: list = [],
+) -> dict:
     """
     Current_level is the operating level, that is one level higher that the collected data.
     """
@@ -45,37 +55,42 @@ def unwind(h5f, parent_path, metadata, default = 'none', leaveAsArray = False, s
         keyList = [newKey for newKey in new_keys if newKey not in skipKeyList]
 
         for nk in keyList:
-            unwind(h5f, '/'.join([parent_path, nk]), metadata, skipKeyList=skipKeyList)
+            unwind(h5f, "/".join([parent_path, nk]), metadata, skipKeyList=skipKeyList)
     else:
         try:
             val = h5f.get(parent_path)[()]
-            val = h5py_casting(val,leaveAsArray)
+            val = h5py_casting(val, leaveAsArray)
         except (OSError, TypeError) as e:
-            logging.warning(f"file has no value at path {parent_path}, setting to default: {default}")
+            logging.warning(
+                f"file has no value at path {parent_path}, setting to default: {default}"
+            )
             val = default
 
-        attributes = {'value':val}
+        attributes = {"value": val}
         try:
             attributes_add = h5f.get(parent_path).attrs
             a_key = attributes_add.keys()
             a_value = []
             for v in attributes_add.values():
-                v = h5py_casting(v,leaveAsArray)
+                v = h5py_casting(v, leaveAsArray)
                 a_value.append(v)
             attributes.update(dict(zip(a_key, a_value)))
         except (KeyError, AttributeError) as e:
             logging.warning(e)
-            
-        levels = parent_path.split('/')[1:]
-        if list(attributes.keys()) == ['value']:# no attributes here
+
+        levels = parent_path.split("/")[1:]
+        if list(attributes.keys()) == ["value"]:  # no attributes here
             nested_dict = val
         else:
             nested_dict = attributes.copy()
-        if val != '':
-            update_dict = build_dictionary(levels,nested_dict)
+        if val != "":
+            update_dict = build_dictionary(levels, nested_dict)
             metadata = update_deep(metadata, update_dict)
 
-def extractScientificMetadata(filename, excludeRootEntry:bool=True, skipKeyList:list=['Saxslab', 'data']) -> dict:
+
+def extractScientificMetadata(
+    filename, excludeRootEntry: bool = True, skipKeyList: list = ["Saxslab", "data"]
+) -> dict:
     """
     Goals:
     --
@@ -89,18 +104,25 @@ def extractScientificMetadata(filename, excludeRootEntry:bool=True, skipKeyList:
     If the root branch is singular, it can be omitted from the output dictionary by setting excludeRootEntry to True
 
     """
+    # ensure the filename argument is of class Path
+    filename = Path(filename)
+    assert (
+        filename.exists()
+    ), f"Input filename {filename.as_posix()} does not seem to exist."
     with h5py.File(filename, "r") as h5f:
         # let's see if we can do this simpler
-        metadata = dict() #.fromkeys(prior_keys)
-        unwind(h5f, '/', metadata, skipKeyList=skipKeyList)
-        
-    # first metadata entry is empty, so enter one level deeper. 
-    if len(metadata.keys())==1 and list(metadata.keys())[0]=='':
-        metadata= metadata[list(metadata.keys())[0]]
-    
-    if excludeRootEntry and (len(metadata.keys()) > 1): 
-        logging.warning('root entry cannot be excluded when there are more than one in the HDF5 tree. excludeRootEntry flag will be ignored.')
+        metadata = dict()  # .fromkeys(prior_keys)
+        unwind(h5f, "/", metadata, skipKeyList=skipKeyList)
+
+    # first metadata entry is empty, so enter one level deeper.
+    if len(metadata.keys()) == 1 and list(metadata.keys())[0] == "":
+        metadata = metadata[list(metadata.keys())[0]]
+
+    if excludeRootEntry and (len(metadata.keys()) > 1):
+        logging.warning(
+            "root entry cannot be excluded when there are more than one in the HDF5 tree. excludeRootEntry flag will be ignored."
+        )
     if excludeRootEntry and (len(metadata.keys()) == 1):
-        metadata= metadata[list(metadata.keys())[0]]
+        metadata = metadata[list(metadata.keys())[0]]
 
     return metadata
