@@ -6,31 +6,58 @@
 import h5py
 import logging
 import numpy as np
+from pathlib import Path
 
 
-def h5Get(filename, h5path, default="none", leaveAsArray=False):
-    """ get a single value from an HDF5 file, with added error checking and default handling"""
+def h5Get(filename, h5path: str = None, default="none", leaveAsArray=False):
+    """
+    Gets a single value or attribute from an HDF5 file, with added error checking and default handling.
+    h5path is the string representation of the location in the hdf5 file, e.g. '/sasentry1/sasdata1/I'.
+    If you want to extract an attribute, you can use the '@' symbol to split path and attribute name,
+    e.g. '/sasentry1/sasdata1@timestamp' gets the timestamp attribute in sasdata1.
+    """
+    assert h5path is not None, "h5path must be specified"
+    assert isinstance(h5path, str), "h5path must be a string"
+    filename = Path(filename)
+    assert filename.exists(), f"input filename {filename.as_posix()} cannot be found"
+    attrKey = None
+    if "@" in h5path:
+        h5path, attrKey = h5path.split("@")
+
     with h5py.File(filename, "r") as h5f:
         try:
-            val = h5f.get(h5path)[()]
+            if attrKey is None:
+                val = h5f.get(h5path)[()]
+            else:
+                val = h5f.get(h5path).attrs[attrKey]
+
             val = h5py_casting(val)  # sofya added this line
             # logging.info('type val {} at key {}: {}'.format(val, h5path, type(val)))
 
         except TypeError:
-            logging.warning(
-                "cannot get value from file path {}, setting to default".format(h5path)
-            )
+            if attrKey is None:
+                logging.warning(
+                    f"cannot get value from file {filename.as_posix()} path {h5path}, setting to default"
+                )
+            else:
+                logging.warning(
+                    f"""cannot get value from file {filename.as_posix()} path {h5path},
+                    attribute {attrKey} setting to default: {default}"""
+                )
+
             val = default
     return val
 
 
-def h5GetDict(filename, keyPaths):
-    """creates a dictionary with results extracted from an HDF5 file"""
+def h5GetDict(filename, keyPaths: dict):
+    """
+    creates a dictionary with results extracted from an HDF5 file
+    dictionary should have form:
+    {h5path: default}
+    """
     resultDict = {}
-    for key, h5path in keyPaths.items():
-        resultDict[key] = h5Get(
-            filename, key
-        )  # this probably needs to be key, not h5path
+    for h5path, default in keyPaths.items():
+        resultDict[h5path] = h5Get(filename, h5path, default=default)
     return resultDict
 
 

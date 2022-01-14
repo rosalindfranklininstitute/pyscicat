@@ -6,6 +6,43 @@ from pathlib import Path
 
 # these packages are failing to import in McHat if they are not loaded here:
 from extractscientificmetadata import extractScientificMetadata
+from h5tools import h5Get, h5GetDict
+
+
+class testh5tools(unittest.TestCase):
+    def test_readValue(self):
+        p = Path(
+            "hdf5scicattools/_tests/testdata/cylinderHex_r5_s12_T50_large_ranW_0p5.nxs"
+        )
+        v = h5Get(p, "/sasentry1/sasdata1/I")
+        self.assertTrue(v != "none", "Did not extract value")
+
+    def test_readAttribute(self):
+        p = Path(
+            "hdf5scicattools/_tests/testdata/cylinderHex_r5_s12_T50_large_ranW_0p5.nxs"
+        )
+        v = h5Get(p, "/sasentry1/sasdata1@timestamp")
+        self.assertTrue(v != "none", "Did not extract attribute")
+
+    def test_readMixedDict(self):
+        p = Path(
+            "hdf5scicattools/_tests/testdata/cylinderHex_r5_s12_T50_large_ranW_0p5.nxs"
+        )
+        v = h5GetDict(
+            p,
+            {
+                "/sasentry1/sasdata1@timestamp": 123,
+                "/sasentry1/sasdata1/I": 0,
+                "/sasentry1/sasdata1/I@units": "inverse amps",
+            },
+        )
+        self.assertTrue(
+            v["/sasentry1/sasdata1/I@units"] != "inverse amps",
+            "Did not extract unit attribute",
+        )
+        self.assertTrue(
+            v["/sasentry1/sasdata1/I"] != 0, "Did not extract intensity value(s)"
+        )
 
 
 class testESMD(unittest.TestCase):
