@@ -173,6 +173,7 @@ In the following example, h5Get and extractScientificMetadata are used to:
 from pyscicat.hdf5scicattools.extractscientificmetadata import extractScientificMetadata
 from pyscicat.hdf5scicattools.h5tools import h5Get
 from datetime import datetime
+from patlib import Path
 
 filePath = Path('SPONGE/simData/cylArray_h100_r4_d12_n15.nxs')
 modTime = get_file_mod_time(filePath)
