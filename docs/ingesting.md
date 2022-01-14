@@ -25,6 +25,17 @@ A single group tagged in an object (e.g. Dataset). If one of the user's `accessG
 ## Scientific Metadata and Sample Characteristics
 Several of the following examples reference `Scientific Metadata` and `Sample Characteristics`. These  free form dictionaries (or in JSON terms, objects) are displayed in Scicat alongside the enclosing objects (`Dataset` and `Sample`). Since these fields are free-form, care should be taken when designing the structure of these objects.
 
+## Tools and utilities for importing HDF5/NeXus files
+
+A few tools and utilities are available for handling and uploading structured HDF5 files, 
+including those defined by the NeXus working group. 
+
+Methods `h5Get` and `h5GetDict` in `h5tools` can be used to easily extract a single piece of metadata or a group of metadata entries from an HDF5 file. These methods have error hancling and default handling. 
+
+Moreover, an automated method `extractScientificMetadata` is available with the HDF5 tools accompanying pyscicat. This method reads the entire tree from an HDF5 file structure,
+and converts this to a dictionary of keys, values and units that can be used directly to 
+populate the scientific metadata field. 
+
 # Examples
 
 ## Document Conventions
