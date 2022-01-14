@@ -92,7 +92,7 @@ def unwind(
 
 
 def extractScientificMetadata(
-    filename, excludeRootEntry: bool = True, skipKeyList: list = ["Saxslab", "data"]
+    filename, excludeRootEntry: bool = True, skipKeyList: list = []
 ) -> dict:
     """
     Goals:
