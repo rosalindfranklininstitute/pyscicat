@@ -33,6 +33,17 @@ with open(path.join(here, "requirements.txt")) as requirements_file:
         if not line.startswith("#")
     ]
 
+with open(path.join(here, "requirements-hdf5.txt")) as requirements_hdf5_file:
+    # Parse requirements.txt, ignoring any commented-out lines.
+    requirements_hdf5 = [
+        line
+        for line in requirements_hdf5_file.read().splitlines()
+        if not line.startswith("#")
+    ]
+
+extras_require = {}
+extras_require["base"] = requirements
+extras_require["h5tools"] = requirements_hdf5
 
 setup(
     name="pyscicat",
