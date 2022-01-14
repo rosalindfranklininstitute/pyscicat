@@ -162,6 +162,44 @@ In Scicat, the ability to view and download the files for a `Dataset` depends on
 
 ```
 
+### Dataset generation with HDF5 tools examples
+
+In the following example, h5Get and extractScientificMetadata are used to:
+  - get a single attribute from the HDF5 file, or default to the current timestamp, and
+  - Construct the scientific metadata tree, while excluding huge data entries by their key. 
+
+```python
+
+from pyscicat.hdf5scicattools.extractscientificmetadata import extractScientificMetadata
+from pyscicat.hdf5scicattools.h5tools import h5Get
+from datetime import datetime
+
+filePath = Path('SPONGE/simData/cylArray_h100_r4_d12_n15.nxs')
+modTime = get_file_mod_time(filePath)
+fileSize = get_file_size(filePath)
+
+# rawDataset
+dataset= Dataset(
+    path = filePath.as_posix(),
+    size = fileSize,
+    owner = 'Sponge',
+    contactEmail = 'example@bam.de',
+    creationLocation = "UE H30 Ingo's server",
+    creationTime = h5Get(filePath, '/sasentry1/sasdata1@timestamp', default=str(datetime.utcnow().isoformat()[:-3]+'Z')),
+    type = 'raw',
+    instrumentId='BAM:Sponge',
+    proposalId='2021001',
+    sampleId='2021001-1',
+    dataFormat='NeXus',
+    principalInvestigator='tester',
+    sourceFolder=filePath.parent.as_posix(),
+    scientificMetadata=extractScientificMetadata(filePath, skipKeyList=['simulationMetaValues', 'simData', 'surfaceAreas']),
+    ownerGroup="Sponge", 
+    accessGroups=["sponge", "testGroup"]
+)
+```
+
+## Finding, modifying and/or deleting datasets
 
 ## Additional Tasks
 [TBD]
