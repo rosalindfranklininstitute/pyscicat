@@ -40,9 +40,7 @@ def test_readMixedDict():
 def test_readMetadata_withroot():
     p = sorted(Path(".").glob("**/cylinderHex_r5_s12_T50_large_ranW_0p5.nxs"))[0]
     assert p.exists(), f"HDF5/NeXus test file: {p.as_posix()} cannot be found"
-    resultDict = extractScientificMetadata(
-        p, excludeRootEntry=True, skipKeyList=["sasdata1"]
-    )
+    resultDict = scientific_metadata(p, excludeRootEntry=True, skipKeyList=["sasdata1"])
     assert resultDict is not None, "extractScientificMetadata has not returned anything"
 
     # make sure the root entry has been skipped
