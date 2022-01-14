@@ -32,7 +32,7 @@ def update_deep(dictionary: dict, path_update: dict) -> dict:
 
 
 def build_dictionary(levels, update_data: dict) -> dict:
-    """"
+    """
     Creates a json-like level based dictionary for the whole path starting from /entry1 or whatever the
     first child of the root in the datatree is.
     """
