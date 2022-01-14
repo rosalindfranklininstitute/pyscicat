@@ -3,8 +3,8 @@
 from pathlib import Path
 
 # these packages are failing to import in McHat if they are not loaded here:
-from pyscicat.hdf5scicattools.extractscientificmetadata import extractScientificMetadata
-from pyscicat.hdf5scicattools.h5tools import h5Get, h5GetDict
+from pyscicat.hdf5.extractscientificmetadata import extractScientificMetadata
+from pyscicat.hdf5.h5tools import h5Get, h5GetDict
 
 
 def test_readValue():
