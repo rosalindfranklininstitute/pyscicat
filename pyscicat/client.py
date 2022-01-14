@@ -5,7 +5,7 @@ import base64
 import hashlib
 import logging
 import json
-from typing import List
+from typing import Dict, List
 import urllib
 
 import requests
@@ -279,6 +279,14 @@ class ScicatClient:
         filter_fields = json.dumps(filter_fields)
         url = f'{self._base_url}/Datasets/?filter={{"where":{filter_fields}}}'
         response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
+
+    def update_dataset(self, pid, fields: Dict):
+        response = self._send_to_scicat(f'{self._base_url}/Datasets', dataDict=fields, cmd='patch')
         if not response.ok:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
