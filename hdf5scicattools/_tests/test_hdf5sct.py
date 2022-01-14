@@ -1,7 +1,6 @@
 # these need to be loaded at the beginning to avoid errors related to relative imports (ImportWarning in h5py)
 # might be related to the change of import style for Python 3.7+. Tested on Python 3.9 at 20220114
 from pathlib import Path
-import os
 
 # these packages are failing to import in McHat if they are not loaded here:
 from ..extractscientificmetadata import extractScientificMetadata
