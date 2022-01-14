@@ -32,7 +32,7 @@ including those defined by the NeXus working group.
 
 Methods `h5Get` and `h5GetDict` in `h5tools` can be used to easily extract a single piece of metadata or a group of metadata entries from an HDF5 file. These methods have error hancling and default handling. 
 
-Moreover, an automated method `extractScientificMetadata` is available with the HDF5 tools accompanying pyscicat. This method reads the entire tree from an HDF5 file structure,
+Moreover, an automated method `scientific_metadata` is available with the HDF5 tools accompanying pyscicat. This method reads the entire tree from an HDF5 file structure,
 and converts this to a dictionary of keys, values and units that can be used directly to 
 populate the scientific metadata field. 
 
@@ -164,14 +164,14 @@ In Scicat, the ability to view and download the files for a `Dataset` depends on
 
 ### Dataset generation with HDF5 tools examples
 
-In the following example, h5Get and extractScientificMetadata are used to:
+In the following example, h5Get and scientific_metadata are used to:
   - get a single attribute from the HDF5 file, or default to the current timestamp, and
   - Construct the scientific metadata tree, while excluding huge data entries by their key. 
 
 ```python
 
-from pyscicat.hdf5scicattools.extractscientificmetadata import extractScientificMetadata
-from pyscicat.hdf5scicattools.h5tools import h5Get
+from pyscicat.hdf5.scientific_metadata import scientific_metadata
+from pyscicat.hdf5.h5tools import h5Get
 from datetime import datetime
 from patlib import Path
 
@@ -194,7 +194,7 @@ dataset= Dataset(
     dataFormat='NeXus',
     principalInvestigator='tester',
     sourceFolder=filePath.parent.as_posix(),
-    scientificMetadata=extractScientificMetadata(filePath, skipKeyList=['simulationMetaValues', 'simData', 'surfaceAreas']),
+    scientificMetadata=scientific_metadata(filePath, skipKeyList=['simulationMetaValues', 'simData', 'surfaceAreas']),
     ownerGroup="Sponge", 
     accessGroups=["sponge", "testGroup"]
 )

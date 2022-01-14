@@ -91,7 +91,7 @@ def unwind(
             metadata = update_deep(metadata, update_dict)
 
 
-def extractScientificMetadata(
+def scientific_metadata(
     filename, excludeRootEntry: bool = True, skipKeyList: list = []
 ) -> dict:
     """
@@ -103,7 +103,7 @@ def extractScientificMetadata(
     Usage:
     --
     branches and keys to omit can be listed using the argument "skipKeyList". Example:
-    scientificMetadata=extractScientificMetadata(Path('./my_file.h5'), skipKeyList=['sasdata1'])
+    scientificMetadata=scientific_metadata(Path('./my_file.h5'), skipKeyList=['sasdata1'])
     If the root branch is singular, it can be omitted from the output dictionary by setting
     excludeRootEntry to True
 
