@@ -25,25 +25,23 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-with open(path.join(here, "requirements.txt")) as requirements_file:
-    # Parse requirements.txt, ignoring any commented-out lines.
-    requirements = [
-        line
-        for line in requirements_file.read().splitlines()
-        if not line.startswith("#")
-    ]
 
-with open(path.join(here, "requirements-hdf5.txt")) as requirements_hdf5_file:
-    # Parse requirements.txt, ignoring any commented-out lines.
-    requirements_hdf5 = [
-        line
-        for line in requirements_hdf5_file.read().splitlines()
-        if not line.startswith("#")
-    ]
+def read_requirements_from_here(here, filename: str = None) -> list:
+    assert filename is not None, "filename as string must be provided"
+    # todo, add check if filename exists, easier with pathlib.Path...
+    with open(path.join(here, filename)) as requirements_file:
+        # Parse requirements.txt, ignoring any commented-out lines.
+        requirements = [
+            line
+            for line in requirements_file.read().splitlines()
+            if not line.startswith("#")
+        ]
+    return requirements
+
 
 extras_require = {}
-extras_require["base"] = requirements
-extras_require["h5tools"] = requirements_hdf5
+extras_require["base"] = read_requirements_from_here(here, "requirements.txt")
+extras_require["h5tools"] = read_requirements_from_here(here, "requirements-hdf5.txt")
 
 setup(
     name="pyscicat",
@@ -57,7 +55,7 @@ setup(
     python_requires=">={}".format(".".join(str(n) for n in min_version)),
     packages=find_packages(exclude=["docs", "tests"]),
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=extras_require["base"],
     license="BSD (3-clause)",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
