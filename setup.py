@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 from setuptools import setup, find_packages
 import sys
 import versioneer
@@ -20,16 +20,18 @@ pip install --upgrade pip
     )
     sys.exit(error)
 
-here = path.abspath(path.dirname(__file__))
+here = Path(__file__).absolute()
 
-with open(path.join(here, "README.md"), encoding="utf-8") as readme_file:
+with open(here.with_name("README.md"), encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
 
-def read_requirements_from_here(here, filename: str = None) -> list:
+def read_requirements_from_here(here: Path, filename: str = None) -> list:
     assert filename is not None, "filename as string must be provided"
-    # todo, add check if filename exists, easier with pathlib.Path...
-    with open(path.join(here, filename)) as requirements_file:
+    assert (
+        filename.exists()
+    ), f"requirements filename {filename.as_posix()} does not exist"
+    with open(here.with_name(filename)) as requirements_file:
         # Parse requirements.txt, ignoring any commented-out lines.
         requirements = [
             line
