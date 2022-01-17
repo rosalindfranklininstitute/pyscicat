@@ -28,9 +28,9 @@ with open(here.with_name("README.md"), encoding="utf-8") as readme_file:
 
 def read_requirements_from_here(here: Path, filename: str = None) -> list:
     assert filename is not None, "filename as string must be provided"
-    assert (
-        filename.exists()
-    ), f"requirements filename {filename.as_posix()} does not exist"
+    assert here.with_name(
+        filename
+    ).exists(), f"requirements filename {filename.as_posix()} does not exist"
     with open(here.with_name(filename)) as requirements_file:
         # Parse requirements.txt, ignoring any commented-out lines.
         requirements = [
