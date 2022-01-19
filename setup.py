@@ -57,6 +57,7 @@ setup(
     python_requires=">={}".format(".".join(str(n) for n in min_version)),
     packages=find_packages(exclude=["docs", "tests"]),
     include_package_data=True,
+    extras_require=extras_require,
     install_requires=extras_require["base"],
     license="BSD (3-clause)",
     classifiers=[
