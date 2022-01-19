@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 from setuptools import setup, find_packages
 import sys
 import versioneer
@@ -20,19 +20,30 @@ pip install --upgrade pip
     )
     sys.exit(error)
 
-here = path.abspath(path.dirname(__file__))
+here = Path(__file__).absolute()
 
-with open(path.join(here, "README.md"), encoding="utf-8") as readme_file:
+with open(here.with_name("README.md"), encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
-with open(path.join(here, "requirements.txt")) as requirements_file:
-    # Parse requirements.txt, ignoring any commented-out lines.
-    requirements = [
-        line
-        for line in requirements_file.read().splitlines()
-        if not line.startswith("#")
-    ]
 
+def read_requirements_from_here(here: Path, filename: str = None) -> list:
+    assert filename is not None, "filename as string must be provided"
+    assert here.with_name(
+        filename
+    ).exists(), f"requirements filename {filename.as_posix()} does not exist"
+    with open(here.with_name(filename)) as requirements_file:
+        # Parse requirements.txt, ignoring any commented-out lines.
+        requirements = [
+            line
+            for line in requirements_file.read().splitlines()
+            if not line.startswith("#")
+        ]
+    return requirements
+
+
+extras_require = {}
+extras_require["base"] = read_requirements_from_here(here, "requirements.txt")
+extras_require["h5tools"] = read_requirements_from_here(here, "requirements-hdf5.txt")
 
 setup(
     name="pyscicat",
@@ -46,7 +57,7 @@ setup(
     python_requires=">={}".format(".".join(str(n) for n in min_version)),
     packages=find_packages(exclude=["docs", "tests"]),
     include_package_data=True,
-    install_requires=requirements,
+    install_requires=extras_require["base"],
     license="BSD (3-clause)",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

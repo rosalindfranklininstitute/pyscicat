@@ -25,6 +25,17 @@ A single group tagged in an object (e.g. Dataset). If one of the user's `accessG
 ## Scientific Metadata and Sample Characteristics
 Several of the following examples reference `Scientific Metadata` and `Sample Characteristics`. These  free form dictionaries (or in JSON terms, objects) are displayed in Scicat alongside the enclosing objects (`Dataset` and `Sample`). Since these fields are free-form, care should be taken when designing the structure of these objects.
 
+## Tools and utilities for importing HDF5/NeXus files
+
+A few tools and utilities are available for handling and uploading structured HDF5 files, 
+including those defined by the NeXus working group. 
+
+Methods `h5Get` and `h5GetDict` in `h5tools` can be used to easily extract a single piece of metadata or a group of metadata entries from an HDF5 file. These methods have error hancling and default handling. 
+
+Moreover, an automated method `scientific_metadata` is available with the HDF5 tools accompanying pyscicat. This method reads the entire tree from an HDF5 file structure,
+and converts this to a dictionary of keys, values and units that can be used directly to 
+populate the scientific metadata field. 
+
 # Examples
 
 ## Document Conventions
@@ -151,6 +162,45 @@ In Scicat, the ability to view and download the files for a `Dataset` depends on
 
 ```
 
+### Dataset generation with HDF5 tools examples
+
+In the following example, h5Get and scientific_metadata are used to:
+  - get a single attribute from the HDF5 file, or default to the current timestamp, and
+  - Construct the scientific metadata tree, while excluding huge data entries by their key. 
+
+```python
+
+from pyscicat.hdf5.scientific_metadata import scientific_metadata
+from pyscicat.hdf5.h5tools import h5Get
+from datetime import datetime
+from patlib import Path
+
+filePath = Path('SPONGE/simData/cylArray_h100_r4_d12_n15.nxs')
+modTime = get_file_mod_time(filePath)
+fileSize = get_file_size(filePath)
+
+# rawDataset
+dataset= Dataset(
+    path = filePath.as_posix(),
+    size = fileSize,
+    owner = 'Sponge',
+    contactEmail = 'example@bam.de',
+    creationLocation = "UE H30 Ingo's server",
+    creationTime = h5Get(filePath, '/sasentry1/sasdata1@timestamp', default=str(datetime.utcnow().isoformat()[:-3]+'Z')),
+    type = 'raw',
+    instrumentId='BAM:Sponge',
+    proposalId='2021001',
+    sampleId='2021001-1',
+    dataFormat='NeXus',
+    principalInvestigator='tester',
+    sourceFolder=filePath.parent.as_posix(),
+    scientificMetadata=scientific_metadata(filePath, skipKeyList=['simulationMetaValues', 'simData', 'surfaceAreas']),
+    ownerGroup="Sponge", 
+    accessGroups=["sponge", "testGroup"]
+)
+```
+
+## Finding, modifying and/or deleting datasets
 
 ## Additional Tasks
 [TBD]
