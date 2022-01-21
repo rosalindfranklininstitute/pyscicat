@@ -40,8 +40,8 @@ class ScicatClient:
 
     def __init__(
         self,
-        base_url: str,
-        token: str,
+        base_url: str = None,
+        token: str = False,
         username: str = None,
         password: str = None,
         timeout_seconds: int = None,
@@ -67,11 +67,15 @@ class ScicatClient:
         self._username = username  # default username
         self._password = password  # default password
         self._token = token  # store token here
+        assert self._base_url is not None, "SciCat database URL must be provided"
 
         logger.info(f"Starting ingestor talking to scicat at: {self._base_url}")
 
         if not self._token:
-            self._get_token()
+            assert (self._username is not None) and (
+                self._password is not None
+            ), "SciCat login credentials (username, password) must be provided if token is not provided"
+            self._token = get_token(self._base_url, self._username, self._password)
 
     def _send_to_scicat(self, url, dataDict=None, cmd="post"):
         """sends a command to the SciCat API server using url and token, returns the response JSON
