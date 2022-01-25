@@ -163,6 +163,35 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
+    def upload_derived_dataset(self, dataset: Dataset) -> str:
+        """Upload a derived dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to upload
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the newly created dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        derived_dataset_url = self._base_url + "DerivedDataSets/replaceOrCreate"
+        resp = self._send_to_scicat(
+            derived_dataset_url, dataset.dict(exclude_none=True)
+        )
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error creating raw dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"new dataset created {new_pid}")
+        return new_pid
+
     def upload_datablock(self, datablock: Datablock):
         """Upload a Datablock
 
