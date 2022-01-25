@@ -35,9 +35,7 @@ class Dataset(Ownable, MongoQueryable):
     pid: Optional[str]
     classification: Optional[str]
     contactEmail: str
-    creationLocation: str
     creationTime: str  # datetime
-    dataFormat: str
     datasetName: Optional[str]
     description: Optional[str]
     history: Optional[List[dict]] = [{0: "Entry created"}]
@@ -49,7 +47,6 @@ class Dataset(Ownable, MongoQueryable):
     numberOfFilesArchived: Optional[int]
     orcidOfOwner: Optional[str]
     packedSize: Optional[int]
-    principalInvestigator: str
     owner: str
     ownerEmail: Optional[str]
     sharedWith: Optional[List[str]]
@@ -67,6 +64,7 @@ class RawDataset(Dataset):
 
     principalInvestigator: Optional[str]
     creationLocation: Optional[str]
+    dataFormat: str
     type: DatasetType = "raw"
     createdAt: Optional[str]  # datetime
     updatedAt: Optional[str]  # datetime
@@ -82,7 +80,7 @@ class DerivedDataset(Dataset):
 
     investigator: Optional[str]
     inputDatasets: List[str]
-    usedSoftware: Optional[str]
+    usedSoftware: List[str]  # not optional!
     jobParameters: Optional[dict]
     jobLogData: Optional[str]
     scientificMetadata: Optional[Dict]

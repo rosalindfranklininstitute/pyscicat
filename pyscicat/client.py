@@ -192,7 +192,7 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
-    def upload_datablock(self, datablock: Datablock):
+    def upload_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
         """Upload a Datablock
 
         Parameters
@@ -205,7 +205,6 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        datasetType = "RawDatasets"
 
         url = (
             self._base_url
