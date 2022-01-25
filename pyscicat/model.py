@@ -60,7 +60,9 @@ class Dataset(Ownable, MongoQueryable):
 
 
 class RawDataset(Dataset):
-    """ Raw datasets from which derived datasets are... derived."""
+    """
+    Raw datasets from which derived datasets are... derived.
+    """
 
     principalInvestigator: Optional[str]
     creationLocation: Optional[str]
@@ -76,7 +78,9 @@ class RawDataset(Dataset):
 
 
 class DerivedDataset(Dataset):
-    """ Derived datasets which have been generated based on one or more raw datasets"""
+    """
+    Derived datasets which have been generated based on one or more raw datasets
+    """
 
     investigator: Optional[str]
     inputDatasets: List[str]
