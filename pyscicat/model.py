@@ -29,39 +29,63 @@ class MongoQueryable(BaseModel):
 
 class Dataset(Ownable, MongoQueryable):
     """
-    A dataset in SciCat
+    A dataset in SciCat, base class for derived and raw datasets
     """
 
     pid: Optional[str]
-    owner: str
-    ownerEmail: Optional[str]
-    orcidOfOwner: Optional[str]
+    classification: Optional[str]
     contactEmail: str
     creationLocation: str
-    creationTime: str
-    datasetName: Optional[str]
-    type: DatasetType
-    instrumentId: Optional[str]
-    proposalId: str
+    creationTime: str  # datetime
     dataFormat: str
-    principalInvestigator: str
-    sourceFolder: str
-    sourceFolderHost: Optional[str]
-    size: Optional[int]
-    packedSize: Optional[int]
+    datasetName: Optional[str]
+    description: Optional[str]
+    history: Optional[List[dict]] = [{0: "Entry created"}]
+    instrumentId: Optional[str]
+    isPublished: Optional[bool] = False
+    keywords: Optional[List[str]]
+    license: Optional[str]
     numberOfFiles: Optional[int]
     numberOfFilesArchived: Optional[int]
-    scientificMetadata: Dict
-    sampleId: str
-    isPublished: str
-    description: Optional[str]
+    orcidOfOwner: Optional[str]
+    packedSize: Optional[int]
+    principalInvestigator: str
+    owner: str
+    ownerEmail: Optional[str]
+    sharedWith: Optional[List[str]]
+    size: Optional[int]
+    sourceFolder: str
+    sourceFolderHost: Optional[str]
+    techniques: Optional[List[dict]]  # with {'pid':pid, 'name': name} as entries
+    type: DatasetType
     validationStatus: Optional[str]
-    keywords: Optional[List[str]]
-    datasetName: Optional[str]
-    classification: Optional[str]
-    license: Optional[str]
     version: Optional[str]
-    isPublished: Optional[bool] = False
+
+
+class RawDataset(Dataset):
+    """ Raw datasets from which derived datasets are... derived."""
+
+    principalInvestigator: Optional[str]
+    creationLocation: Optional[str]
+    type: DatasetType = "raw"
+    createdAt: Optional[str]  # datetime
+    updatedAt: Optional[str]  # datetime
+    dataFormat: Optional[str]
+    endTime: Optional[str]  # datetime
+    sampleId: Optional[str]
+    proposalId: Optional[str]
+    scientificMetadata: Optional[Dict]
+
+
+class DerivedDataset(Dataset):
+    """ Derived datasets which have been generated based on one or more raw datasets"""
+
+    investigator: Optional[str]
+    inputDatasets: List[str]
+    usedSoftware: Optional[str]
+    jobParameters: Optional[dict]
+    jobLogData: Optional[str]
+    scientificMetadata: Optional[Dict]
 
 
 class DataFile(MongoQueryable):
