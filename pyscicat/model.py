@@ -30,7 +30,7 @@ class MongoQueryable(BaseModel):
 
 
 class User(BaseModel):
-    """ Base user. """
+    """Base user."""
 
     # TODO: find out which of these are not optional and update
     realm: str
