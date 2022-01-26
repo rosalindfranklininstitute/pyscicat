@@ -38,7 +38,7 @@ class Dataset(Ownable, MongoQueryable):
     creationTime: str  # datetime
     datasetName: Optional[str]
     description: Optional[str]
-    history: Optional[List[dict]] = [{0: "Entry created"}]
+    history: Optional[List[dict]]  # list of foreigh key ids to the Messages table
     instrumentId: Optional[str]
     isPublished: Optional[bool] = False
     keywords: Optional[List[str]]
