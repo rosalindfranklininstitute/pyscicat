@@ -10,7 +10,7 @@ import urllib
 
 import requests
 
-from .model import Attachment, Datablock, Dataset
+from pyscicat.model import Attachment, Datablock, Dataset, RawDataset, DerivedDataset
 
 logger = logging.getLogger("splash_ingest")
 can_debug = logger.isEnabledFor(logging.DEBUG)
@@ -135,6 +135,40 @@ class ScicatClient:
     #     if not resp.ok:  # can happen if sample id is a duplicate, but we can't tell that from the response
     #         err = resp.json()["error"]
     #         raise ScicatCommError(f"Error creating Sample {err}")
+
+    def upload_dataset(self, dataset: Dataset) -> str:
+        """Upload a raw or derived dataset (method is autosensing)
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to load
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the newly created dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        if isinstance(dataset, RawDataset):
+            dataset_url = self._base_url + "RawDataSets/replaceOrCreate"
+        elif isinstance(dataset, DerivedDataset):
+            dataset_url = self._base_url + "DerivedDatasets/replaceOrCreate"
+        else:
+            logging.error(
+                "Dataset type not recognized (not Derived or Raw dataset instances)"
+            )
+        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error creating dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"new dataset created {new_pid}")
+        return new_pid
 
     def upload_raw_dataset(self, dataset: Dataset) -> str:
         """Upload a raw dataset
