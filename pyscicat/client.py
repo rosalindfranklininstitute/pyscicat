@@ -10,7 +10,7 @@ import urllib
 
 import requests
 
-from .model import Attachment, Datablock, Dataset
+from pyscicat.model import Attachment, Datablock, Dataset, RawDataset, DerivedDataset
 
 logger = logging.getLogger("splash_ingest")
 can_debug = logger.isEnabledFor(logging.DEBUG)
@@ -40,8 +40,8 @@ class ScicatClient:
 
     def __init__(
         self,
-        base_url: str,
-        token: str,
+        base_url: str = None,
+        token: str = False,
         username: str = None,
         password: str = None,
         timeout_seconds: int = None,
@@ -67,11 +67,15 @@ class ScicatClient:
         self._username = username  # default username
         self._password = password  # default password
         self._token = token  # store token here
+        assert self._base_url is not None, "SciCat database URL must be provided"
 
         logger.info(f"Starting ingestor talking to scicat at: {self._base_url}")
 
         if not self._token:
-            self._get_token()
+            assert (self._username is not None) and (
+                self._password is not None
+            ), "SciCat login credentials (username, password) must be provided if token is not provided"
+            self._token = get_token(self._base_url, self._username, self._password)
 
     def _send_to_scicat(self, url, dataDict=None, cmd="post"):
         """sends a command to the SciCat API server using url and token, returns the response JSON
@@ -132,6 +136,40 @@ class ScicatClient:
     #         err = resp.json()["error"]
     #         raise ScicatCommError(f"Error creating Sample {err}")
 
+    def upload_dataset(self, dataset: Dataset) -> str:
+        """Upload a raw or derived dataset (method is autosensing)
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to load
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the newly created dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        if isinstance(dataset, RawDataset):
+            dataset_url = self._base_url + "RawDataSets/replaceOrCreate"
+        elif isinstance(dataset, DerivedDataset):
+            dataset_url = self._base_url + "DerivedDatasets/replaceOrCreate"
+        else:
+            logging.error(
+                "Dataset type not recognized (not Derived or Raw dataset instances)"
+            )
+        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error creating dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"new dataset created {new_pid}")
+        return new_pid
+
     def upload_raw_dataset(self, dataset: Dataset) -> str:
         """Upload a raw dataset
 
@@ -159,7 +197,36 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
-    def upload_datablock(self, datablock: Datablock):
+    def upload_derived_dataset(self, dataset: Dataset) -> str:
+        """Upload a derived dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to upload
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the newly created dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        derived_dataset_url = self._base_url + "DerivedDataSets/replaceOrCreate"
+        resp = self._send_to_scicat(
+            derived_dataset_url, dataset.dict(exclude_none=True)
+        )
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error creating raw dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"new dataset created {new_pid}")
+        return new_pid
+
+    def upload_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
         """Upload a Datablock
 
         Parameters
@@ -172,7 +239,6 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        datasetType = "RawDatasets"
 
         url = (
             self._base_url
