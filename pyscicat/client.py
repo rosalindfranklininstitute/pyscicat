@@ -60,6 +60,8 @@ class ScicatClient:
         timeout_seconds : [int], optional
             timeout in seconds to wait for http connections to return, by default None
         """
+        if base_url[-1] != "/":
+            base_url = base_url + "/"
         self._base_url = base_url
         self._timeout_seconds = (
             timeout_seconds  # we are hitting a transmission timeout...
@@ -392,7 +394,8 @@ def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
     logger.info(f" Getting new token for user {username}")
-
+    if base_url[-1] != "/":
+        base_url = base_url + "/"
     response = requests.post(
         base_url + "Users/login",
         json={"username": username, "password": password},
