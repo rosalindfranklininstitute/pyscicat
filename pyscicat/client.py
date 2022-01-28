@@ -354,7 +354,9 @@ class ScicatClient:
         return response.json()
 
     def update_dataset(self, pid, fields: Dict):
-        response = self._send_to_scicat(f'{self._base_url}/Datasets', dataDict=fields, cmd='patch')
+        response = self._send_to_scicat(
+            f"{self._base_url}/Datasets", dataDict=fields, cmd="patch"
+        )
         if not response.ok:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
@@ -403,7 +405,7 @@ def get_token(base_url, username, password):
     and receives token for further communication use"""
     logger.info(f" Getting new token for user {username}")
     if base_url[-1] != "/":
-        base_url = base_url + "/" 
+        base_url = base_url + "/"
     response = requests.post(
         base_url + "Users/login",
         json={"username": username, "password": password},
