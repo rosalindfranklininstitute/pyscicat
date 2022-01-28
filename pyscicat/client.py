@@ -60,6 +60,8 @@ class ScicatClient:
         timeout_seconds : [int], optional
             timeout in seconds to wait for http connections to return, by default None
         """
+        if base_url[-1] != "/":
+            base_url = base_url + "/"
         self._base_url = base_url
         self._timeout_seconds = (
             timeout_seconds  # we are hitting a transmission timeout...
@@ -351,6 +353,17 @@ class ScicatClient:
             return None
         return response.json()
 
+    # this method is future, needs testing.
+    # def update_dataset(self, pid, fields: Dict):
+    #     response = self._send_to_scicat(
+    #         f"{self._base_url}/Datasets", dataDict=fields, cmd="patch"
+    #     )
+    #     if not response.ok:
+    #         err = response.json()["error"]
+    #         logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+    #         return None
+    #     return response.json()
+
 
 def get_file_size(pathobj):
     filesize = pathobj.lstat().st_size
@@ -392,7 +405,8 @@ def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
     logger.info(f" Getting new token for user {username}")
-
+    if base_url[-1] != "/":
+        base_url = base_url + "/"
     response = requests.post(
         base_url + "Users/login",
         json={"username": username, "password": password},
