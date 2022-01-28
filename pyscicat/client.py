@@ -5,7 +5,7 @@ import base64
 import hashlib
 import logging
 import json
-from typing import Dict, List
+from typing import List
 import urllib
 
 import requests
