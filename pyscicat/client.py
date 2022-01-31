@@ -353,6 +353,17 @@ class ScicatClient:
             return None
         return response.json()
 
+    # this method is future, needs testing.
+    # def update_dataset(self, pid, fields: Dict):
+    #     response = self._send_to_scicat(
+    #         f"{self._base_url}/Datasets", dataDict=fields, cmd="patch"
+    #     )
+    #     if not response.ok:
+    #         err = response.json()["error"]
+    #         logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+    #         return None
+    #     return response.json()
+
 
 def get_file_size(pathobj):
     filesize = pathobj.lstat().st_size
