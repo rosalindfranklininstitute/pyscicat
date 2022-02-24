@@ -324,8 +324,8 @@ class ScicatClient:
 
         """
 
-        encoded_pid = urllib.parse.quote_plus(origdatablock.datasetPid)
-        endpoint = "/Datasets/" + encoded_pid + "/origdatablocks"
+        encoded_pid = urllib.parse.quote_plus(origdatablock.datasetId)
+        endpoint = "Datasets/" + encoded_pid + "/origdatablocks"
         url = self._base_url + endpoint
 
         resp = self._send_to_scicat(url, origdatablock.dict(exclude_none=True))
