@@ -51,7 +51,9 @@ The example json file is available under the example/data folder and has the fol
                 "value": 0.75, 
                 "unit": "deg"
             },
-            ... omissed ...
+            "omissed" : { 
+                "notes" : "Additional scientific metadata has been omitted for readability" 
+            }
         }
     }, 
     "orig_datablock": {
@@ -67,8 +69,9 @@ The example json file is available under the example/data folder and has the fol
                 "path": "suggested_reruns-fails.sh", 
                 "size": 448, 
                 "time": "2014-01-23T19:53:04.000Z"
-            },
-            ... omissed ...
+            }, { 
+                "notes" : "Additional files entries has been omitted for readability" 
+            }
         ]
     }, 
     "ownable": {

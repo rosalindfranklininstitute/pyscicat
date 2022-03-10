@@ -5,6 +5,12 @@
         "description": "CAMEA CAMEA31 Hsize 4 moderator_size_y 3 PGESKSE", 
         "creationLocation": "DMSC", 
         "principalInvestigator": "Max Novelli", 
+        "owner": "Massimiliano Novelli", 
+        "ownerEmail": "max.novelli@ess.eu", 
+        "contactEmail": "max.novelli@ess.eu", 
+        "sourceFolder": "/mnt/data/simulation/CAMEA/CAMEA31", 
+        "creationTime": "2022-03-07T15:44:59.000Z", 
+        "type": "raw", 
         "scientificMetadata": {
             "sample_width": { "value": 0.015, "unit": "m" }, 
             "sample_height": { "value": 0.015, "unit": "m" }, 
@@ -58,12 +64,6 @@
             "Hsize": { "value": 4, "unit": "cm" }, 
             "moderator_size_y": { "value": 3, "unit": "m" }
         }, 
-        "owner": "Massimiliano Novelli", 
-        "ownerEmail": "max.novelli@ess.eu", 
-        "contactEmail": "max.novelli@ess.eu", 
-        "sourceFolder": "/mnt/data/simulation/CAMEA/CAMEA31", 
-        "creationTime": "2022-03-07T15:44:59.000Z", 
-        "type": "raw", 
         "techniques": [
             {
                 "pid": "fe888574-5cc0-11ec-90c3-bf82943dec35", 
