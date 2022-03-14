@@ -198,6 +198,18 @@ class Datablock(Ownable):
     datasetId: str
 
 
+class OrigDatablock(Ownable):
+    """
+    A Original Datablock maps between a Dataset and contains DataFiles
+    """
+
+    id: Optional[str]
+    # archiveId: str = None  listed in catamel model, but comes back invalid?
+    size: int
+    dataFileList: List[DataFile]
+    datasetId: str
+
+
 class Attachment(Ownable):
     """
     Attachments can be any base64 encoded string...thumbnails are attachments
