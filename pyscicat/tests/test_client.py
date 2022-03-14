@@ -37,6 +37,9 @@ def add_mock_requests(mock_request):
         json={"response": "random"},
     )
 
+    mock_request.post(local_url + "Datasets", json={"pid": "17"})
+
+
 
 def test_scicate_ingest():
     with requests_mock.Mocker() as mock_request:
@@ -105,3 +108,4 @@ def test_initializers():
 
         client = from_token(local_url, "let me in!")
         assert client._token == "let me in!"
+
