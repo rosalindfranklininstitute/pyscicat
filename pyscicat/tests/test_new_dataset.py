@@ -3,9 +3,7 @@ import urllib
 import json
 
 import requests_mock
-from ..client import (
-    ScicatClient
-)
+from ..client import ScicatClient
 
 from ..model import (
     DataFile,
@@ -20,13 +18,14 @@ local_url = "http://localhost:3000/api/v3/"
 test_dataset_file = "../../examples/data/ingestion_simulation_dataset_ess_dataset.json"
 test_dataset = None
 
+
 def set_up_test_environment(mock_request):
 
     global test_dataset
 
     # load test data
-    data_file_path = Path(__file__).parent.joinpath(test_dataset_file).resolve();
-    with open(data_file_path,'r') as fh:
+    data_file_path = Path(__file__).parent.joinpath(test_dataset_file).resolve()
+    with open(data_file_path, "r") as fh:
         test_dataset = json.load(fh)
 
     mock_request.post(
@@ -35,23 +34,19 @@ def set_up_test_environment(mock_request):
     )
 
     mock_request.post(
-        local_url + "Datasets", 
-        json={
-            **{"pid": test_dataset['id']},
-            **test_dataset['dataset']
-        }
+        local_url + "Datasets",
+        json={**{"pid": test_dataset["id"]}, **test_dataset["dataset"]},
     )
 
-    encoded_pid = urllib.parse.quote_plus(test_dataset['id'])
+    encoded_pid = urllib.parse.quote_plus(test_dataset["id"])
     mock_request.post(
         local_url + "Datasets/" + encoded_pid + "/origdatablocks",
         json={
-            "size" : test_dataset["orig_datablock"]["size"],
-            "datasetId" : test_dataset["id"],
-            "dataFileList" : test_dataset["orig_datablock"]["dataFileList"]
-        }
+            "size": test_dataset["orig_datablock"]["size"],
+            "datasetId": test_dataset["id"],
+            "dataFileList": test_dataset["orig_datablock"]["dataFileList"],
+        },
     )
-
 
 
 def test_scicate_ingest_raw_dataset():
@@ -69,14 +64,10 @@ def test_scicate_ingest_raw_dataset():
         ownable = Ownable(ownerGroup="magrathea", accessGroups=["deep_though"])
 
         # Create Dataset
-        dataset = RawDataset(
-            **test_dataset['dataset'],
-            **ownable.dict()
-        )
+        dataset = RawDataset(**test_dataset["dataset"], **ownable.dict())
         created_dataset = scicat.upload_new_dataset(dataset)
 
-        assert created_dataset['pid'] == test_dataset['id']
-
+        assert created_dataset["pid"] == test_dataset["id"]
 
         # origDatablock with DataFiles
         origDataBlock = OrigDatablock(
@@ -89,5 +80,6 @@ def test_scicate_ingest_raw_dataset():
             **ownable.dict()
         )
         created_origdatablock = scicat.upload_dataset_origdatablock(origDataBlock)
-        assert len(created_origdatablock['dataFileList']) == len(test_dataset['orig_datablock']["dataFileList"])
-
+        assert len(created_origdatablock["dataFileList"]) == len(
+            test_dataset["orig_datablock"]["dataFileList"]
+        )
