@@ -538,6 +538,33 @@ class ScicatClient:
         return response.json()
 
 
+    def delete_dataset(self, pid: str = None) -> dict:
+        """
+        Delete dataset by pid
+
+        Parameters
+        ----------
+        pid : str
+            The pid of the dataset to be deleted
+
+        Returns
+        -------
+        dict
+            response from SciCat backend
+        """
+
+        encoded_pid = urllib.parse.quote_plus(pid)
+        endpoint = "/Datasets/{}".format(encoded_pid)
+        url = self._base_url + endpoint
+        response = self._send_to_scicat(url, cmd='delete')
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
+
+
+
 def get_file_size(pathobj):
     filesize = pathobj.lstat().st_size
     return filesize
