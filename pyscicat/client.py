@@ -437,6 +437,24 @@ class ScicatClient:
             return None
         return response.json()
 
+    def get_dataset_by_pid(self, pid=None) -> Dataset:
+        """Gets dataset with the pid provided.
+
+        Parameters
+        ----------
+        pid : string
+            pid of the dataset requested.
+        """
+
+        encode_pid = urllib.parse.quote_plus(pid)
+        url = f"{self._base_url}/Datasets/{encode_pid}"
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
+
     # this method is future, needs testing.
     # def update_dataset(self, pid, fields: Dict):
     #     response = self._send_to_scicat(
@@ -537,6 +555,29 @@ class ScicatClient:
             return None
         return response.json()
 
+    def get_dataset_origdatablocks(self, pid: str = None) -> dict:
+        """
+        Get dataset orig datablocks by dataset pid.
+
+        Parameters
+        ----------
+        pid : str
+            The pid of the dataset
+
+        Returns
+        -------
+        dict
+            The orig_datablocks of the dataset with the requested pid
+        """
+
+        encoded_pid = urllib.parse.quote_plus(pid)
+        url = f"{self._base_url}/Datasets/{encoded_pid}/origdatablocks"
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
 
     def delete_dataset(self, pid: str = None) -> dict:
         """
@@ -556,13 +597,12 @@ class ScicatClient:
         encoded_pid = urllib.parse.quote_plus(pid)
         endpoint = "/Datasets/{}".format(encoded_pid)
         url = self._base_url + endpoint
-        response = self._send_to_scicat(url, cmd='delete')
+        response = self._send_to_scicat(url, cmd="delete")
         if not response.ok:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
-
 
 
 def get_file_size(pathobj):
