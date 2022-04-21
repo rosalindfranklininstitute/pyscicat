@@ -266,8 +266,8 @@ class ScicatClient:
             logger.info(f"dataset updated {new_pid}")
             return new_pid
         else:
-            logger.info(f"dataset does not exist, could not upsert")
-            raise ScicatCommError(f"Dataset does not exist, could not upsert.")
+            logger.info("dataset does not exist, could not upsert")
+            raise ScicatCommError("Dataset does not exist, could not upsert.")
 
     def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
         """Upsert a raw dataset
@@ -302,8 +302,8 @@ class ScicatClient:
             logger.info(f"dataset updated {new_pid}")
             return new_pid
         else:
-            logger.info(f"dataset does not exist, could not upsert")
-            raise ScicatCommError(f"Dataset does not exist, could not upsert.")
+            logger.info("dataset does not exist, could not upsert")
+            raise ScicatCommError("Dataset does not exist, could not upsert.")
 
     def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
         """Upsert a derived dataset
@@ -341,8 +341,8 @@ class ScicatClient:
             logger.info(f"dataset updated {new_pid}")
             return new_pid
         else:
-            logger.info(f"dataset does not exist, could not upsert")
-            raise ScicatCommError(f"Dataset does not exist, could not upsert.")
+            logger.info("dataset does not exist, could not upsert")
+            raise ScicatCommError("Dataset does not exist, could not upsert.")
 
     def upload_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
         """Upload a Datablock
