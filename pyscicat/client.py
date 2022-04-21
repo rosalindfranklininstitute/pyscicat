@@ -226,6 +226,49 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
+    def upsert_dataset(self, dataset: Dataset, filter_fields) -> str:
+        """Upsert a dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to load
+
+        filter_fields
+            Filters to locate where to upsert dataset
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        query_results = self.get_datasets(filter_fields)
+        if query_results:
+            filter_fields = json.dumps(filter_fields)
+            if isinstance(dataset, RawDataset):
+                dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
+            elif isinstance(dataset, DerivedDataset):
+                dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
+            else:
+                logging.error(
+                    "Dataset type not recognized, not Raw or Derived type"
+                )
+            resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
+            if not resp.ok:
+                err = resp.json()["error"]
+                raise ScicatCommError(f"Error upserting dataset {err}")
+            new_pid = resp.json().get("pid")
+            logger.info(f"dataset updated {new_pid}")
+            return new_pid
+        else:
+            logger.info(f"dataset does not exist, could not upsert")
+            raise ScicatCommError(f"Dataset does not exist, could not upsert.")
+
     def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
         """Upsert a raw dataset
 
@@ -248,7 +291,7 @@ class ScicatClient:
             Raises if a non-20x message is returned
         """
         query_results = self.get_datasets(filter_fields)
-        if query_results.json():
+        if query_results:
             filter_fields = json.dumps(filter_fields)
             raw_dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
             resp = self._send_to_scicat(raw_dataset_url, dataset.dict(exclude_none=True))
@@ -285,7 +328,7 @@ class ScicatClient:
         """
 
         query_results = self.get_datasets(filter_fields)
-        if query_results.json():
+        if query_results:
             filter_fields = json.dumps(filter_fields)
             derived_dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
             resp = self._send_to_scicat(
