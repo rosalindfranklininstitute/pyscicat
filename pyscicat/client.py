@@ -17,6 +17,7 @@ from pyscicat.model import (
     OrigDatablock,
     RawDataset,
     DerivedDataset,
+    PublishedData,
 )
 
 logger = logging.getLogger("splash_ingest")
@@ -436,6 +437,35 @@ class ScicatClient:
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
+
+    def get_published_data(self, filter=None) -> List[PublishedData]:
+        """Gets published data using the simple fiter mechanism. This
+        is appropriate when you do not require paging or text search, but
+        want to be able to limit results based on items in the Dataset object.
+
+        For example, a search for published data of a given doi would have
+        ```python
+        filter = {"doi": "1234"}
+        ```
+        
+        Parameters
+        ----------
+        filter : dict
+            Dictionary of filtering fields. Must be json serializable.
+        """
+        if not filter:
+            filter = None
+        else:
+            filter = json.dumps(filter)
+
+        url = f'{self._base_url}/PublishedData' + f'?filter={{"where":{filter}}}' if filter else ''
+        response = self._send_to_scicat(url, cmd="get")
+        if not response.ok:
+            err = response.json()["error"]
+            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
+            return None
+        return response.json()
+
 
     def get_dataset_by_pid(self, pid=None) -> Dataset:
         """Gets dataset with the pid provided.

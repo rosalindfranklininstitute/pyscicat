@@ -219,3 +219,31 @@ class Attachment(Ownable):
     thumbnail: str
     caption: Optional[str]
     datasetId: str
+
+
+class PublishedData():
+    """
+    Published Data with registered DOI
+    """
+
+    doi: str
+    affiliation: str
+    creator: List[str]
+    publisher: str
+    publicationYear: int
+    title: str
+    url: Optional[str]
+    abstract: str
+    dataDescription: str
+    resourceType: str
+    numberOfFiles: Optional[int]
+    sizeOfArchive: Optional[int]
+    pidArray: List[str]
+    authors: List[str]
+    registeredTime: str
+    status: str
+    thumbnail: Optional[str]
+    createdBy: str
+    updatedBy: str
+    createdAt: str
+    updatedAt: str
