@@ -458,7 +458,11 @@ class ScicatClient:
         else:
             filter = json.dumps(filter)
 
-        url = f'{self._base_url}/PublishedData' + f'?filter={{"where":{filter}}}' if filter else ''
+        url = f'{self._base_url}/PublishedData' + (
+            f'?filter={{"where":{filter}}}' 
+            if filter 
+            else ''
+        )
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
             err = response.json()["error"]
