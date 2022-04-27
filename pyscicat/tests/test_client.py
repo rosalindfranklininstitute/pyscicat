@@ -29,9 +29,9 @@ def add_mock_requests(mock_request):
     )
     mock_request.post(local_url + "Samples", json={"sampleId": "dataset_id"})
     mock_request.post(local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"})
-    mock_request.get(local_url + "Datasets?filter=%7B%22where%22%3A+%7B%22sampleId%22%3A+%22gargleblaster%22%7D%7D", 
+    mock_request.get(local_url + "/Datasets/?filter=%7B%22where%22:%7B%22sampleId%22:%20%22gargleblaster%22%7D%7D", 
         json = {"response": "random"})
-    mock_request.post(local_url + "/RawDatasets/upsertWithWhere?where=%22%3A+%7B%22sampleId%22%3A+%22gargleblaster%22%7D%7D", 
+    mock_request.post(local_url + "/RawDatasets/upsertWithWhere?where=%7B%22where%22:%7B%22sampleId%22:%20%22gargleblaster%22%7D%7D", 
         json={"pid": "42"})
     mock_request.post(
         local_url + "RawDatasets/42/origdatablocks",
@@ -103,7 +103,7 @@ def test_scicate_ingest():
         )
 
         dataset_id = scicat.upsert_raw_dataset(dataset, {"sampleId": "gargleblaster"})
-        assert dataset_id.pid == "42"
+        assert dataset_id == "42"
 
         # Datablock with DataFiles
         data_file = DataFile(path="/foo/bar", size=42)

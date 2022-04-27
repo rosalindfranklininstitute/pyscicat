@@ -251,9 +251,9 @@ class ScicatClient:
         if query_results:
             filter_fields = json.dumps(filter_fields)
             if isinstance(dataset, RawDataset):
-                dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
+                dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
             elif isinstance(dataset, DerivedDataset):
-                dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
+                dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
             else:
                 logging.error(
                     "Dataset type not recognized, not Raw or Derived type"
@@ -293,7 +293,7 @@ class ScicatClient:
         query_results = self.get_datasets(filter_fields)
         if query_results:
             filter_fields = json.dumps(filter_fields)
-            raw_dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
+            raw_dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
             resp = self._send_to_scicat(raw_dataset_url, dataset.dict(exclude_none=True))
             if not resp.ok:
                 err = resp.json()["error"]
@@ -330,7 +330,7 @@ class ScicatClient:
         query_results = self.get_datasets(filter_fields)
         if query_results:
             filter_fields = json.dumps(filter_fields)
-            derived_dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?{{"where":{filter_fields}}}'
+            derived_dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
             resp = self._send_to_scicat(
                 derived_dataset_url, dataset.dict(exclude_none=True)
             )
