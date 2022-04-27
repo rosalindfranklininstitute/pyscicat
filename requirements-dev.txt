@@ -6,7 +6,6 @@ flake8
 pytest
 sphinx
 twine
-pre-commit
 black
 nbstripout
 requests_mock
