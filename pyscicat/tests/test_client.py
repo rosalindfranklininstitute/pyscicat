@@ -34,10 +34,20 @@ def add_mock_requests(mock_request):
         + "/Datasets/?filter=%7B%22where%22:%7B%22sampleId%22:%20%22gargleblaster%22%7D%7D",
         json={"response": "random"},
     )
+    mock_request.get(
+        local_url
+        + "/Datasets/?filter=%7B%22where%22:%7B%22sampleId%22:%20%22wowza%22%7D%7D",
+        json={"response": "random"},
+    )
     mock_request.post(
         local_url
         + "/RawDatasets/upsertWithWhere?where=%7B%22where%22:%7B%22sampleId%22:%20%22gargleblaster%22%7D%7D",
         json={"pid": "42"},
+    )
+    mock_request.post(
+        local_url
+        + "/RawDatasets/upsertWithWhere?where=%7B%22where%22:%7B%22sampleId%22:%20%22wowza%22%7D%7D",
+        json={"pid": "54"},
     )
     mock_request.post(
         local_url + "RawDatasets/42/origdatablocks",
@@ -70,7 +80,7 @@ def test_scicate_ingest():
         assert size is not None
 
         # RawDataset
-        dataset = RawDataset(
+        dataset = Dataset(
             path="/foo/bar",
             size=42,
             owner="slartibartfast",
@@ -90,7 +100,7 @@ def test_scicate_ingest():
         dataset_id = scicat.upload_raw_dataset(dataset)
 
         # new dataset
-        dataset = Dataset(
+        dataset = RawDataset(
             path="/foo/bar",
             size=42,
             owner="slartibartfast",
@@ -108,8 +118,13 @@ def test_scicate_ingest():
             **ownable.dict()
         )
 
+        # Update existing record
         dataset_id = scicat.upsert_raw_dataset(dataset, {"sampleId": "gargleblaster"})
         assert dataset_id == "42"
+
+        # Upsert non-existing record
+        dataset_id_2 = scicat.upsert_raw_dataset(dataset, {"sampleId": "wowza"})
+        assert dataset_id_2 == "54"
 
         # Datablock with DataFiles
         data_file = DataFile(path="/foo/bar", size=42)
