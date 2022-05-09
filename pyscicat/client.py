@@ -299,16 +299,13 @@ class ScicatClient:
             logger.info("Dataset does not exist already, will be inserted")
         filter_fields = json.dumps(filter_fields)
         raw_dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
-        resp = self._send_to_scicat(
-            raw_dataset_url, dataset.dict(exclude_none=True)
-        )
+        resp = self._send_to_scicat(raw_dataset_url, dataset.dict(exclude_none=True))
         if not resp.ok:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error upserting raw dataset {err}")
         new_pid = resp.json().get("pid")
         logger.info(f"dataset upserted {new_pid}")
         return new_pid
-            
 
     def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
         """Upsert a derived dataset
