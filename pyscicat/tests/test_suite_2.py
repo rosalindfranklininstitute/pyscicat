@@ -16,9 +16,9 @@ global test_datasets
 
 local_url = "http://localhost:3000/api/v3/"
 test_dataset_files = {
-    'raw' : "../../examples/data/ingestion_simulation_dataset_ess_raw_dataset.json",
-    'derived' : "../../examples/data/ingestion_simulation_dataset_ess_derived_dataset.json",
-    'published_data' : "../../examples/data/published_data.json"
+    "raw": "../../examples/data/ingestion_simulation_dataset_ess_raw_dataset.json",
+    "derived": "../../examples/data/ingestion_simulation_dataset_ess_derived_dataset.json",
+    "published_data": "../../examples/data/published_data.json",
 }
 test_datasets = {}
 
@@ -40,7 +40,7 @@ def set_up_test_environment(mock_request):
 
 
 def set_up_mock_raw_dataset(mock_request):
-    data = test_datasets['raw']
+    data = test_datasets["raw"]
 
     mock_request.post(
         local_url + "Datasets",
@@ -61,7 +61,7 @@ def set_up_mock_raw_dataset(mock_request):
 
 
 def set_up_mock_derived_dataset(mock_request):
-    data = test_datasets['derived']
+    data = test_datasets["derived"]
 
     mock_request.post(
         local_url + "Datasets",
@@ -82,7 +82,7 @@ def set_up_mock_derived_dataset(mock_request):
 
 
 def set_up_mock_published_data(mock_request):
-    data = test_datasets['published_data']
+    data = test_datasets["published_data"]
 
     mock_url = local_url + "PublishedData"
     print("Mock : " + mock_url)
@@ -107,13 +107,10 @@ def test_scicat_ingest_raw_dataset():
             scicat._token == "a_token"
         ), "scicat client set the token given by the server"
 
-        ownable = Ownable(**data['ownable'])
+        ownable = Ownable(**data["ownable"])
 
         # Create Dataset
-        dataset = RawDataset(
-            **data["dataset"], 
-            **ownable.dict()
-        )
+        dataset = RawDataset(**data["dataset"], **ownable.dict())
         created_dataset = scicat.create_dataset(dataset)
 
         assert created_dataset["pid"] == data["id"]
@@ -123,8 +120,7 @@ def test_scicat_ingest_raw_dataset():
             size=data["orig_datablock"]["size"],
             datasetId=created_dataset["pid"],
             dataFileList=[
-                DataFile(**file)
-                for file in data["orig_datablock"]["dataFileList"]
+                DataFile(**file) for file in data["orig_datablock"]["dataFileList"]
             ],
             **ownable.dict()
         )
@@ -147,13 +143,10 @@ def test_scicat_ingest_derived_dataset():
             scicat._token == "a_token"
         ), "scicat client set the token given by the server"
 
-        ownable = Ownable(**data['ownable'])
+        ownable = Ownable(**data["ownable"])
 
         # Create Dataset
-        dataset = RawDataset(
-            **data["dataset"], 
-            **ownable.dict()
-        )
+        dataset = RawDataset(**data["dataset"], **ownable.dict())
         created_dataset = scicat.create_dataset(dataset)
 
         assert created_dataset["pid"] == data["id"]
@@ -163,8 +156,7 @@ def test_scicat_ingest_derived_dataset():
             size=data["orig_datablock"]["size"],
             datasetId=created_dataset["pid"],
             dataFileList=[
-                DataFile(**file)
-                for file in data["orig_datablock"]["dataFileList"]
+                DataFile(**file) for file in data["orig_datablock"]["dataFileList"]
             ],
             **ownable.dict()
         )
@@ -191,4 +183,3 @@ def test_scicat_find_published_data():
 
         assert len(data) == len(returned_data)
         assert data == returned_data
-

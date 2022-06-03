@@ -152,7 +152,6 @@ class ScicatClient:
     #         err = resp.json()["error"]
     #         raise ScicatCommError(f"Error creating Sample {err}")
 
-
     def replace_dataset(self, dataset: Dataset) -> str:
         """
         Create a new dataset or update an existing one
@@ -171,7 +170,7 @@ class ScicatClient:
         str
             pid of the dataset
         """
-        
+
         if isinstance(dataset, RawDataset):
             dataset_url = self._base_url + "RawDataSets/replaceOrCreate"
         elif isinstance(dataset, DerivedDataset):
@@ -193,7 +192,6 @@ class ScicatClient:
         Original name, kept for for backward compatibility
     """
     upload_dataset = replace_dataset
-
 
     def create_dataset(self, dataset: Dataset) -> str:
         """
@@ -235,8 +233,7 @@ class ScicatClient:
         Original name, kept for for backward compatibility
     """
     upload_new_dataset = create_dataset
-    
-    
+
     def replace_raw_dataset(self, dataset: Dataset) -> str:
         """
         Create a new raw dataset or update an existing one
@@ -268,13 +265,11 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
-
     """
         Upload a raw dataset
         Original name, kept for for backward compatibility
     """
     upload_raw_dataset = replace_raw_dataset
-
 
     def replace_derived_dataset(self, dataset: Dataset) -> str:
         """
@@ -315,7 +310,6 @@ class ScicatClient:
     """
     upload_derived_dataset = replace_derived_dataset
 
-
     def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
         """
         Upsert a raw dataset
@@ -347,7 +341,6 @@ class ScicatClient:
         new_pid = resp.json().get("pid")
         logger.info(f"dataset upserted {new_pid}")
         return new_pid
-
 
     def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
         """
@@ -382,8 +375,9 @@ class ScicatClient:
         logger.info(f"dataset upserted {new_pid}")
         return new_pid
 
-
-    def create_dataset_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
+    def create_dataset_datablock(
+        self, datablock: Datablock, datasetType: str = "RawDatasets"
+    ):
         """
         Create a new datablock for a dataset.
         The dataset can be both Raw or Derived.
@@ -421,7 +415,6 @@ class ScicatClient:
         Original name, kept for for backward compatibility
     """
     upload_datablock = create_dataset_datablock
-
 
     def create_dataset_origdatablock(self, origdatablock: OrigDatablock) -> dict:
         """
@@ -463,15 +456,11 @@ class ScicatClient:
     """
     upload_dataset_origdatablock = create_dataset_origdatablock
 
-
-
     def create_dataset_attachment(
-        self, 
-        attachment: Attachment, 
-        datasetType: str = "RawDatasets"
+        self, attachment: Attachment, datasetType: str = "RawDatasets"
     ):
         """
-        Create a new Attachment for a dataset.  
+        Create a new Attachment for a dataset.
         Note that datasetType can be provided to determine the type of dataset
         that this attachment is attached to. This is required for creating the url that SciCat uses.
         This function has been renamed.
@@ -512,7 +501,6 @@ class ScicatClient:
         Original name, kept for for backward compatibility
     """
     upload_attachment = create_dataset_attachment
-
 
     def find_datasets_full_query(self, skip=0, limit=25, query_fields=None):
         """
@@ -561,8 +549,6 @@ class ScicatClient:
     """
     get_datasets_full_query = find_datasets_full_query
 
-
-
     def find_datasets(self, filter_fields=None) -> List[Dataset]:
         """
         Gets datasets using the simple fiter mechanism. This
@@ -601,7 +587,6 @@ class ScicatClient:
     """
     get_datasets = find_datasets
 
-
     def find_published_data(self, filter=None) -> List[PublishedData]:
         """
         retrieve all the published data using the simple fiter mechanism. This
@@ -639,7 +624,6 @@ class ScicatClient:
         Original name, kept for for backward compatibility
     """
     get_published_data = find_published_data
-
 
     def get_dataset_by_pid(self, pid=None) -> Dataset:
         """Gets dataset with the pid provided.
