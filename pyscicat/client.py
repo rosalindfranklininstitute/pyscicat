@@ -153,7 +153,7 @@ class ScicatClient:
     #         raise ScicatCommError(f"Error creating Sample {err}")
 
 
-    def upsert_dataset(self, dataset: Dataset) -> str:
+    def replace_dataset(self, dataset: Dataset) -> str:
         """
         Create a new dataset or update an existing one
         This function was renamed.
@@ -192,7 +192,7 @@ class ScicatClient:
         Upload or create a new dataset
         Original name, kept for for backward compatibility
     """
-    upload_dataset = upsert_dataset
+    upload_dataset = replace_dataset
 
 
     def create_dataset(self, dataset: Dataset) -> str:
@@ -237,9 +237,7 @@ class ScicatClient:
     upload_new_dataset = create_dataset
     
     
-
-
-    def upsert_raw_dataset(self, dataset: Dataset) -> str:
+    def replace_raw_dataset(self, dataset: Dataset) -> str:
         """
         Create a new raw dataset or update an existing one
         This function was renamed.
@@ -275,16 +273,15 @@ class ScicatClient:
         Upload a raw dataset
         Original name, kept for for backward compatibility
     """
-    upload_raw_dataset = upsert_raw_dataset
+    upload_raw_dataset = replace_raw_dataset
 
 
-
-    def upsert_derived_dataset(self, dataset: Dataset) -> str:
+    def replace_derived_dataset(self, dataset: Dataset) -> str:
         """
         Create a new derived dataset or update an existing one
         This function was renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upsert_derived_dataset
+        The original name was upload_derived_dataset
 
         Parameters
         ----------
@@ -316,7 +313,74 @@ class ScicatClient:
         Upload a derived dataset
         Original name, kept for for backward compatibility
     """
-    upload_derived_dataset = upsert_derived_dataset
+    upload_derived_dataset = replace_derived_dataset
+
+
+    def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
+        """
+        Upsert a raw dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to load
+        filter_fields
+            Filters to locate where to upsert dataset
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the dataset
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        query_results = self.get_datasets(filter_fields)
+        if not query_results:
+            logger.info("Dataset does not exist already, will be inserted")
+        filter_fields = json.dumps(filter_fields)
+        raw_dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
+        resp = self._send_to_scicat(raw_dataset_url, dataset.dict(exclude_none=True))
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error upserting raw dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"dataset upserted {new_pid}")
+        return new_pid
+
+
+    def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
+        """
+        Upsert a derived dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to upsert
+        filter_fields
+            Filters to locate where to upsert dataset
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the dataset
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+
+        query_results = self.get_datasets(filter_fields)
+        if not query_results:
+            logger.info("Dataset does not exist already, will be inserted")
+        filter_fields = json.dumps(filter_fields)
+        dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
+        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error upserting derived dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"dataset upserted {new_pid}")
+        return new_pid
 
 
     def create_dataset_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
@@ -359,7 +423,6 @@ class ScicatClient:
     upload_datablock = create_dataset_datablock
 
 
- 
     def create_dataset_origdatablock(self, origdatablock: OrigDatablock) -> dict:
         """
         Create a new SciCat Dataset OrigDatablock

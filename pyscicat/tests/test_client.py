@@ -15,6 +15,7 @@ from ..model import (
     Datablock,
     DataFile,
     Dataset,
+    RawDataset,
     Ownable,
 )
 
@@ -28,6 +29,26 @@ def add_mock_requests(mock_request):
     )
     mock_request.post(local_url + "Samples", json={"sampleId": "dataset_id"})
     mock_request.post(local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"})
+    mock_request.get(
+        local_url
+        + "/Datasets/?filter=%7B%22where%22:%7B%22sampleId%22:%20%22gargleblaster%22%7D%7D",
+        json={"response": "random"},
+    )
+    mock_request.get(
+        local_url
+        + "/Datasets/?filter=%7B%22where%22:%7B%22sampleId%22:%20%22wowza%22%7D%7D",
+        json={"response": "random"},
+    )
+    mock_request.post(
+        local_url
+        + "/RawDatasets/upsertWithWhere?where=%7B%22where%22:%7B%22sampleId%22:%20%22gargleblaster%22%7D%7D",
+        json={"pid": "42"},
+    )
+    mock_request.post(
+        local_url
+        + "/RawDatasets/upsertWithWhere?where=%7B%22where%22:%7B%22sampleId%22:%20%22wowza%22%7D%7D",
+        json={"pid": "54"},
+    )
     mock_request.post(
         local_url + "RawDatasets/42/origdatablocks",
         json={"response": "random"},
@@ -79,6 +100,33 @@ def test_scicat_ingest():
             **ownable.dict()
         )
         dataset_id = scicat.upload_raw_dataset(dataset)
+
+        # new dataset
+        dataset = RawDataset(
+            path="/foo/bar",
+            size=42,
+            owner="slartibartfast",
+            contactEmail="slartibartfast@magrathea.org",
+            creationLocation="magrathea",
+            creationTime=str(datetime.now()),
+            type="raw",
+            instrumentId="earth",
+            proposalId="deepthought",
+            dataFormat="planet",
+            principalInvestigator="A. Mouse",
+            sourceFolder="/foo/bar",
+            scientificMetadata={"a": "newfield"},
+            sampleId="gargleblaster",
+            **ownable.dict()
+        )
+
+        # Update existing record
+        dataset_id = scicat.upsert_raw_dataset(dataset, {"sampleId": "gargleblaster"})
+        assert dataset_id == "42"
+
+        # Upsert non-existing record
+        dataset_id_2 = scicat.upsert_raw_dataset(dataset, {"sampleId": "wowza"})
+        assert dataset_id_2 == "54"
 
         # Datablock with DataFiles
         data_file = DataFile(path="/foo/bar", size=42)
