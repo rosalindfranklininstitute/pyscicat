@@ -1,16 +1,22 @@
 {
-    "id": "0275d813-be6b-444f-812f-b8311d129361", 
+    "id": "9be3bd96-e256-11ec-bd08-f32122965a87", 
     "dataset": {
-        "datasetName": "CAMEA CAMEA31 Hsize 4 moderator_size_y 3 PGESKSE", 
+        "datasetName": "CAMEA CAMEA31 Hsize 4 moderator_size_y 3 PGESKSE derived", 
         "description": "CAMEA CAMEA31 Hsize 4 moderator_size_y 3 PGESKSE", 
-        "creationLocation": "DMSC", 
-        "principalInvestigator": "Max Novelli", 
+        "investigator": "Max Novelli", 
+        "inputDatasets" : ["0275d813-be6b-444f-812f-b8311d129361"],
+        "usedSoftware" : ["python","My software"],
+        "jobParameters" : {
+            "parameter-1" : "value-1",
+            "parameter-2" : "value-2"
+        },
+        "jobLogData" : "Some jebrish about the dataset",
         "owner": "Massimiliano Novelli", 
         "ownerEmail": "max.novelli@ess.eu", 
         "contactEmail": "max.novelli@ess.eu", 
         "sourceFolder": "/mnt/data/simulation/CAMEA/CAMEA31", 
         "creationTime": "2022-03-07T15:44:59.000Z", 
-        "type": "raw", 
+        "type": "derived", 
         "scientificMetadata": {
             "sample_width": { "value": 0.015, "unit": "m" }, 
             "sample_height": { "value": 0.015, "unit": "m" }, 
@@ -71,9 +77,7 @@
             }
         ], 
         "size": 68386784, 
-        "instrumentId": "", 
-        "sampleId": "", 
-        "proposalId": ""
+        "instrumentId": ""
     }, 
     "orig_datablock": {
         "size": 68386784, 

@@ -221,7 +221,7 @@ class Attachment(Ownable):
     datasetId: str
 
 
-class PublishedData():
+class PublishedData:
     """
     Published Data with registered DOI
     """

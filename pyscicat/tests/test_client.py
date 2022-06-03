@@ -40,7 +40,7 @@ def add_mock_requests(mock_request):
     mock_request.post(local_url + "Datasets", json={"pid": "17"})
 
 
-def test_scicate_ingest():
+def test_scicat_ingest():
     with requests_mock.Mocker() as mock_request:
         add_mock_requests(mock_request)
         scicat = from_credentials(
