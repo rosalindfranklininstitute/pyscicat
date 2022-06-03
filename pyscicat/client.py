@@ -153,34 +153,13 @@ class ScicatClient:
     #         raise ScicatCommError(f"Error creating Sample {err}")
 
 
-    def upload_dataset(self, dataset: Dataset) -> str:
-        """
-        Upload a raw or derived dataset (method is autosensing)
-        This function has been renamed as upsert.
-        WE are keeping this implementation for backward compatibility
-
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to load
-
-        Returns
-        -------
-        str
-            pid (or unique identifier) of the newly created dataset
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self.upsert_dataset(dataset)
-
-
     def upsert_dataset(self, dataset: Dataset) -> str:
         """
         Create a new dataset or update an existing one
-        
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was upload_dataset
+
 
         Parameters
         ----------
@@ -209,39 +188,20 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
+    """
+        Upload or create a new dataset
+        Original name, kept for for backward compatibility
+    """
+    upload_dataset = upsert_dataset
 
 
-    def upload_new_dataset(self, dataset: Dataset) -> str:
-        """
-        Upload a new dataset. Uses the generic dataset endpoint.
-        Relys on the endpoint to sense the dataset type
-        This function has been renamed. 
-        We are keeping this implementation for backward compatibility
-
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to create
-
-        Returns
-        -------
-        dataset : Dataset
-            Dataset created including the pid (or unique identifier) of the newly created dataset
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self.create_dataset(dataset)
-    
-    
     def create_dataset(self, dataset: Dataset) -> str:
         """
         Upload a new dataset. Uses the generic dataset endpoint.
-        Relys on the endpoint to sense the dataset type
-        This function has been renamed. 
-        We are keeping this implementation for backward compatibility
+        Relies on the endpoint to sense the dataset type
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was upload_new_dataset
 
         Parameters
         ----------
@@ -270,34 +230,21 @@ class ScicatClient:
 
         return resp.json()
 
-
-    def upload_raw_dataset(self, dataset: Dataset) -> str:
-        """
-        Upload a raw dataset
-        This function has been renamed.
-        We are keeping this implementation for backward compatibility
-
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to load
-
-        Returns
-        -------
-        str
-            pid (or unique identifier) of the newly created dataset
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self.upsert_raw_dataset(dataset)
+    """
+        Upload a new dataset
+        Original name, kept for for backward compatibility
+    """
+    upload_new_dataset = create_dataset
+    
+    
 
 
     def upsert_raw_dataset(self, dataset: Dataset) -> str:
         """
         Create a new raw dataset or update an existing one
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was upload_raw_dataset
 
         Parameters
         ----------
@@ -324,33 +271,20 @@ class ScicatClient:
         return new_pid
 
 
-    def upload_derived_dataset(self, dataset: Dataset) -> str:
-        """
-        Upload a derived dataset
-        This function has been renamed.
-        We are keeping this implementation for backward compatibility
+    """
+        Upload a raw dataset
+        Original name, kept for for backward compatibility
+    """
+    upload_raw_dataset = upsert_raw_dataset
 
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to upload
-
-        Returns
-        -------
-        str
-            pid (or unique identifier) of the newly created dataset
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """ 
-        return self.upsert_derived_dataset(dataset)
 
 
     def upsert_derived_dataset(self, dataset: Dataset) -> str:
         """
         Create a new derived dataset or update an existing one
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was upsert_derived_dataset
 
         Parameters
         ----------
@@ -378,35 +312,19 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
-
-    def upload_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
-        """
-        Upload a Datablock
-        This function has been renamed
-        We are keeping this implementation for backward compatibility
-
-        Parameters
-        ----------
-        datablock : Datablock
-            Datablock to upload
-
-        Returns
-        -------
-        datablock : Datablock
-            The created Datablock with id
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self.create_dataset_datablock(datablock,datasetType)
+    """
+        Upload a derived dataset
+        Original name, kept for for backward compatibility
+    """
+    upload_derived_dataset = upsert_derived_dataset
 
 
     def create_dataset_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
         """
-        create a new datablock for a dataset.
-        The dataset can be both Raw or Derived
+        Create a new datablock for a dataset.
+        The dataset can be both Raw or Derived.
+        It is still accessible with the original name for backward compatibility
+        The original name was upload_datablock
 
         Parameters
         ----------
@@ -434,36 +352,20 @@ class ScicatClient:
 
         return resp.json()
 
-
-    #def upload_dataset_origdatablock(self, origdatablock: OrigDatablock) -> dict:
-        """
-        Create a new SciCat Dataset OrigDatablock
-  
-        Parameters
-        ----------
-        origdatablock :
-            The OrigDatablock to create
-
-        Returns
-        -------
-        dict
-            The created OrigDatablock with id
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-
-        """
-        return self.create_dataset_origdatabloack(origdatablock)
+    """
+        Upload a Datablock
+        Original name, kept for for backward compatibility
+    """
+    upload_datablock = create_dataset_datablock
 
 
+ 
     def create_dataset_origdatablock(self, origdatablock: OrigDatablock) -> dict:
         """
         Create a new SciCat Dataset OrigDatablock
         This function has been renamed.
         It is still accessible with the original name for backward compatibility
-        The original name is upload_dataset_origdatablock
+        The original name was upload_dataset_origdatablock
 
         Parameters
         ----------
@@ -499,31 +401,6 @@ class ScicatClient:
     upload_dataset_origdatablock = create_dataset_origdatablock
 
 
-    def upload_attachment(
-        self, 
-        attachment: Attachment, 
-        datasetType: str = "RawDatasets"
-    ):
-        """
-        Upload an Attachment.  
-        Note that datasetType can be provided to determine the type of dataset
-        that this attachment is attached to. This is required for creating the url that SciCat uses.
-        THis function has been renamed.
-        WE are kleeping this implementation for backward compatibility
-
-        Parameters
-        ----------
-        attachment : Attachment
-            Attachment to upload
-
-        datasetType : str
-            Type of dataset to upload to, default is `RawDatasets`
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self.create_dataset_attachment(attachment,datasetType)
 
     def create_dataset_attachment(
         self, 
@@ -534,6 +411,9 @@ class ScicatClient:
         Create a new Attachment for a dataset.  
         Note that datasetType can be provided to determine the type of dataset
         that this attachment is attached to. This is required for creating the url that SciCat uses.
+        This function has been renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was upload_attachment
 
         Parameters
         ----------
@@ -564,9 +444,16 @@ class ScicatClient:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
+    """
+        Create a new attachement for a dataset
+        Original name, kept for for backward compatibility
+    """
+    upload_attachment = create_dataset_attachment
 
-    def get_datasets_full_query(self, skip=0, limit=25, query_fields=None):
-        """Gets datasets using the fullQuery mechanism of SciCat. This is
+
+    def find_datasets_full_query(self, skip=0, limit=25, query_fields=None):
+        """
+        Gets datasets using the fullQuery mechanism of SciCat. This is
         appropriate for cases where might want paging and cases where you want to perform
         a text search on the Datasets collection. The full features of fullQuery search
         are beyond this document.
@@ -575,6 +462,10 @@ class ScicatClient:
         a null value.
 
         To query based on the full text search, send `{"text": "<text to query"}` as query field
+
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was get_datasets_full_query
 
         Parameters
         ----------
@@ -601,8 +492,17 @@ class ScicatClient:
             return None
         return response.json()
 
-    def get_datasets(self, filter_fields=None) -> List[Dataset]:
-        """Gets datasets using the simple fiter mechanism. This
+    """
+        find a set of datasets according the full query provided
+        Original name, kept for for backward compatibility
+    """
+    get_datasets_full_query = find_datasets_full_query
+
+
+
+    def find_datasets(self, filter_fields=None) -> List[Dataset]:
+        """
+        Gets datasets using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
         want to be able to limit results based on items in the Dataset object.
 
@@ -632,8 +532,16 @@ class ScicatClient:
             return None
         return response.json()
 
-    def get_published_data(self, filter=None) -> List[PublishedData]:
-        """Gets published data using the simple fiter mechanism. This
+    """
+        find a set of datasets according to the simple filter provided
+        Original name, kept for for backward compatibility
+    """
+    get_datasets = find_datasets
+
+
+    def find_published_data(self, filter=None) -> List[PublishedData]:
+        """
+        retrieve all the published data using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
         want to be able to limit results based on items in the Dataset object.
 
@@ -652,15 +560,23 @@ class ScicatClient:
         else:
             filter = json.dumps(filter)
 
-        url = f"{self._base_url}/PublishedData" + (
+        url = f"{self._base_url}PublishedData" + (
             f'?filter={{"where":{filter}}}' if filter else ""
         )
+        print(url)
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
             err = response.json()["error"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
+
+    """
+        find a set of published data according to the simple filter provided
+        Original name, kept for for backward compatibility
+    """
+    get_published_data = find_published_data
+
 
     def get_dataset_by_pid(self, pid=None) -> Dataset:
         """Gets dataset with the pid provided.

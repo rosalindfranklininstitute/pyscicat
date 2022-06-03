@@ -17,7 +17,8 @@ global test_datasets
 local_url = "http://localhost:3000/api/v3/"
 test_dataset_files = {
     'raw' : "../../examples/data/ingestion_simulation_dataset_ess_raw_dataset.json",
-    'derived' : "../../examples/data/ingestion_simulation_dataset_ess_derived_dataset.json"
+    'derived' : "../../examples/data/ingestion_simulation_dataset_ess_derived_dataset.json",
+    'published_data' : "../../examples/data/published_data.json"
 }
 test_datasets = {}
 
@@ -36,6 +37,7 @@ def set_up_test_environment(mock_request):
         local_url + "Users/login",
         json={"id": "a_token"},
     )
+
 
 def set_up_mock_raw_dataset(mock_request):
     data = test_datasets['raw']
@@ -74,6 +76,19 @@ def set_up_mock_derived_dataset(mock_request):
             "datasetId": data["id"],
             "dataFileList": data["orig_datablock"]["dataFileList"],
         },
+    )
+
+    return data
+
+
+def set_up_mock_published_data(mock_request):
+    data = test_datasets['published_data']
+
+    mock_url = local_url + "PublishedData"
+    print("Mock : " + mock_url)
+    mock_request.get(
+        mock_url,
+        json=data,
     )
 
     return data
@@ -157,3 +172,23 @@ def test_scicat_ingest_derived_dataset():
         assert len(created_origdatablock["dataFileList"]) == len(
             data["orig_datablock"]["dataFileList"]
         )
+
+
+def test_scicat_find_published_data():
+    with requests_mock.Mocker() as mock_request:
+        set_up_test_environment(mock_request)
+        data = set_up_mock_published_data(mock_request)
+        scicat = ScicatClient(
+            base_url=local_url,
+            username="Zaphod",
+            password="heartofgold",
+        )
+        assert (
+            scicat._token == "a_token"
+        ), "scicat client set the token given by the server"
+
+        returned_data = scicat.find_published_data()
+
+        assert len(data) == len(returned_data)
+        assert data == returned_data
+
