@@ -646,7 +646,7 @@ def from_credentials(base_url: str, username: str, password: str):
 def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
-    logger.info(f" Getting new token")
+    logger.info(" Getting new token")
     if base_url[-1] != "/":
         base_url = base_url + "/"
     response = requests.post(
