@@ -273,6 +273,39 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
+    def update_dataset(self, dataset: Dataset, id) -> str:
+        """Updates an existing dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to update
+
+        id
+            pid (or unique identifier) of dataset being updated
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        if "/" in id:
+            id = id.replace("/", "%2F")
+        dataset_url = self._base_url + "Datasets/" + id
+        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True), cmd="patch")
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error updating dataset {err}")
+        pid = resp.json().get("pid")
+        logger.info(f"dataset updated {pid}")
+        return pid
+
+    # deprecated
     def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
         """Upsert a raw dataset
 
@@ -307,6 +340,7 @@ class ScicatClient:
         logger.info(f"dataset upserted {new_pid}")
         return new_pid
 
+    # deprecated
     def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
         """Upsert a derived dataset
 
