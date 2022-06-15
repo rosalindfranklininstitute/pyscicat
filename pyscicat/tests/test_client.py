@@ -49,6 +49,11 @@ def add_mock_requests(mock_request):
         + "/RawDatasets/upsertWithWhere?where=%7B%22where%22:%7B%22sampleId%22:%20%22wowza%22%7D%7D",
         json={"pid": "54"},
     )
+    mock_request.patch(
+        local_url
+        + "/Datasets/54",
+        json={"pid": "54"},
+    )
     mock_request.post(
         local_url + "RawDatasets/42/origdatablocks",
         json={"response": "random"},
@@ -127,6 +132,11 @@ def test_scicate_ingest():
         # Upsert non-existing record
         dataset_id_2 = scicat.upsert_raw_dataset(dataset, {"sampleId": "wowza"})
         assert dataset_id_2 == "54"
+
+        # Update record
+        dataset.principalInvestigator = "B. Turtle"
+        dataset_id_3 = scicat.update_dataset(dataset, dataset_id_2)
+        assert dataset_id_3 == "54"
 
         # Datablock with DataFiles
         data_file = DataFile(path="/foo/bar", size=42)
