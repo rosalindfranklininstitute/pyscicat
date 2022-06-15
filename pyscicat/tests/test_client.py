@@ -50,8 +50,7 @@ def add_mock_requests(mock_request):
         json={"pid": "54"},
     )
     mock_request.patch(
-        local_url
-        + "/Datasets/54",
+        local_url + "Datasets/54",
         json={"pid": "54"},
     )
     mock_request.post(
