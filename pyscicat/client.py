@@ -273,6 +273,75 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
+    def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
+        """Upsert a raw dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to load
+
+        filter_fields
+            Filters to locate where to upsert dataset
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        query_results = self.get_datasets(filter_fields)
+        if not query_results:
+            logger.info("Dataset does not exist already, will be inserted")
+        filter_fields = json.dumps(filter_fields)
+        raw_dataset_url = f'{self._base_url}/RawDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
+        resp = self._send_to_scicat(raw_dataset_url, dataset.dict(exclude_none=True))
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error upserting raw dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"dataset upserted {new_pid}")
+        return new_pid
+
+    def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
+        """Upsert a derived dataset
+
+        Parameters
+        ----------
+        dataset : Dataset
+            Dataset to upsert
+
+        filter_fields
+            Filters to locate where to upsert dataset
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the dataset
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+
+        query_results = self.get_datasets(filter_fields)
+        if not query_results:
+            logger.info("Dataset does not exist already, will be inserted")
+        filter_fields = json.dumps(filter_fields)
+        dataset_url = f'{self._base_url}/DerivedDatasets/upsertWithWhere?where={{"where":{filter_fields}}}'
+        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
+        if not resp.ok:
+            err = resp.json()["error"]
+            raise ScicatCommError(f"Error upserting derived dataset {err}")
+        new_pid = resp.json().get("pid")
+        logger.info(f"dataset upserted {new_pid}")
+        return new_pid
+
     def upload_datablock(self, datablock: Datablock, datasetType: str = "RawDatasets"):
         """Upload a Datablock
 
@@ -577,7 +646,7 @@ def from_credentials(base_url: str, username: str, password: str):
 def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
-    logger.info(f" Getting new token for user {username}")
+    logger.info(" Getting new token")
     if base_url[-1] != "/":
         base_url = base_url + "/"
     response = requests.post(
@@ -593,7 +662,4 @@ def get_token(base_url, username, password):
         raise ScicatLoginError(response.content)
 
     data = response.json()
-    # print("Response:", data)
-    token = data["id"]  # not sure if semantically correct
-    logger.info(f" token: {token}")
-    return token
+    return data["id"]  # not sure if semantically correct
