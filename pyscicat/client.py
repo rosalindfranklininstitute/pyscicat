@@ -152,12 +152,13 @@ class ScicatClient:
     #         err = resp.json()["error"]
     #         raise ScicatCommError(f"Error creating Sample {err}")
 
-    def replace_dataset(self, dataset: Dataset) -> str:
+    def datasets_replace(self, dataset: Dataset) -> str:
         """
         Create a new dataset or update an existing one
         This function was renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_dataset
+        The original names were upload_dataset replace_datasets
+        This function is obsolete and it will be remove in next relesases
 
 
         Parameters
@@ -191,15 +192,17 @@ class ScicatClient:
         Upload or create a new dataset
         Original name, kept for for backward compatibility
     """
-    upload_dataset = replace_dataset
+    upload_dataset = datasets_replace
+    replace_dataset = datasets_replace
 
-    def create_dataset(self, dataset: Dataset) -> str:
+
+    def datasets_create(self, dataset: Dataset) -> str:
         """
         Upload a new dataset. Uses the generic dataset endpoint.
         Relies on the endpoint to sense the dataset type
         This function was renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_new_dataset
+        The original name were create_dataset and upload_new_dataset
 
         Parameters
         ----------
@@ -232,14 +235,17 @@ class ScicatClient:
         Upload a new dataset
         Original name, kept for for backward compatibility
     """
-    upload_new_dataset = create_dataset
+    upload_new_dataset = datasets_create
+    create_dataset = datasets_create
 
-    def replace_raw_dataset(self, dataset: Dataset) -> str:
+
+    def datasets_raw_replace(self, dataset: Dataset) -> str:
         """
         Create a new raw dataset or update an existing one
         This function was renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_raw_dataset
+        The original names were repalce_raw_dataset and upload_raw_dataset
+        THis function is obsolete and it will be removed in future releases
 
         Parameters
         ----------
@@ -269,14 +275,17 @@ class ScicatClient:
         Upload a raw dataset
         Original name, kept for for backward compatibility
     """
-    upload_raw_dataset = replace_raw_dataset
+    upload_raw_dataset = datasets_raw_replace
+    replace_raw_dataset = datasets_raw_replace
 
-    def replace_derived_dataset(self, dataset: Dataset) -> str:
+
+    def datasets_derived_replace(self, dataset: Dataset) -> str:
         """
         Create a new derived dataset or update an existing one
         This function was renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_derived_dataset
+        The original names were replace_derived_dataset and upload_derived_dataset
+
 
         Parameters
         ----------
@@ -308,11 +317,14 @@ class ScicatClient:
         Upload a derived dataset
         Original name, kept for for backward compatibility
     """
-    upload_derived_dataset = replace_derived_dataset
+    upload_derived_dataset = datasets_derived_replace
+    replace_derived_dataset = datasets_derived_replace
 
-    def upsert_raw_dataset(self, dataset: Dataset, filter_fields) -> str:
+
+    def datasets_raw_upsert(self, dataset: Dataset, filter_fields) -> str:
         """
-        Upsert a raw dataset
+        Update or insert a raw dataset
+        This function is obsolete is going to be removed in future releases
 
         Parameters
         ----------
@@ -342,9 +354,13 @@ class ScicatClient:
         logger.info(f"dataset upserted {new_pid}")
         return new_pid
 
-    def upsert_derived_dataset(self, dataset: Dataset, filter_fields) -> str:
+    upsert_raw_dataset = datasets_raw_upsert
+
+
+    def datasets_derived_upsert(self, dataset: Dataset, filter_fields) -> str:
         """
-        Upsert a derived dataset
+        Update or insert a derived dataset
+        This function is obsolete and is going to be removed in future releases
 
         Parameters
         ----------
@@ -375,14 +391,19 @@ class ScicatClient:
         logger.info(f"dataset upserted {new_pid}")
         return new_pid
 
-    def create_dataset_datablock(
+    upsert_derived_datasets = datasets_derived_upsert
+
+
+    def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
     ):
         """
         Create a new datablock for a dataset.
         The dataset can be both Raw or Derived.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_datablock
+        The original names were create_dataset_datablock and upload_datablock
+        This function is obsolete and will be removed in future releases
+        Function datasets_origdatablock_create should be used.
 
         Parameters
         ----------
@@ -414,14 +435,16 @@ class ScicatClient:
         Upload a Datablock
         Original name, kept for for backward compatibility
     """
-    upload_datablock = create_dataset_datablock
+    upload_datablock = datasets_datablock_create
+    create_dataset_datablock = datasets_datablock_create
 
-    def create_dataset_origdatablock(self, origdatablock: OrigDatablock) -> dict:
+
+    def datasets_origdatablock_create(self, origdatablock: OrigDatablock) -> dict:
         """
         Create a new SciCat Dataset OrigDatablock
         This function has been renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_dataset_origdatablock
+        The original names were create_dataset_origdatablock and upload_dataset_origdatablock
 
         Parameters
         ----------
@@ -454,9 +477,11 @@ class ScicatClient:
         Create a new SciCat Dataset OrigDatablock
         Original name, kept for for backward compatibility
     """
-    upload_dataset_origdatablock = create_dataset_origdatablock
+    upload_dataset_origdatablock = datasets_origdatablock_create
+    create_dataset_origdatablock = datasets_origdatablock_create
 
-    def create_dataset_attachment(
+
+    def datasets_attachment_create(
         self, attachment: Attachment, datasetType: str = "RawDatasets"
     ):
         """
@@ -465,7 +490,7 @@ class ScicatClient:
         that this attachment is attached to. This is required for creating the url that SciCat uses.
         This function has been renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was upload_attachment
+        The original names were create_dataset_attachment and upload_attachment
 
         Parameters
         ----------
@@ -500,9 +525,11 @@ class ScicatClient:
         Create a new attachement for a dataset
         Original name, kept for for backward compatibility
     """
-    upload_attachment = create_dataset_attachment
+    upload_attachment = datasets_attachment_create
+    create_dataset_attachment = datasets_attachment_create
 
-    def find_datasets_full_query(self, skip=0, limit=25, query_fields=None):
+
+    def datasets_find(self, skip=0, limit=25, query_fields=None):
         """
         Gets datasets using the fullQuery mechanism of SciCat. This is
         appropriate for cases where might want paging and cases where you want to perform
@@ -516,7 +543,7 @@ class ScicatClient:
 
         This function was renamed.
         It is still accessible with the original name for backward compatibility
-        The original name was get_datasets_full_query
+        The original name was find_datasets_full_query and get_datasets_full_query
 
         Parameters
         ----------
@@ -547,13 +574,17 @@ class ScicatClient:
         find a set of datasets according the full query provided
         Original name, kept for for backward compatibility
     """
-    get_datasets_full_query = find_datasets_full_query
+    get_datasets_full_query = datasets_find
+    find_datasets_full_query = datasets_find
 
-    def find_datasets(self, filter_fields=None) -> List[Dataset]:
+
+    def datasets_get_many(self, filter_fields=None) -> List[Dataset]:
         """
         Gets datasets using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
         want to be able to limit results based on items in the Dataset object.
+        This function has been renamed and the old name has been mantained for backward compatibility
+        The previous names are find_datasets and get_datasets
 
         For example, a search for Datasets of a given proposalId would have
         ```python
@@ -585,13 +616,17 @@ class ScicatClient:
         find a set of datasets according to the simple filter provided
         Original name, kept for for backward compatibility
     """
-    get_datasets = find_datasets
+    get_datasets = datasets_get_many
+    find_datasets = datasets_get_many
 
-    def find_published_data(self, filter=None) -> List[PublishedData]:
+
+    def published_data_get_many(self, filter=None) -> List[PublishedData]:
         """
         retrieve all the published data using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
         want to be able to limit results based on items in the Dataset object.
+        This function has been renamed and the old name has been maintained for backward compatibility
+        The previous name are find_published_data and get_published_data
 
         For example, a search for published data of a given doi would have
         ```python
@@ -623,10 +658,15 @@ class ScicatClient:
         find a set of published data according to the simple filter provided
         Original name, kept for for backward compatibility
     """
-    get_published_data = find_published_data
+    get_published_data = published_data_get_many
+    find_published_data = published_data_get_many
 
-    def get_dataset_by_pid(self, pid=None) -> Dataset:
-        """Gets dataset with the pid provided.
+
+    def datasets_get_one(self, pid=None) -> Dataset:
+        """
+        Gets dataset with the pid provided.
+        This function has been renamed. Provious name has been maintained for backward compatibility.
+        Previous names was get_dataset_by_pid
 
         Parameters
         ----------
@@ -643,6 +683,9 @@ class ScicatClient:
             return None
         return response.json()
 
+    get_dataset_by_pid = datasets_get_one
+
+
     # this method is future, needs testing.
     # def update_dataset(self, pid, fields: Dict):
     #     response = self._send_to_scicat(
@@ -654,10 +697,13 @@ class ScicatClient:
     #         return None
     #     return response.json()
 
-    def get_instrument(self, pid: str = None, name: str = None) -> dict:
+    def instruments_get_one(self, pid: str = None, name: str = None) -> dict:
         """
         Get an instrument by pid or by name.
         If pid is provided it takes priority over name.
+
+        This function has been renamed. Previous name has been maintained for backward compatibility.
+        Previous name was get_instrument
 
         Parameters
         ----------
@@ -694,9 +740,15 @@ class ScicatClient:
             return None
         return response.json()
 
-    def get_sample(self, pid: str = None) -> dict:
+    get_instrument = instruments_get_one
+
+
+    def samples_get_one(self, pid: str = None) -> dict:
         """
-        Get an sample by pid.
+        Get a sample by pid.
+        This function has been renamed. Previous name has been maintained for backward compatibility.
+        Previous name was get_sample
+        
 
         Parameters
         ----------
@@ -719,9 +771,14 @@ class ScicatClient:
             return None
         return response.json()
 
-    def get_proposal(self, pid: str = None) -> dict:
+    get_sample = samples_get_one
+
+
+    def proposals_get_one(self, pid: str = None) -> dict:
         """
         Get proposal by pid.
+        This function has been renamed. Previous name has been maintained for backward compatibility.
+        Previous name was get_proposal
 
         Parameters
         ----------
@@ -743,9 +800,14 @@ class ScicatClient:
             return None
         return response.json()
 
-    def get_dataset_origdatablocks(self, pid: str = None) -> dict:
+    get_proposal = proposals_get_one
+
+
+    def datasets_origdatablocks_get_one(self, pid: str = None) -> dict:
         """
         Get dataset orig datablocks by dataset pid.
+        This function has been renamed. Previous name has been maintained for backward compatibility.
+        Previous name was get_dataset_origdatablocks
 
         Parameters
         ----------
@@ -767,9 +829,14 @@ class ScicatClient:
             return None
         return response.json()
 
-    def delete_dataset(self, pid: str = None) -> dict:
+    get_dataset_origdatablocks = datasets_origdatablocks_get_one
+
+
+    def datasets_delete(self, pid: str = None) -> dict:
         """
         Delete dataset by pid
+        This function has been renamed. Previous name has been maintained for backward compatibility.
+        Previous name was delete_dataset
 
         Parameters
         ----------
@@ -791,6 +858,8 @@ class ScicatClient:
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
+
+    delete_dataset = datasets_delete
 
 
 def get_file_size(pathobj):
