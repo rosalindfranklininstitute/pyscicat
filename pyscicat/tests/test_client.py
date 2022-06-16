@@ -14,7 +14,6 @@ from ..model import (
     Attachment,
     Datablock,
     DataFile,
-    Dataset,
     RawDataset,
     Ownable,
 )
