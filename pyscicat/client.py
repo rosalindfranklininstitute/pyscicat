@@ -273,7 +273,7 @@ class ScicatClient:
         logger.info(f"new dataset created {new_pid}")
         return new_pid
 
-    def update_dataset(self, dataset: Dataset, id) -> str:
+    def update_dataset(self, dataset: Dataset, pid) -> str:
         """Updates an existing dataset
 
         Parameters
@@ -281,7 +281,7 @@ class ScicatClient:
         dataset : Dataset
             Dataset to update
 
-        id
+        pid
             pid (or unique identifier) of dataset being updated
 
         Returns
@@ -294,10 +294,15 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        if "/" in id:
-            id = id.replace("/", "%2F")
-        dataset_url = self._base_url + "Datasets/" + id
-        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True), cmd="patch")
+        if pid:
+            encoded_pid = urllib.parse.quote_plus(pid)
+            endpoint = "Datasets/{}".format(encoded_pid)
+            url = self._base_url + endpoint
+        else:
+            logger.error("No pid given. You must specify a dataset pid.")
+            return None
+
+        resp = self._send_to_scicat(url, dataset.dict(exclude_none=True), cmd="patch")
         if not resp.ok:
             err = resp.json()["error"]
             raise ScicatCommError(f"Error updating dataset {err}")
