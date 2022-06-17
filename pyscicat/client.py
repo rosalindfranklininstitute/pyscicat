@@ -884,7 +884,7 @@ def from_credentials(base_url: str, username: str, password: str):
 def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
-    logger.info(f" Getting new token for user {username}")
+    logger.info(" Getting new token")
     if base_url[-1] != "/":
         base_url = base_url + "/"
     response = requests.post(
@@ -900,7 +900,4 @@ def get_token(base_url, username, password):
         raise ScicatLoginError(response.content)
 
     data = response.json()
-    # print("Response:", data)
-    token = data["id"]  # not sure if semantically correct
-    logger.info(f" token: {token}")
-    return token
+    return data["id"]  # not sure if semantically correct
