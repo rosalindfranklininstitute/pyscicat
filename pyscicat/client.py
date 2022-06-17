@@ -195,7 +195,6 @@ class ScicatClient:
     upload_dataset = datasets_replace
     replace_dataset = datasets_replace
 
-
     def datasets_create(self, dataset: Dataset) -> str:
         """
         Upload a new dataset. Uses the generic dataset endpoint.
@@ -238,7 +237,6 @@ class ScicatClient:
     upload_new_dataset = datasets_create
     create_dataset = datasets_create
 
-
     def datasets_raw_replace(self, dataset: Dataset) -> str:
         """
         Create a new raw dataset or update an existing one
@@ -277,7 +275,6 @@ class ScicatClient:
     """
     upload_raw_dataset = datasets_raw_replace
     replace_raw_dataset = datasets_raw_replace
-
 
     def datasets_derived_replace(self, dataset: Dataset) -> str:
         """
@@ -320,7 +317,6 @@ class ScicatClient:
     upload_derived_dataset = datasets_derived_replace
     replace_derived_dataset = datasets_derived_replace
 
-
     def datasets_raw_upsert(self, dataset: Dataset, filter_fields) -> str:
         """
         Update or insert a raw dataset
@@ -355,7 +351,6 @@ class ScicatClient:
         return new_pid
 
     upsert_raw_dataset = datasets_raw_upsert
-
 
     def datasets_derived_upsert(self, dataset: Dataset, filter_fields) -> str:
         """
@@ -392,7 +387,6 @@ class ScicatClient:
         return new_pid
 
     upsert_derived_datasets = datasets_derived_upsert
-
 
     def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
@@ -438,7 +432,6 @@ class ScicatClient:
     upload_datablock = datasets_datablock_create
     create_dataset_datablock = datasets_datablock_create
 
-
     def datasets_origdatablock_create(self, origdatablock: OrigDatablock) -> dict:
         """
         Create a new SciCat Dataset OrigDatablock
@@ -479,7 +472,6 @@ class ScicatClient:
     """
     upload_dataset_origdatablock = datasets_origdatablock_create
     create_dataset_origdatablock = datasets_origdatablock_create
-
 
     def datasets_attachment_create(
         self, attachment: Attachment, datasetType: str = "RawDatasets"
@@ -527,7 +519,6 @@ class ScicatClient:
     """
     upload_attachment = datasets_attachment_create
     create_dataset_attachment = datasets_attachment_create
-
 
     def datasets_find(self, skip=0, limit=25, query_fields=None):
         """
@@ -577,7 +568,6 @@ class ScicatClient:
     get_datasets_full_query = datasets_find
     find_datasets_full_query = datasets_find
 
-
     def datasets_get_many(self, filter_fields=None) -> List[Dataset]:
         """
         Gets datasets using the simple fiter mechanism. This
@@ -618,7 +608,6 @@ class ScicatClient:
     """
     get_datasets = datasets_get_many
     find_datasets = datasets_get_many
-
 
     def published_data_get_many(self, filter=None) -> List[PublishedData]:
         """
@@ -661,7 +650,6 @@ class ScicatClient:
     get_published_data = published_data_get_many
     find_published_data = published_data_get_many
 
-
     def datasets_get_one(self, pid=None) -> Dataset:
         """
         Gets dataset with the pid provided.
@@ -684,7 +672,6 @@ class ScicatClient:
         return response.json()
 
     get_dataset_by_pid = datasets_get_one
-
 
     # this method is future, needs testing.
     # def update_dataset(self, pid, fields: Dict):
@@ -742,13 +729,12 @@ class ScicatClient:
 
     get_instrument = instruments_get_one
 
-
     def samples_get_one(self, pid: str = None) -> dict:
         """
         Get a sample by pid.
         This function has been renamed. Previous name has been maintained for backward compatibility.
         Previous name was get_sample
-        
+
 
         Parameters
         ----------
@@ -772,7 +758,6 @@ class ScicatClient:
         return response.json()
 
     get_sample = samples_get_one
-
 
     def proposals_get_one(self, pid: str = None) -> dict:
         """
@@ -802,7 +787,6 @@ class ScicatClient:
 
     get_proposal = proposals_get_one
 
-
     def datasets_origdatablocks_get_one(self, pid: str = None) -> dict:
         """
         Get dataset orig datablocks by dataset pid.
@@ -830,7 +814,6 @@ class ScicatClient:
         return response.json()
 
     get_dataset_origdatablocks = datasets_origdatablocks_get_one
-
 
     def datasets_delete(self, pid: str = None) -> dict:
         """
