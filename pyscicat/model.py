@@ -145,9 +145,7 @@ class RawDataset(Dataset):
     principalInvestigator: Optional[str]
     creationLocation: Optional[str]
     dataFormat: str
-    type: DatasetType = "raw"
-    createdAt: Optional[str]  # datetime
-    updatedAt: Optional[str]  # datetime
+    type: DatasetType = DatasetType.raw
     dataFormat: Optional[str]
     endTime: Optional[str]  # datetime
     sampleId: Optional[str]
@@ -160,12 +158,13 @@ class DerivedDataset(Dataset):
     Derived datasets which have been generated based on one or more raw datasets
     """
 
-    investigator: Optional[str]
+    investigator: str
     inputDatasets: List[str]
-    usedSoftware: List[str]  # not optional!
+    usedSoftware: List[str]
     jobParameters: Optional[dict]
     jobLogData: Optional[str]
     scientificMetadata: Optional[Dict]
+    type: DatasetType = DatasetType.derived
 
 
 class DataFile(MongoQueryable):
@@ -178,12 +177,13 @@ class DataFile(MongoQueryable):
     path: str
     size: int
     time: Optional[str]
+    chk: Optional[str]
     uid: Optional[str] = None
     gid: Optional[str] = None
     perm: Optional[str] = None
 
 
-class Datablock(Ownable):
+class Datablock(Ownable, MongoQueryable):
     """
     A Datablock maps between a Dataset and contains DataFiles
     """
@@ -194,18 +194,20 @@ class Datablock(Ownable):
     packedSize: Optional[int]
     chkAlg: Optional[int]
     version: str = None
+    instrumentGroup: Optional[str]
     dataFileList: List[DataFile]
     datasetId: str
 
 
-class OrigDatablock(Ownable):
+class OrigDatablock(Ownable, MongoQueryable):
     """
-    A Original Datablock maps between a Dataset and contains DataFiles
+    An Original Datablock maps between a Dataset and contains DataFiles
     """
 
     id: Optional[str]
     # archiveId: str = None  listed in catamel model, but comes back invalid?
     size: int
+    instrumentGroup: Optional[str]
     dataFileList: List[DataFile]
     datasetId: str
 
