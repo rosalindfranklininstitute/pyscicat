@@ -346,8 +346,6 @@ class ScicatClient:
         logger.info(f"dataset updated {pid}")
         return pid
 
-    upsert_derived_datasets = datasets_derived_upsert
-
     def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
     ):
