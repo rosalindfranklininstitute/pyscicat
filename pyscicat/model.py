@@ -13,7 +13,7 @@ class DatasetType(str, enum.Enum):
     derived = "derived"
 
 
-class Ownable(BaseModel):
+class Ownable(MongoQueryable):
     """Many objects in SciCat are ownable"""
 
     ownerGroup: str
@@ -40,7 +40,7 @@ class User(BaseModel):
     id: str
 
 
-class Proposal(Ownable, MongoQueryable):
+class Proposal(Ownable):
     """
     Defines the purpose of an experiment and links an experiment to principal investigator and main proposer
     """
@@ -62,7 +62,7 @@ class Proposal(Ownable, MongoQueryable):
     ]  # may need updating with the measurement period model
 
 
-class Sample(Ownable, MongoQueryable):
+class Sample(Ownable):
     """
     Models describing the characteristics of the samples to be investigated.
     Raw datasets should be linked to such sample definitions.
@@ -105,7 +105,7 @@ class Instrument(MongoQueryable):
     customMetadata: Optional[dict]
 
 
-class Dataset(Ownable, MongoQueryable):
+class Dataset(Ownable):
     """
     A dataset in SciCat, base class for derived and raw datasets
     """
@@ -183,7 +183,7 @@ class DataFile(MongoQueryable):
     perm: Optional[str] = None
 
 
-class Datablock(Ownable, MongoQueryable):
+class Datablock(Ownable):
     """
     A Datablock maps between a Dataset and contains DataFiles
     """
@@ -199,7 +199,7 @@ class Datablock(Ownable, MongoQueryable):
     datasetId: str
 
 
-class OrigDatablock(Ownable, MongoQueryable):
+class OrigDatablock(Ownable):
     """
     An Original Datablock maps between a Dataset and contains DataFiles
     """
