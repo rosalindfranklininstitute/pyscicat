@@ -13,13 +13,6 @@ class DatasetType(str, enum.Enum):
     derived = "derived"
 
 
-class Ownable(MongoQueryable):
-    """Many objects in SciCat are ownable"""
-
-    ownerGroup: str
-    accessGroups: List[str]
-
-
 class MongoQueryable(BaseModel):
     """Many objects in SciCat are mongo queryable"""
 
@@ -27,6 +20,13 @@ class MongoQueryable(BaseModel):
     updatedBy: Optional[str]
     updatedAt: Optional[str]
     createdAt: Optional[str]
+
+
+class Ownable(MongoQueryable):
+    """Many objects in SciCat are ownable"""
+
+    ownerGroup: str
+    accessGroups: List[str]
 
 
 class User(BaseModel):
