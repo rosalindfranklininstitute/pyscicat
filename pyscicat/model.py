@@ -13,13 +13,6 @@ class DatasetType(str, enum.Enum):
     derived = "derived"
 
 
-class Ownable(BaseModel):
-    """Many objects in SciCat are ownable"""
-
-    ownerGroup: str
-    accessGroups: List[str]
-
-
 class MongoQueryable(BaseModel):
     """Many objects in SciCat are mongo queryable"""
 
@@ -27,6 +20,13 @@ class MongoQueryable(BaseModel):
     updatedBy: Optional[str]
     updatedAt: Optional[str]
     createdAt: Optional[str]
+
+
+class Ownable(MongoQueryable):
+    """Many objects in SciCat are ownable"""
+
+    ownerGroup: str
+    accessGroups: List[str]
 
 
 class User(BaseModel):
@@ -40,7 +40,7 @@ class User(BaseModel):
     id: str
 
 
-class Proposal(Ownable, MongoQueryable):
+class Proposal(Ownable):
     """
     Defines the purpose of an experiment and links an experiment to principal investigator and main proposer
     """
@@ -62,7 +62,7 @@ class Proposal(Ownable, MongoQueryable):
     ]  # may need updating with the measurement period model
 
 
-class Sample(Ownable, MongoQueryable):
+class Sample(Ownable):
     """
     Models describing the characteristics of the samples to be investigated.
     Raw datasets should be linked to such sample definitions.
@@ -105,7 +105,7 @@ class Instrument(MongoQueryable):
     customMetadata: Optional[dict]
 
 
-class Dataset(Ownable, MongoQueryable):
+class Dataset(Ownable):
     """
     A dataset in SciCat, base class for derived and raw datasets
     """
@@ -145,9 +145,7 @@ class RawDataset(Dataset):
     principalInvestigator: Optional[str]
     creationLocation: Optional[str]
     dataFormat: str
-    type: DatasetType = "raw"
-    createdAt: Optional[str]  # datetime
-    updatedAt: Optional[str]  # datetime
+    type: DatasetType = DatasetType.raw
     dataFormat: Optional[str]
     endTime: Optional[str]  # datetime
     sampleId: Optional[str]
@@ -160,12 +158,13 @@ class DerivedDataset(Dataset):
     Derived datasets which have been generated based on one or more raw datasets
     """
 
-    investigator: Optional[str]
+    investigator: str
     inputDatasets: List[str]
-    usedSoftware: List[str]  # not optional!
+    usedSoftware: List[str]
     jobParameters: Optional[dict]
     jobLogData: Optional[str]
     scientificMetadata: Optional[Dict]
+    type: DatasetType = DatasetType.derived
 
 
 class DataFile(MongoQueryable):
@@ -178,6 +177,7 @@ class DataFile(MongoQueryable):
     path: str
     size: int
     time: Optional[str]
+    chk: Optional[str]
     uid: Optional[str] = None
     gid: Optional[str] = None
     perm: Optional[str] = None
@@ -194,18 +194,20 @@ class Datablock(Ownable):
     packedSize: Optional[int]
     chkAlg: Optional[int]
     version: str = None
+    instrumentGroup: Optional[str]
     dataFileList: List[DataFile]
     datasetId: str
 
 
 class OrigDatablock(Ownable):
     """
-    A Original Datablock maps between a Dataset and contains DataFiles
+    An Original Datablock maps between a Dataset and contains DataFiles
     """
 
     id: Optional[str]
     # archiveId: str = None  listed in catamel model, but comes back invalid?
     size: int
+    instrumentGroup: Optional[str]
     dataFileList: List[DataFile]
     datasetId: str
 
