@@ -80,8 +80,6 @@ class ScicatClient:
         self._token = token  # store token here
         self._headers = {}  # store headers
 
-        logger.info(f"Starting ingestor talking to scicat at: {self._base_url}")
-
         if not self._token:
             assert (self._username is not None) and (
                 self._password is not None
