@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
+import pytest
 import requests_mock
 from ..client import (
     from_credentials,
@@ -8,6 +9,7 @@ from ..client import (
     encode_thumbnail,
     get_file_mod_time,
     get_file_size,
+    ScicatCommError,
 )
 
 from ..model import (
@@ -109,6 +111,71 @@ def test_scicat_ingest():
             **ownable.dict()
         )
         scicat.upload_attachment(attachment)
+
+
+def test_get_dataset():
+    with requests_mock.Mocker() as mock_request:
+        dataset = RawDataset(
+            size=42,
+            owner="slartibartfast",
+            contactEmail="slartibartfast@magrathea.org",
+            creationLocation="magrathea",
+            creationTime=str(datetime.now()),
+            instrumentId="earth",
+            proposalId="deepthought",
+            dataFormat="planet",
+            principalInvestigator="A. Mouse",
+            sourceFolder="/foo/bar",
+            scientificMetadata={"a": "field"},
+            sampleId="gargleblaster",
+            ownerGroup="magrathea",
+            accessGroups=["deep_though"],
+        )
+        mock_request.get(
+            local_url + "Datasets/123", json=dataset.dict(exclude_none=True)
+        )
+
+        client = from_token(base_url=local_url, token="a_token")
+        retrieved = client.datasets_get_one("123")
+        assert retrieved == dataset.dict(exclude_none=True)
+
+
+def test_get_nonexistent_dataset():
+    with requests_mock.Mocker() as mock_request:
+        mock_request.get(
+            local_url + "Datasets/74",
+            status_code=404,
+            reason="Not Found",
+            json={
+                "error": {
+                    "statusCode": 404,
+                    "name": "Error",
+                    "message": 'Unknown "Dataset" id "74".',
+                    "code": "MODEL_NOT_FOUND",
+                }
+            },
+        )
+        client = from_token(base_url=local_url, token="a_token")
+        assert client.datasets_get_one("74") is None
+
+
+def test_get_dataset_bad_url():
+    with requests_mock.Mocker() as mock_request:
+        mock_request.get(
+            "http://localhost:3000/api/v100/Datasets/53",
+            status_code=404,
+            reason="Not Found",
+            json={
+                "error": {
+                    "statusCode": 404,
+                    "name": "Error",
+                    "message": "Cannot GET /api/v100/Datasets/53",
+                }
+            },
+        )
+        client = from_token(base_url="http://localhost:3000/api/v100", token="a_token")
+        with pytest.raises(ScicatCommError):
+            client.datasets_get_one("53")
 
 
 def test_initializers():
