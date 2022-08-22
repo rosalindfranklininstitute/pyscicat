@@ -222,8 +222,8 @@ class ScicatClient:
         resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
 
         if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating dataset {err}")
+            err = resp.json()
+            raise ScicatCommError(f"Error creating dataset. Status Code: {err['statusCode']}. Message: {err['message']}")
 
         new_pid = resp.json().get("pid")
         logger.info(f"new dataset created {new_pid}")
@@ -340,7 +340,7 @@ class ScicatClient:
 
         resp = self._send_to_scicat(url, dataset.dict(exclude_none=True), cmd="patch")
         if not resp.ok:
-            err = resp.json()["error"]
+            err = resp.json()["message"]
             raise ScicatCommError(f"Error updating dataset {err}")
         pid = resp.json().get("pid")
         logger.info(f"dataset updated {pid}")
@@ -378,7 +378,7 @@ class ScicatClient:
         )
         resp = self._send_to_scicat(url, datablock.dict(exclude_none=True))
         if not resp.ok:
-            err = resp.json()["error"]
+            err = resp.json()["message"]
             raise ScicatCommError(f"Error creating datablock. {err}")
 
         return resp.json()
@@ -419,7 +419,7 @@ class ScicatClient:
 
         resp = self._send_to_scicat(url, origdatablock.dict(exclude_none=True))
         if not resp.ok:
-            err = resp.json()["error"]
+            err = resp.json()["message"]
             raise ScicatCommError(f"Error creating dataset original datablock. {err}")
 
         return resp.json()
@@ -468,7 +468,7 @@ class ScicatClient:
             verify=True,
         )
         if not resp.ok:
-            err = resp.json()["error"]
+            err = resp.json()["message"]
             raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
     """
@@ -514,7 +514,7 @@ class ScicatClient:
         url = f"{self._base_url}/Datasets/fullquery?{query}"
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -555,7 +555,7 @@ class ScicatClient:
         url = f'{self._base_url}/Datasets/?filter={{"where":{filter_fields}}}'
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -596,7 +596,7 @@ class ScicatClient:
         print(url)
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -624,7 +624,7 @@ class ScicatClient:
         url = f"{self._base_url}/Datasets/{encode_pid}"
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -680,7 +680,7 @@ class ScicatClient:
 
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -738,7 +738,7 @@ class ScicatClient:
         url = self._base_url + endpoint + pid
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -766,7 +766,7 @@ class ScicatClient:
         url = f"{self._base_url}/Datasets/{encoded_pid}/origdatablocks"
         response = self._send_to_scicat(url, cmd="get")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -795,7 +795,7 @@ class ScicatClient:
         url = self._base_url + endpoint
         response = self._send_to_scicat(url, cmd="delete")
         if not response.ok:
-            err = response.json()["error"]
+            err = response.json()["message"]
             logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
             return None
         return response.json()
@@ -846,14 +846,14 @@ def get_token(base_url, username, password):
     if base_url[-1] != "/":
         base_url = base_url + "/"
     response = requests.post(
-        base_url + "Users/login",
+        base_url + "auth/login",
         json={"username": username, "password": password},
         stream=False,
         verify=True,
     )
     if not response.ok:
         logger.error(f" ** Error received: {response}")
-        err = response.json()["error"]
+        err = response.json()["message"]
         logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
         raise ScicatLoginError(response.content)
 
