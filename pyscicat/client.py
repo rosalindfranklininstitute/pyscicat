@@ -6,7 +6,7 @@ import hashlib
 import logging
 import json
 from typing import List
-import urllib
+import urllib.parse
 
 import requests
 
@@ -839,23 +839,52 @@ def from_credentials(base_url: str, username: str, password: str):
     return from_token(base_url, token)
 
 
-def get_token(base_url, username, password):
-    """logs in using the provided username / password combination
-    and receives token for further communication use"""
-    logger.info(" Getting new token")
-    if base_url[-1] != "/":
-        base_url = base_url + "/"
+def _log_in_via_users_login(base_url, username, password):
     response = requests.post(
-        base_url + "Users/login",
+        urllib.parse.urljoin(base_url, "Users/login"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
     )
     if not response.ok:
-        logger.error(f" ** Error received: {response}")
-        err = response.json()["error"]
-        logger.error(f' {err["name"]}, {err["statusCode"]}: {err["message"]}')
-        raise ScicatLoginError(response.content)
+        logger.info(f" Failed to log in via endpoint Users/login: {response.json()}")
+    return response
 
-    data = response.json()
-    return data["id"]  # not sure if semantically correct
+
+def _log_in_via_auth_msad(base_url, username, password):
+    import re
+
+    # Strip the api/vn suffix
+    base_url = re.sub(r"/api/v\d+/?", "", base_url)
+    response = requests.post(
+        urllib.parse.urljoin(base_url, "auth/msad"),
+        json={"username": username, "password": password},
+        stream=False,
+        verify=True,
+    )
+    if not response.ok:
+        logger.info(f" Failed to log in via auth/msad: {response.json()}")
+    return response
+
+
+def get_token(base_url, username, password):
+    """logs in using the provided username / password combination
+    and receives token for further communication use"""
+    # Users/login only works for functional accounts and auth/msad for regular users.
+    # Try both and see what works. This is not nice but seems to be the only
+    # feasible solution right now.
+    logger.info(" Getting new token")
+
+    response = _log_in_via_users_login(base_url, username, password)
+    if response.ok:
+        return response.json()["id"]  # not sure if semantically correct
+
+    response = _log_in_via_auth_msad(base_url, username, password)
+    if response.ok:
+        return response.json()["access_token"]
+
+    err = response.json()["error"]
+    logger.error(
+        f' Failed log in:  {err["name"]}, {err["statusCode"]}: {err["message"]}'
+    )
+    raise ScicatLoginError(response.content)
