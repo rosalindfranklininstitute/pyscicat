@@ -731,7 +731,7 @@ def from_credentials(base_url: str, username: str, password: str):
 
 def _log_in_via_users_login(base_url, username, password):
     response = requests.post(
-        urllib.parse.urljoin(base_url, "Users/login"),
+        urljoin(base_url, "Users/login"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
@@ -747,7 +747,7 @@ def _log_in_via_auth_msad(base_url, username, password):
     # Strip the api/vn suffix
     base_url = re.sub(r"/api/v\d+/?", "", base_url)
     response = requests.post(
-        urllib.parse.urljoin(base_url, "auth/msad"),
+        urljoin(base_url, "auth/msad"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
