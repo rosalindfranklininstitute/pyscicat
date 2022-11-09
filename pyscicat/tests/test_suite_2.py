@@ -111,14 +111,14 @@ def test_scicat_ingest_raw_dataset():
 
         # Create Dataset
         dataset = RawDataset(**data["dataset"], **ownable.dict())
-        created_dataset = scicat.create_dataset(dataset)
+        created_dataset_pid = scicat.create_dataset(dataset)
 
-        assert created_dataset["pid"] == data["id"]
+        assert created_dataset_pid == data["id"]
 
         # origDatablock with DataFiles
         origDataBlock = OrigDatablock(
             size=data["orig_datablock"]["size"],
-            datasetId=created_dataset["pid"],
+            datasetId=created_dataset_pid,
             dataFileList=[
                 DataFile(**file) for file in data["orig_datablock"]["dataFileList"]
             ],
@@ -147,14 +147,14 @@ def test_scicat_ingest_derived_dataset():
 
         # Create Dataset
         dataset = RawDataset(**data["dataset"], **ownable.dict())
-        created_dataset = scicat.create_dataset(dataset)
+        created_dataset_pid = scicat.create_dataset(dataset)
 
-        assert created_dataset["pid"] == data["id"]
+        assert created_dataset_pid == data["id"]
 
         # origDatablock with DataFiles
         origDataBlock = OrigDatablock(
             size=data["orig_datablock"]["size"],
-            datasetId=created_dataset["pid"],
+            datasetId=created_dataset_pid,
             dataFileList=[
                 DataFile(**file) for file in data["orig_datablock"]["dataFileList"]
             ],
