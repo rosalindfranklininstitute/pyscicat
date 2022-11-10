@@ -135,6 +135,7 @@ class Dataset(Ownable):
     type: DatasetType
     validationStatus: Optional[str]
     version: Optional[str]
+    scientificMetadata: Optional[Dict]
 
 
 class RawDataset(Dataset):
@@ -144,13 +145,11 @@ class RawDataset(Dataset):
 
     principalInvestigator: Optional[str]
     creationLocation: Optional[str]
-    dataFormat: str
     type: DatasetType = DatasetType.raw
     dataFormat: Optional[str]
     endTime: Optional[str]  # datetime
     sampleId: Optional[str]
     proposalId: Optional[str]
-    scientificMetadata: Optional[Dict]
 
 
 class DerivedDataset(Dataset):
@@ -163,7 +162,6 @@ class DerivedDataset(Dataset):
     usedSoftware: List[str]
     jobParameters: Optional[dict]
     jobLogData: Optional[str]
-    scientificMetadata: Optional[Dict]
     type: DatasetType = DatasetType.derived
 
 
