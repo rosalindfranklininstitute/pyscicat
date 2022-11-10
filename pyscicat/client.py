@@ -5,9 +5,11 @@ import base64
 import hashlib
 import logging
 import json
-from typing import List
-import urllib.parse
+import re
+from typing import Optional
+from urllib.parse import urljoin, quote_plus
 
+from pydantic import BaseModel
 import requests
 
 from pyscicat.model import (
@@ -17,7 +19,6 @@ from pyscicat.model import (
     OrigDatablock,
     RawDataset,
     DerivedDataset,
-    PublishedData,
 )
 
 logger = logging.getLogger("splash_ingest")
@@ -48,7 +49,7 @@ class ScicatClient:
 
     def __init__(
         self,
-        base_url: str = None,
+        base_url: str,
         token: str = False,
         username: str = None,
         password: str = None,
@@ -78,9 +79,6 @@ class ScicatClient:
         self._password = password  # default password
         self._token = token  # store token here
         self._headers = {}  # store headers
-        assert self._base_url is not None, "SciCat database URL must be provided"
-
-        logger.info(f"Starting ingestor talking to scicat at: {self._base_url}")
 
         if not self._token:
             assert (self._username is not None) and (
@@ -89,68 +87,47 @@ class ScicatClient:
             self._token = get_token(self._base_url, self._username, self._password)
             self._headers["Authorization"] = "Bearer {}".format(self._token)
 
-    def _send_to_scicat(self, url, dataDict=None, cmd="post"):
+    def _send_to_scicat(self, cmd: str, endpoint: str, data: BaseModel = None):
         """sends a command to the SciCat API server using url and token, returns the response JSON
         Get token with the getToken method"""
-        if cmd == "post":
-            response = requests.post(
-                url,
-                params={"access_token": self._token},
-                headers=self._headers,
-                json=dataDict,
-                timeout=self._timeout_seconds,
-                stream=False,
-                verify=True,
-            )
-        elif cmd == "delete":
-            response = requests.delete(
-                url,
-                params={"access_token": self._token},
-                headers=self._headers,
-                timeout=self._timeout_seconds,
-                stream=False,
-            )
-        elif cmd == "get":
-            response = requests.get(
-                url,
-                params={"access_token": self._token},
-                headers=self._headers,
-                json=dataDict,
-                timeout=self._timeout_seconds,
-                stream=False,
-            )
-        elif cmd == "patch":
-            response = requests.patch(
-                url,
-                params={"access_token": self._token},
-                headers=self._headers,
-                json=dataDict,
-                timeout=self._timeout_seconds,
-                stream=False,
-            )
-        return response
+        return requests.request(
+            method=cmd,
+            url=urljoin(self._base_url, endpoint),
+            json=data.dict(exclude_none=True) if data is not None else None,
+            params={"access_token": self._token},
+            headers=self._headers,
+            timeout=self._timeout_seconds,
+            stream=False,
+            verify=True,
+        )
 
-    #  Future support for samples
-    # def upload_sample(self, sample):
-    #     sample = {
-    #         "sampleId": projected_start_doc.get('sample_id'),
-    #         "owner": projected_start_doc.get('pi_name'),
-    #         "description": projected_start_doc.get('sample_name'),
-    #         "createdAt": datetime.isoformat(datetime.utcnow()) + "Z",
-    #         "sampleCharacteristics": {},
-    #         "isPublished": False,
-    #         "ownerGroup": owner_group,
-    #         "accessGroups": access_groups,
-    #         "createdBy": self._username,
-    #         "updatedBy": self._username,
-    #         "updatedAt": datetime.isoformat(datetime.utcnow()) + "Z"
-    #     }
-    #     sample_url = f'{self._base_url}Samples'
-
-    #     resp = self._send_to_scicat(sample_url, sample)
-    #     if not resp.ok:  # can happen if sample id is a duplicate, but we can't tell that from the response
-    #         err = resp.json()["error"]
-    #         raise ScicatCommError(f"Error creating Sample {err}")
+    def _call_endpoint(
+        self,
+        cmd: str,
+        endpoint: str,
+        data: BaseModel = None,
+        operation: str = "",
+        allow_404=False,
+    ) -> Optional[dict]:
+        response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data)
+        result = response.json()
+        if not response.ok:
+            err = result.get("error", {})
+            if (
+                allow_404
+                and response.status_code == 404
+                and re.match(r"Unknown (.+ )?id", err.get("message", ""))
+            ):
+                # The operation failed but because the object does not exist in SciCat.
+                logger.error("Error in operation %s: %s", operation, err)
+                return None
+            raise ScicatCommError(f"Error in operation {operation}: {err}")
+        logger.info(
+            "Operation '%s' successful%s",
+            operation,
+            f"pid={result['pid']}" if "pid" in result else "",
+        )
+        return result
 
     def datasets_replace(self, dataset: Dataset) -> str:
         """
@@ -173,20 +150,16 @@ class ScicatClient:
         """
 
         if isinstance(dataset, RawDataset):
-            dataset_url = self._base_url + "RawDataSets/replaceOrCreate"
+            dataset_url = "RawDataSets/replaceOrCreate"
         elif isinstance(dataset, DerivedDataset):
-            dataset_url = self._base_url + "DerivedDatasets/replaceOrCreate"
+            dataset_url = "DerivedDatasets/replaceOrCreate"
         else:
-            logging.error(
+            raise TypeError(
                 "Dataset type not recognized (not Derived or Raw dataset instances)"
             )
-        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating dataset {err}")
-        new_pid = resp.json().get("pid")
-        logger.info(f"new dataset created {new_pid}")
-        return new_pid
+        return self._call_endpoint(
+            cmd="post", endpoint=dataset_url, data=dataset, operation="datasets_replace"
+        ).get("pid")
 
     """
         Upload or create a new dataset
@@ -210,25 +183,17 @@ class ScicatClient:
 
         Returns
         -------
-        dataset : Dataset
-            Dataset created including the pid (or unique identifier) of the newly created dataset
+        str
+            pid of the dataset
 
         Raises
         ------
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        dataset_url = self._base_url + "Datasets"
-        resp = self._send_to_scicat(dataset_url, dataset.dict(exclude_none=True))
-
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating dataset {err}")
-
-        new_pid = resp.json().get("pid")
-        logger.info(f"new dataset created {new_pid}")
-
-        return resp.json()
+        return self._call_endpoint(
+            cmd="post", endpoint="Datasets", data=dataset, operation="datasets_create"
+        ).get("pid")
 
     """
         Upload a new dataset
@@ -260,14 +225,12 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        raw_dataset_url = self._base_url + "RawDataSets/replaceOrCreate"
-        resp = self._send_to_scicat(raw_dataset_url, dataset.dict(exclude_none=True))
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating raw dataset {err}")
-        new_pid = resp.json().get("pid")
-        logger.info(f"new dataset created {new_pid}")
-        return new_pid
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="RawDataSets/replaceOrCreate",
+            data=dataset,
+            operation="datasets_raw_replace",
+        ).get("pid")
 
     """
         Upload a raw dataset
@@ -299,18 +262,14 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        derived_dataset_url = self._base_url + "DerivedDataSets/replaceOrCreate"
-        resp = self._send_to_scicat(
-            derived_dataset_url, dataset.dict(exclude_none=True)
-        )
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating raw dataset {err}")
-        new_pid = resp.json().get("pid")
-        logger.info(f"new dataset created {new_pid}")
-        return new_pid
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="DerivedDataSets/replaceOrCreate",
+            data=dataset,
+            operation="datasets_derived_replace",
+        ).get("pid")
 
-    def update_dataset(self, dataset: Dataset, pid) -> str:
+    def update_dataset(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
 
         Parameters
@@ -330,25 +289,16 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        if pid:
-            encoded_pid = urllib.parse.quote_plus(pid)
-            endpoint = "Datasets/{}".format(encoded_pid)
-            url = self._base_url + endpoint
-        else:
-            logger.error("No pid given. You must specify a dataset pid.")
-            return None
-
-        resp = self._send_to_scicat(url, dataset.dict(exclude_none=True), cmd="patch")
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error updating dataset {err}")
-        pid = resp.json().get("pid")
-        logger.info(f"dataset updated {pid}")
-        return pid
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Datasets/{quote_plus(pid)}",
+            data=dataset,
+            operation="update_dataset",
+        ).get("pid")
 
     def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
-    ):
+    ) -> dict:
         """
         Create a new datablock for a dataset.
         The dataset can be both Raw or Derived.
@@ -372,16 +322,13 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        url = (
-            self._base_url
-            + f"{datasetType}/{urllib.parse.quote_plus(datablock.datasetId)}/origdatablocks"
+        endpoint = f"{datasetType}/{quote_plus(datablock.datasetId)}/origdatablocks"
+        return self._call_endpoint(
+            cmd="post",
+            endpoint=endpoint,
+            data=datablock,
+            operation="datasets_datablock_create",
         )
-        resp = self._send_to_scicat(url, datablock.dict(exclude_none=True))
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating datablock. {err}")
-
-        return resp.json()
 
     """
         Upload a Datablock
@@ -413,16 +360,13 @@ class ScicatClient:
             Raises if a non-20x message is returned
 
         """
-        encoded_pid = urllib.parse.quote_plus(origdatablock.datasetId)
-        endpoint = "Datasets/" + encoded_pid + "/origdatablocks"
-        url = self._base_url + endpoint
-
-        resp = self._send_to_scicat(url, origdatablock.dict(exclude_none=True))
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error creating dataset original datablock. {err}")
-
-        return resp.json()
+        endpoint = f"Datasets/{quote_plus(origdatablock.datasetId)}/origdatablocks"
+        return self._call_endpoint(
+            cmd="post",
+            endpoint=endpoint,
+            data=origdatablock,
+            operation="datasets_origdatablock_create",
+        )
 
     """
         Create a new SciCat Dataset OrigDatablock
@@ -433,7 +377,7 @@ class ScicatClient:
 
     def datasets_attachment_create(
         self, attachment: Attachment, datasetType: str = "RawDatasets"
-    ):
+    ) -> dict:
         """
         Create a new Attachment for a dataset.
         Note that datasetType can be provided to determine the type of dataset
@@ -454,22 +398,13 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        url = (
-            self._base_url
-            + f"{datasetType}/{urllib.parse.quote_plus(attachment.datasetId)}/attachments"
+        endpoint = f"{datasetType}/{quote_plus(attachment.datasetId)}/attachments"
+        return self._call_endpoint(
+            cmd="post",
+            endpoint=endpoint,
+            data=attachment,
+            operation="datasets_attachment_create",
         )
-        logging.debug(url)
-        resp = requests.post(
-            url,
-            params={"access_token": self._token},
-            timeout=self._timeout_seconds,
-            stream=False,
-            json=attachment.dict(exclude_none=True),
-            verify=True,
-        )
-        if not resp.ok:
-            err = resp.json()["error"]
-            raise ScicatCommError(f"Error  uploading thumbnail. {err}")
 
     """
         Create a new attachement for a dataset
@@ -478,7 +413,9 @@ class ScicatClient:
     upload_attachment = datasets_attachment_create
     create_dataset_attachment = datasets_attachment_create
 
-    def datasets_find(self, skip=0, limit=25, query_fields=None):
+    def datasets_find(
+        self, skip: int = 0, limit: int = 25, query_fields: Optional[dict] = None
+    ) -> Optional[dict]:
         """
         Gets datasets using the fullQuery mechanism of SciCat. This is
         appropriate for cases where might want paging and cases where you want to perform
@@ -511,13 +448,12 @@ class ScicatClient:
         query_fields = json.dumps(query_fields)
         query = f'fields={query_fields}&limits={{"skip":{skip},"limit":{limit},"order":"creationTime:desc"}}'
 
-        url = f"{self._base_url}/Datasets/fullquery?{query}"
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="get",
+            endpoint=f"Datasets/fullquery?{query}",
+            operation="datasets_find",
+            allow_404=True,
+        )
 
     """
         find a set of datasets according the full query provided
@@ -526,7 +462,7 @@ class ScicatClient:
     get_datasets_full_query = datasets_find
     find_datasets_full_query = datasets_find
 
-    def datasets_get_many(self, filter_fields=None) -> List[Dataset]:
+    def datasets_get_many(self, filter_fields: Optional[dict] = None) -> Optional[dict]:
         """
         Gets datasets using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
@@ -554,15 +490,11 @@ class ScicatClient:
         """
         if not filter_fields:
             filter_fields = {}
-
         filter_fields = json.dumps(filter_fields)
-        url = f'{self._base_url}/Datasets/?filter={{"where":{filter_fields}}}'
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        endpoint = f'/Datasets/?filter={{"where":{filter_fields}}}'
+        return self._call_endpoint(
+            cmd="get", endpoint=endpoint, operation="datasets_get_many", allow_404=True
+        )
 
     """
         find a set of datasets according to the simple filter provided
@@ -571,7 +503,7 @@ class ScicatClient:
     get_datasets = datasets_get_many
     find_datasets = datasets_get_many
 
-    def published_data_get_many(self, filter=None) -> List[PublishedData]:
+    def published_data_get_many(self, filter=None) -> Optional[dict]:
         """
         retrieve all the published data using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
@@ -589,21 +521,16 @@ class ScicatClient:
         filter : dict
             Dictionary of filtering fields. Must be json serializable.
         """
-        if not filter:
-            filter = None
-        else:
+        if filter:
             filter = json.dumps(filter)
 
-        url = f"{self._base_url}PublishedData" + (
-            f'?filter={{"where":{filter}}}' if filter else ""
+        endpoint = "PublishedData" + (f'?filter={{"where":{filter}}}' if filter else "")
+        return self._call_endpoint(
+            cmd="get",
+            endpoint=endpoint,
+            operation="published_data_get_many",
+            allow_404=True,
         )
-        print(url)
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
 
     """
         find a set of published data according to the simple filter provided
@@ -612,7 +539,7 @@ class ScicatClient:
     get_published_data = published_data_get_many
     find_published_data = published_data_get_many
 
-    def datasets_get_one(self, pid=None) -> Dataset:
+    def datasets_get_one(self, pid: str) -> Optional[dict]:
         """
         Gets dataset with the pid provided.
         This function has been renamed. Provious name has been maintained for backward compatibility.
@@ -623,30 +550,16 @@ class ScicatClient:
         pid : string
             pid of the dataset requested.
         """
-
-        encode_pid = urllib.parse.quote_plus(pid)
-        url = f"{self._base_url}/Datasets/{encode_pid}"
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="get",
+            endpoint=f"Datasets/{quote_plus(pid)}",
+            operation="datasets_get_one",
+            allow_404=True,
+        )
 
     get_dataset_by_pid = datasets_get_one
 
-    # this method is future, needs testing.
-    # def update_dataset(self, pid, fields: Dict):
-    #     response = self._send_to_scicat(
-    #         f"{self._base_url}/Datasets", dataDict=fields, cmd="patch"
-    #     )
-    #     if not response.ok:
-    #         err = response.json()["error"]
-    #         logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-    #         return None
-    #     return response.json()
-
-    def instruments_get_one(self, pid: str = None, name: str = None) -> dict:
+    def instruments_get_one(self, pid: str = None, name: str = None) -> Optional[dict]:
         """
         Get an instrument by pid or by name.
         If pid is provided it takes priority over name.
@@ -669,29 +582,23 @@ class ScicatClient:
         """
 
         if pid:
-            encoded_pid = urllib.parse.quote_plus(pid)
-            endpoint = "/Instruments/{}".format(encoded_pid)
-            url = self._base_url + endpoint
+            endpoint = f"Instruments/{quote_plus(pid)}"
         elif name:
-            endpoint = "/Instruments/findOne"
             query = json.dumps({"where": {"name": {"like": name}}})
-            url = self._base_url + endpoint + "?" + query
+            endpoint = f"Instruments/findOne?{query}"
         else:
-            logger.error(
-                "Invalid instrument pid and/or name. You must specify instrument pid or name"
-            )
-            return None
+            raise ValueError("You must specify instrument pid or name")
 
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="get",
+            endpoint=endpoint,
+            operation="instruments_get_one",
+            allow_404=True,
+        )
 
     get_instrument = instruments_get_one
 
-    def samples_get_one(self, pid: str = None) -> dict:
+    def samples_get_one(self, pid: str) -> Optional[dict]:
         """
         Get a sample by pid.
         This function has been renamed. Previous name has been maintained for backward compatibility.
@@ -708,20 +615,16 @@ class ScicatClient:
         dict
             The sample with the requested pid
         """
-
-        encoded_pid = urllib.parse.quote_plus(pid)
-        endpoint = "/Samples/{}".format(encoded_pid)
-        url = self._base_url + endpoint
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="get",
+            endpoint=f"Samples/{quote_plus(pid)}",
+            operation="samples_get_one",
+            allow_404=True,
+        )
 
     get_sample = samples_get_one
 
-    def proposals_get_one(self, pid: str = None) -> dict:
+    def proposals_get_one(self, pid: str = None) -> Optional[dict]:
         """
         Get proposal by pid.
         This function has been renamed. Previous name has been maintained for backward compatibility.
@@ -737,19 +640,13 @@ class ScicatClient:
         dict
             The proposal with the requested pid
         """
-
-        endpoint = "/Proposals/"
-        url = self._base_url + endpoint + pid
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="get", endpoint=f"Proposals/{quote_plus(pid)}", allow_404=True
+        )
 
     get_proposal = proposals_get_one
 
-    def datasets_origdatablocks_get_one(self, pid: str = None) -> dict:
+    def datasets_origdatablocks_get_one(self, pid: str) -> Optional[dict]:
         """
         Get dataset orig datablocks by dataset pid.
         This function has been renamed. Previous name has been maintained for backward compatibility.
@@ -765,19 +662,16 @@ class ScicatClient:
         dict
             The orig_datablocks of the dataset with the requested pid
         """
-
-        encoded_pid = urllib.parse.quote_plus(pid)
-        url = f"{self._base_url}/Datasets/{encoded_pid}/origdatablocks"
-        response = self._send_to_scicat(url, cmd="get")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="get",
+            endpoint=f"/Datasets/{quote_plus(pid)}/origdatablocks",
+            operation="datasets_origdatablocks_get_one",
+            allow_404=True,
+        )
 
     get_dataset_origdatablocks = datasets_origdatablocks_get_one
 
-    def datasets_delete(self, pid: str = None) -> dict:
+    def datasets_delete(self, pid: str) -> Optional[dict]:
         """
         Delete dataset by pid
         This function has been renamed. Previous name has been maintained for backward compatibility.
@@ -793,16 +687,12 @@ class ScicatClient:
         dict
             response from SciCat backend
         """
-
-        encoded_pid = urllib.parse.quote_plus(pid)
-        endpoint = "/Datasets/{}".format(encoded_pid)
-        url = self._base_url + endpoint
-        response = self._send_to_scicat(url, cmd="delete")
-        if not response.ok:
-            err = response.json()["error"]
-            logger.error(f'{err["name"]}, {err["statusCode"]}: {err["message"]}')
-            return None
-        return response.json()
+        return self._call_endpoint(
+            cmd="delete",
+            endpoint=f"/Datasets/{quote_plus(pid)}",
+            operation="datasets_delete",
+            allow_404=True,
+        )
 
     delete_dataset = datasets_delete
 
@@ -845,7 +735,7 @@ def from_credentials(base_url: str, username: str, password: str):
 
 def _log_in_via_users_login(base_url, username, password):
     response = requests.post(
-        urllib.parse.urljoin(base_url, "Users/login"),
+        urljoin(base_url, "Users/login"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
@@ -861,14 +751,17 @@ def _log_in_via_auth_msad(base_url, username, password):
     # Strip the api/vn suffix
     base_url = re.sub(r"/api/v\d+/?", "", base_url)
     response = requests.post(
-        urllib.parse.urljoin(base_url, "auth/msad"),
+        urljoin(base_url, "auth/msad"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
     )
     if not response.ok:
-        logger.info(f" Failed to log in via auth/msad: {response.json()}")
-    return response
+        err = response.json()["error"]
+        logger.error(
+            f'Error retrieving token for user: {err["name"]}, {err["statusCode"]}: {err["message"]}'
+        )
+        raise ScicatLoginError(response.content)
 
 
 def get_token(base_url, username, password):
