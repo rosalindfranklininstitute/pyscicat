@@ -478,6 +478,10 @@ class ScicatClient:
         ```python
         filterField = {"proposalId": ""}
         ```
+        If you want to search on partial strings, you can use "like":
+        ```python
+        filterField = {"proposalId": {"like":"123"}}
+        ```
 
         Parameters
         ----------
