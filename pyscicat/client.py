@@ -431,7 +431,7 @@ class ScicatClient:
         Returns
         -------
         str
-            id of the newly created sample
+            ID of the newly created sample
 
         Raises
         ------
@@ -446,6 +446,38 @@ class ScicatClient:
         ).get("sampleId")
 
     upload_sample = samples_create
+
+    def update_sample(self, sample: Sample, sampleId: str = None) -> str:
+        """Updates an existing sample
+
+        Parameters
+        ----------
+        sample : Sample
+            Sample to update
+
+        sampleId
+            ID of sample being updated. By default, ID is taken from sample parameter.
+
+        Returns
+        -------
+        str
+            ID of the sample
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        if sampleId is None:
+            assert sample.sampleId is not None, "sampleId should not be None"
+            sampleId = sample.sampleId
+        sample.sampleId = None
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Samples/{quote_plus(sampleId)}",
+            data=sample,
+            operation="update_sample",
+        ).get("sampleId")
 
     def instruments_create(self, instrument: Instrument):
         """
@@ -479,6 +511,39 @@ class ScicatClient:
 
     upload_instrument = instruments_create
 
+    def update_instrument(self, instrument: Instrument, pid: str = None) -> str:
+        """Updates an existing instrument.
+        Note that in SciCat admin rights are required to upload instruments.
+
+        Parameters
+        ----------
+        instrument : Instrument
+            Instrument to update
+
+        pid
+            pid (or unique identifier) of instrument being updated. By default, pid is taken from instrument parameter.
+
+        Returns
+        -------
+        str
+            ID of the instrument
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        if pid is None:
+            assert instrument.pid is not None, "pid should not be None"
+            pid = instrument.pid
+        instrument.pid = None
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Instruments/{quote_plus(pid)}",
+            data=instrument,
+            operation="update_instrument",
+        ).get("pid")
+
     def proposals_create(self, proposal: Proposal):
         """
         Create a new proposal or update an existing one.
@@ -510,6 +575,39 @@ class ScicatClient:
         ).get("proposalId")
 
     upload_proposal = proposals_create
+
+    def update_proposal(self, proposal: Proposal, proposalId: str = None) -> str:
+        """Updates an existing proposal.
+        Note that in SciCat admin rights are required to upload proposals.
+
+        Parameters
+        ----------
+        proposal : Proposal
+            Proposal to update
+
+        proposalId
+            ID of proposal being updated. By default, this is taken from proposal parameter.
+
+        Returns
+        -------
+        str
+            ID of the proposal
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        if proposalId is None:
+            assert proposal.proposalId is not None, "proposalId should not be None"
+            proposalId = proposal.proposalId
+        proposal.proposalId = None
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Proposals/{quote_plus(proposalId)}",
+            data=proposal,
+            operation="update_proposal",
+        ).get("proposalId")
 
     def datasets_find(
         self, skip: int = 0, limit: int = 25, query_fields: Optional[dict] = None

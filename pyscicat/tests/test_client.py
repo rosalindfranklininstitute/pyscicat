@@ -35,6 +35,13 @@ def add_mock_requests(mock_request):
     mock_request.post(local_url + "Instruments", json={"pid": "earth"})
     mock_request.post(local_url + "Proposals", json={"proposalId": "deepthought"})
     mock_request.post(local_url + "Samples", json={"sampleId": "gargleblaster"})
+    mock_request.patch(local_url + "Instruments/earth", json={"pid": "earth"})
+    mock_request.patch(
+        local_url + "Proposals/deepthought", json={"proposalId": "deepthought"}
+    )
+    mock_request.patch(
+        local_url + "Samples/gargleblaster", json={"sampleId": "gargleblaster"}
+    )
 
     mock_request.post(local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"})
     mock_request.patch(
@@ -79,13 +86,18 @@ def test_scicat_ingest():
         )
         assert scicat.upload_instrument(instrument) == "earth"
         assert scicat.instruments_create(instrument) == "earth"
+        assert scicat.update_instrument(instrument) == "earth"
 
         # Proposal
         proposal = Proposal(
-            proposalId="deepthought", title="Deepthought", **ownable.dict()
+            proposalId="deepthought",
+            title="Deepthought",
+            email="deepthought@viltvodle.com",
+            **ownable.dict()
         )
         assert scicat.upload_proposal(proposal) == "deepthought"
         assert scicat.proposals_create(proposal) == "deepthought"
+        assert scicat.update_proposal(proposal) == "deepthought"
 
         # Sample
         sample = Sample(
@@ -95,7 +107,8 @@ def test_scicat_ingest():
             **ownable.dict()
         )
         assert scicat.upload_sample(sample) == "gargleblaster"
-        assert scicat.samples_create(proposal) == "gargleblaster"
+        assert scicat.samples_create(sample) == "gargleblaster"
+        assert scicat.update_sample(sample) == "gargleblaster"
 
         # RawDataset
         dataset = RawDataset(
