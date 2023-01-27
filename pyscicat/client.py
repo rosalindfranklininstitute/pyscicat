@@ -418,7 +418,7 @@ class ScicatClient:
 
     def samples_create(self, sample: Sample) -> str:
         """
-        Create a new sample or update an existing one.
+        Create a new sample.
         An error is raised when a sample with the same sampleId already exists.
         This function is also accessible as upload_sample.
 
@@ -467,6 +467,9 @@ class ScicatClient:
         ------
         ScicatCommError
             Raises if a non-20x message is returned
+
+        AssertionError
+            Raises if no ID is provided
         """
         if sampleId is None:
             assert sample.sampleId is not None, "sampleId should not be None"
@@ -481,7 +484,7 @@ class ScicatClient:
 
     def instruments_create(self, instrument: Instrument):
         """
-        Create a new instrument or update an existing one.
+        Create a new instrument.
         Note that in SciCat admin rights are required to upload instruments.
         An error is raised when an instrument with the same pid already exists.
         This function is also accessible as upload_instrument.
@@ -532,6 +535,9 @@ class ScicatClient:
         ------
         ScicatCommError
             Raises if a non-20x message is returned
+
+        AssertionError
+            Raises if no ID is provided
         """
         if pid is None:
             assert instrument.pid is not None, "pid should not be None"
@@ -546,7 +552,7 @@ class ScicatClient:
 
     def proposals_create(self, proposal: Proposal):
         """
-        Create a new proposal or update an existing one.
+        Create a new proposal.
         Note that in SciCat admin rights are required to upload proposals.
         An error is raised when a proposal with the same proposalId already exists.
         This function is also accessible as upload_proposal.
@@ -560,7 +566,7 @@ class ScicatClient:
         Returns
         -------
         str
-            id of the newly created proposal
+            ID of the newly created proposal
 
         Raises
         ------
@@ -597,6 +603,9 @@ class ScicatClient:
         ------
         ScicatCommError
             Raises if a non-20x message is returned
+
+        AssertionError
+            Raises if no ID is provided
         """
         if proposalId is None:
             assert proposal.proposalId is not None, "proposalId should not be None"
