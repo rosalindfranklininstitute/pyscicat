@@ -419,6 +419,7 @@ class ScicatClient:
     def samples_create(self, sample: Sample) -> str:
         """
         Create a new sample or update an existing one.
+        An error is raised when a sample with the same sampleId already exists.
         This function is also accessible as upload_sample.
 
 
@@ -450,6 +451,7 @@ class ScicatClient:
         """
         Create a new instrument or update an existing one.
         Note that in SciCat admin rights are required to upload instruments.
+        An error is raised when an instrument with the same pid already exists.
         This function is also accessible as upload_instrument.
 
 
@@ -481,6 +483,7 @@ class ScicatClient:
         """
         Create a new proposal or update an existing one.
         Note that in SciCat admin rights are required to upload proposals.
+        An error is raised when a proposal with the same proposalId already exists.
         This function is also accessible as upload_proposal.
 
 
