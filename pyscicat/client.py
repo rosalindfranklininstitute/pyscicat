@@ -524,7 +524,8 @@ class ScicatClient:
             Instrument to update
 
         pid
-            pid (or unique identifier) of instrument being updated. By default, pid is taken from instrument parameter.
+            pid (or unique identifier) of instrument being updated.
+            By default, pid is taken from instrument parameter.
 
         Returns
         -------
