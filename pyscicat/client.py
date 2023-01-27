@@ -16,9 +16,12 @@ from pyscicat.model import (
     Attachment,
     Datablock,
     Dataset,
-    OrigDatablock,
-    RawDataset,
     DerivedDataset,
+    Instrument,
+    OrigDatablock,
+    Proposal,
+    RawDataset,
+    Sample,
 )
 
 logger = logging.getLogger("splash_ingest")
@@ -412,6 +415,98 @@ class ScicatClient:
     """
     upload_attachment = datasets_attachment_create
     create_dataset_attachment = datasets_attachment_create
+
+    def samples_create(self, sample: Sample) -> str:
+        """
+        Create a new sample or update an existing one.
+        This function is also accessible as upload_sample.
+
+
+        Parameters
+        ----------
+        sample : Sample
+            Sample to upload
+
+        Returns
+        -------
+        str
+            id of the newly created sample
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="Samples",
+            data=sample,
+            operation="samples_create",
+        ).get("sampleId")
+
+    upload_sample = samples_create
+
+    def instruments_create(self, instrument: Instrument):
+        """
+        Create a new instrument or update an existing one.
+        Note that in SciCat admin rights are required to upload instruments.
+        This function is also accessible as upload_instrument.
+
+
+        Parameters
+        ----------
+        instrument : Instrument
+            Instrument to upload
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the newly created instrument
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="Instruments",
+            data=instrument,
+            operation="instruments_create",
+        ).get("pid")
+
+    upload_instrument = instruments_create
+
+    def proposals_create(self, proposal: Proposal):
+        """
+        Create a new proposal or update an existing one.
+        Note that in SciCat admin rights are required to upload proposals.
+        This function is also accessible as upload_proposal.
+
+
+        Parameters
+        ----------
+        proposal : Proposal
+            Proposal to upload
+
+        Returns
+        -------
+        str
+            id of the newly created proposal
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="Proposals",
+            data=proposal,
+            operation="proposals_create",
+        ).get("proposalId")
+
+    upload_proposal = proposals_create
 
     def datasets_find(
         self, skip: int = 0, limit: int = 25, query_fields: Optional[dict] = None
