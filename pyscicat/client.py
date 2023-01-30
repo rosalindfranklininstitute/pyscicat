@@ -447,7 +447,7 @@ class ScicatClient:
 
     upload_sample = samples_create
 
-    def update_sample(self, sample: Sample, sampleId: str = None) -> str:
+    def samples_update(self, sample: Sample, sampleId: str = None) -> str:
         """Updates an existing sample
 
         Parameters
@@ -479,7 +479,7 @@ class ScicatClient:
             cmd="patch",
             endpoint=f"Samples/{quote_plus(sampleId)}",
             data=sample,
-            operation="update_sample",
+            operation="samples_update",
         ).get("sampleId")
 
     def instruments_create(self, instrument: Instrument):
@@ -514,7 +514,7 @@ class ScicatClient:
 
     upload_instrument = instruments_create
 
-    def update_instrument(self, instrument: Instrument, pid: str = None) -> str:
+    def instruments_update(self, instrument: Instrument, pid: str = None) -> str:
         """Updates an existing instrument.
         Note that in SciCat admin rights are required to upload instruments.
 
@@ -548,7 +548,7 @@ class ScicatClient:
             cmd="patch",
             endpoint=f"Instruments/{quote_plus(pid)}",
             data=instrument,
-            operation="update_instrument",
+            operation="instruments_update",
         ).get("pid")
 
     def proposals_create(self, proposal: Proposal):
@@ -583,7 +583,7 @@ class ScicatClient:
 
     upload_proposal = proposals_create
 
-    def update_proposal(self, proposal: Proposal, proposalId: str = None) -> str:
+    def proposals_update(self, proposal: Proposal, proposalId: str = None) -> str:
         """Updates an existing proposal.
         Note that in SciCat admin rights are required to upload proposals.
 
@@ -616,7 +616,7 @@ class ScicatClient:
             cmd="patch",
             endpoint=f"Proposals/{quote_plus(proposalId)}",
             data=proposal,
-            operation="update_proposal",
+            operation="proposals_update",
         ).get("proposalId")
 
     def datasets_find(

@@ -86,7 +86,7 @@ def test_scicat_ingest():
         )
         assert scicat.upload_instrument(instrument) == "earth"
         assert scicat.instruments_create(instrument) == "earth"
-        assert scicat.update_instrument(instrument) == "earth"
+        assert scicat.instruments_update(instrument) == "earth"
 
         # Proposal
         proposal = Proposal(
@@ -97,7 +97,7 @@ def test_scicat_ingest():
         )
         assert scicat.upload_proposal(proposal) == "deepthought"
         assert scicat.proposals_create(proposal) == "deepthought"
-        assert scicat.update_proposal(proposal) == "deepthought"
+        assert scicat.proposals_update(proposal) == "deepthought"
 
         # Sample
         sample = Sample(
@@ -108,7 +108,7 @@ def test_scicat_ingest():
         )
         assert scicat.upload_sample(sample) == "gargleblaster"
         assert scicat.samples_create(sample) == "gargleblaster"
-        assert scicat.update_sample(sample) == "gargleblaster"
+        assert scicat.samples_update(sample) == "gargleblaster"
 
         # RawDataset
         dataset = RawDataset(
