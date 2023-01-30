@@ -211,7 +211,7 @@ class ScicatClient:
         This function was renamed.
         It is still accessible with the original name for backward compatibility
         The original names were repalce_raw_dataset and upload_raw_dataset
-        THis function is obsolete and it will be removed in future releases
+        This function is obsolete and it will be removed in future releases
 
         Parameters
         ----------
@@ -272,8 +272,11 @@ class ScicatClient:
             operation="datasets_derived_replace",
         ).get("pid")
 
-    def update_dataset(self, dataset: Dataset, pid: str) -> str:
+    def datasets_update(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was update_dataset.
 
         Parameters
         ----------
@@ -296,8 +299,14 @@ class ScicatClient:
             cmd="patch",
             endpoint=f"Datasets/{quote_plus(pid)}",
             data=dataset,
-            operation="update_dataset",
+            operation="datasets_update",
         ).get("pid")
+
+    """
+        Update a dataset
+        Original name, kept for for backward compatibility
+    """
+    update_dataset = datasets_update
 
     def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
