@@ -16,7 +16,10 @@ from ..model import (
     Attachment,
     Datablock,
     DataFile,
+    Instrument,
+    Proposal,
     RawDataset,
+    Sample,
     Ownable,
 )
 
@@ -28,7 +31,18 @@ def add_mock_requests(mock_request):
         local_url + "Users/login",
         json={"id": "a_token"},
     )
-    mock_request.post(local_url + "Samples", json={"sampleId": "dataset_id"})
+
+    mock_request.post(local_url + "Instruments", json={"pid": "earth"})
+    mock_request.post(local_url + "Proposals", json={"proposalId": "deepthought"})
+    mock_request.post(local_url + "Samples", json={"sampleId": "gargleblaster"})
+    mock_request.patch(local_url + "Instruments/earth", json={"pid": "earth"})
+    mock_request.patch(
+        local_url + "Proposals/deepthought", json={"proposalId": "deepthought"}
+    )
+    mock_request.patch(
+        local_url + "Samples/gargleblaster", json={"sampleId": "gargleblaster"}
+    )
+
     mock_request.post(local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"})
     mock_request.patch(
         local_url + "Datasets/42",
@@ -65,6 +79,36 @@ def test_scicat_ingest():
         assert time is not None
         size = get_file_size(thumb_path)
         assert size is not None
+
+        # Instrument
+        instrument = Instrument(
+            pid="earth", name="Earth", customMetadata={"a": "field"}
+        )
+        assert scicat.upload_instrument(instrument) == "earth"
+        assert scicat.instruments_create(instrument) == "earth"
+        assert scicat.instruments_update(instrument) == "earth"
+
+        # Proposal
+        proposal = Proposal(
+            proposalId="deepthought",
+            title="Deepthought",
+            email="deepthought@viltvodle.com",
+            **ownable.dict()
+        )
+        assert scicat.upload_proposal(proposal) == "deepthought"
+        assert scicat.proposals_create(proposal) == "deepthought"
+        assert scicat.proposals_update(proposal) == "deepthought"
+
+        # Sample
+        sample = Sample(
+            sampleId="gargleblaster",
+            description="Gargleblaster",
+            sampleCharacteristics={"a": "field"},
+            **ownable.dict()
+        )
+        assert scicat.upload_sample(sample) == "gargleblaster"
+        assert scicat.samples_create(sample) == "gargleblaster"
+        assert scicat.samples_update(sample) == "gargleblaster"
 
         # RawDataset
         dataset = RawDataset(

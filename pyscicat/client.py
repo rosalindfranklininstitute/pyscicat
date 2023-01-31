@@ -16,9 +16,12 @@ from pyscicat.model import (
     Attachment,
     Datablock,
     Dataset,
-    OrigDatablock,
-    RawDataset,
     DerivedDataset,
+    Instrument,
+    OrigDatablock,
+    Proposal,
+    RawDataset,
+    Sample,
 )
 
 logger = logging.getLogger("splash_ingest")
@@ -208,7 +211,7 @@ class ScicatClient:
         This function was renamed.
         It is still accessible with the original name for backward compatibility
         The original names were repalce_raw_dataset and upload_raw_dataset
-        THis function is obsolete and it will be removed in future releases
+        This function is obsolete and it will be removed in future releases
 
         Parameters
         ----------
@@ -269,8 +272,11 @@ class ScicatClient:
             operation="datasets_derived_replace",
         ).get("pid")
 
-    def update_dataset(self, dataset: Dataset, pid: str) -> str:
+    def datasets_update(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
+        This function was renamed.
+        It is still accessible with the original name for backward compatibility
+        The original name was update_dataset.
 
         Parameters
         ----------
@@ -293,8 +299,14 @@ class ScicatClient:
             cmd="patch",
             endpoint=f"Datasets/{quote_plus(pid)}",
             data=dataset,
-            operation="update_dataset",
+            operation="datasets_update",
         ).get("pid")
+
+    """
+        Update a dataset
+        Original name, kept for for backward compatibility
+    """
+    update_dataset = datasets_update
 
     def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
@@ -412,6 +424,209 @@ class ScicatClient:
     """
     upload_attachment = datasets_attachment_create
     create_dataset_attachment = datasets_attachment_create
+
+    def samples_create(self, sample: Sample) -> str:
+        """
+        Create a new sample.
+        An error is raised when a sample with the same sampleId already exists.
+        This function is also accessible as upload_sample.
+
+
+        Parameters
+        ----------
+        sample : Sample
+            Sample to upload
+
+        Returns
+        -------
+        str
+            ID of the newly created sample
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="Samples",
+            data=sample,
+            operation="samples_create",
+        ).get("sampleId")
+
+    upload_sample = samples_create
+
+    def samples_update(self, sample: Sample, sampleId: str = None) -> str:
+        """Updates an existing sample
+
+        Parameters
+        ----------
+        sample : Sample
+            Sample to update
+
+        sampleId
+            ID of sample being updated. By default, ID is taken from sample parameter.
+
+        Returns
+        -------
+        str
+            ID of the sample
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+
+        AssertionError
+            Raises if no ID is provided
+        """
+        if sampleId is None:
+            assert sample.sampleId is not None, "sampleId should not be None"
+            sampleId = sample.sampleId
+        sample.sampleId = None
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Samples/{quote_plus(sampleId)}",
+            data=sample,
+            operation="samples_update",
+        ).get("sampleId")
+
+    def instruments_create(self, instrument: Instrument):
+        """
+        Create a new instrument.
+        Note that in SciCat admin rights are required to upload instruments.
+        An error is raised when an instrument with the same pid already exists.
+        This function is also accessible as upload_instrument.
+
+
+        Parameters
+        ----------
+        instrument : Instrument
+            Instrument to upload
+
+        Returns
+        -------
+        str
+            pid (or unique identifier) of the newly created instrument
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="Instruments",
+            data=instrument,
+            operation="instruments_create",
+        ).get("pid")
+
+    upload_instrument = instruments_create
+
+    def instruments_update(self, instrument: Instrument, pid: str = None) -> str:
+        """Updates an existing instrument.
+        Note that in SciCat admin rights are required to upload instruments.
+
+        Parameters
+        ----------
+        instrument : Instrument
+            Instrument to update
+
+        pid
+            pid (or unique identifier) of instrument being updated.
+            By default, pid is taken from instrument parameter.
+
+        Returns
+        -------
+        str
+            ID of the instrument
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+
+        AssertionError
+            Raises if no ID is provided
+        """
+        if pid is None:
+            assert instrument.pid is not None, "pid should not be None"
+            pid = instrument.pid
+        instrument.pid = None
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Instruments/{quote_plus(pid)}",
+            data=instrument,
+            operation="instruments_update",
+        ).get("pid")
+
+    def proposals_create(self, proposal: Proposal):
+        """
+        Create a new proposal.
+        Note that in SciCat admin rights are required to upload proposals.
+        An error is raised when a proposal with the same proposalId already exists.
+        This function is also accessible as upload_proposal.
+
+
+        Parameters
+        ----------
+        proposal : Proposal
+            Proposal to upload
+
+        Returns
+        -------
+        str
+            ID of the newly created proposal
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+        """
+        return self._call_endpoint(
+            cmd="post",
+            endpoint="Proposals",
+            data=proposal,
+            operation="proposals_create",
+        ).get("proposalId")
+
+    upload_proposal = proposals_create
+
+    def proposals_update(self, proposal: Proposal, proposalId: str = None) -> str:
+        """Updates an existing proposal.
+        Note that in SciCat admin rights are required to upload proposals.
+
+        Parameters
+        ----------
+        proposal : Proposal
+            Proposal to update
+
+        proposalId
+            ID of proposal being updated. By default, this is taken from proposal parameter.
+
+        Returns
+        -------
+        str
+            ID of the proposal
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+
+        AssertionError
+            Raises if no ID is provided
+        """
+        if proposalId is None:
+            assert proposal.proposalId is not None, "proposalId should not be None"
+            proposalId = proposal.proposalId
+        proposal.proposalId = None
+        return self._call_endpoint(
+            cmd="patch",
+            endpoint=f"Proposals/{quote_plus(proposalId)}",
+            data=proposal,
+            operation="proposals_update",
+        ).get("proposalId")
 
     def datasets_find(
         self, skip: int = 0, limit: int = 25, query_fields: Optional[dict] = None
