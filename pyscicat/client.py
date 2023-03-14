@@ -950,13 +950,13 @@ def from_credentials(base_url: str, username: str, password: str):
 
 def _log_in_via_users_login(base_url, username, password):
     response = requests.post(
-        urljoin(base_url, "Users/login"),
+        urljoin(base_url, "auth/login"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
     )
     if not response.ok:
-        logger.info(f" Failed to log in via endpoint Users/login: {response.json()}")
+        logger.info(f" Failed to log in via endpoint auth/login: {response.json()}")
     return response
 
 

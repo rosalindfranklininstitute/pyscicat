@@ -28,7 +28,7 @@ local_url = "http://localhost:3000/api/v3/"
 
 def add_mock_requests(mock_request):
     mock_request.post(
-        local_url + "Users/login",
+        local_url + "auth/login",
         json={"id": "a_token"},
     )
 

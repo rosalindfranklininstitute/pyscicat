@@ -34,7 +34,7 @@ def set_up_test_environment(mock_request):
             test_datasets[name] = json.load(fh)
 
     mock_request.post(
-        local_url + "Users/login",
+        local_url + "auth/login",
         json={"id": "a_token"},
     )
 
