@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
+import pytest
 import requests_mock
 from ..client import (
     from_credentials,
@@ -8,13 +9,17 @@ from ..client import (
     encode_thumbnail,
     get_file_mod_time,
     get_file_size,
+    ScicatCommError,
 )
 
 from ..model import (
     Attachment,
     Datablock,
     DataFile,
+    Instrument,
+    Proposal,
     RawDataset,
+    Sample,
     Ownable,
 )
 
@@ -26,7 +31,18 @@ def add_mock_requests(mock_request):
         local_url + "Users/login",
         json={"id": "a_token"},
     )
-    mock_request.post(local_url + "Samples", json={"sampleId": "dataset_id"})
+
+    mock_request.post(local_url + "Instruments", json={"pid": "earth"})
+    mock_request.post(local_url + "Proposals", json={"proposalId": "deepthought"})
+    mock_request.post(local_url + "Samples", json={"sampleId": "gargleblaster"})
+    mock_request.patch(local_url + "Instruments/earth", json={"pid": "earth"})
+    mock_request.patch(
+        local_url + "Proposals/deepthought", json={"proposalId": "deepthought"}
+    )
+    mock_request.patch(
+        local_url + "Samples/gargleblaster", json={"sampleId": "gargleblaster"}
+    )
+
     mock_request.post(local_url + "RawDatasets/replaceOrCreate", json={"pid": "42"})
     mock_request.patch(
         local_url + "Datasets/42",
@@ -63,6 +79,36 @@ def test_scicat_ingest():
         assert time is not None
         size = get_file_size(thumb_path)
         assert size is not None
+
+        # Instrument
+        instrument = Instrument(
+            pid="earth", name="Earth", customMetadata={"a": "field"}
+        )
+        assert scicat.upload_instrument(instrument) == "earth"
+        assert scicat.instruments_create(instrument) == "earth"
+        assert scicat.instruments_update(instrument) == "earth"
+
+        # Proposal
+        proposal = Proposal(
+            proposalId="deepthought",
+            title="Deepthought",
+            email="deepthought@viltvodle.com",
+            **ownable.dict()
+        )
+        assert scicat.upload_proposal(proposal) == "deepthought"
+        assert scicat.proposals_create(proposal) == "deepthought"
+        assert scicat.proposals_update(proposal) == "deepthought"
+
+        # Sample
+        sample = Sample(
+            sampleId="gargleblaster",
+            description="Gargleblaster",
+            sampleCharacteristics={"a": "field"},
+            **ownable.dict()
+        )
+        assert scicat.upload_sample(sample) == "gargleblaster"
+        assert scicat.samples_create(sample) == "gargleblaster"
+        assert scicat.samples_update(sample) == "gargleblaster"
 
         # RawDataset
         dataset = RawDataset(
@@ -109,6 +155,71 @@ def test_scicat_ingest():
             **ownable.dict()
         )
         scicat.upload_attachment(attachment)
+
+
+def test_get_dataset():
+    with requests_mock.Mocker() as mock_request:
+        dataset = RawDataset(
+            size=42,
+            owner="slartibartfast",
+            contactEmail="slartibartfast@magrathea.org",
+            creationLocation="magrathea",
+            creationTime=str(datetime.now()),
+            instrumentId="earth",
+            proposalId="deepthought",
+            dataFormat="planet",
+            principalInvestigator="A. Mouse",
+            sourceFolder="/foo/bar",
+            scientificMetadata={"a": "field"},
+            sampleId="gargleblaster",
+            ownerGroup="magrathea",
+            accessGroups=["deep_though"],
+        )
+        mock_request.get(
+            local_url + "Datasets/123", json=dataset.dict(exclude_none=True)
+        )
+
+        client = from_token(base_url=local_url, token="a_token")
+        retrieved = client.datasets_get_one("123")
+        assert retrieved == dataset.dict(exclude_none=True)
+
+
+def test_get_nonexistent_dataset():
+    with requests_mock.Mocker() as mock_request:
+        mock_request.get(
+            local_url + "Datasets/74",
+            status_code=404,
+            reason="Not Found",
+            json={
+                "error": {
+                    "statusCode": 404,
+                    "name": "Error",
+                    "message": 'Unknown "Dataset" id "74".',
+                    "code": "MODEL_NOT_FOUND",
+                }
+            },
+        )
+        client = from_token(base_url=local_url, token="a_token")
+        assert client.datasets_get_one("74") is None
+
+
+def test_get_dataset_bad_url():
+    with requests_mock.Mocker() as mock_request:
+        mock_request.get(
+            "http://localhost:3000/api/v100/Datasets/53",
+            status_code=404,
+            reason="Not Found",
+            json={
+                "error": {
+                    "statusCode": 404,
+                    "name": "Error",
+                    "message": "Cannot GET /api/v100/Datasets/53",
+                }
+            },
+        )
+        client = from_token(base_url="http://localhost:3000/api/v100", token="a_token")
+        with pytest.raises(ScicatCommError):
+            client.datasets_get_one("53")
 
 
 def test_initializers():
