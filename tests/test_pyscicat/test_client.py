@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import requests_mock
-from ..client import (
+from pyscicat.client import (
     from_credentials,
     from_token,
     encode_thumbnail,
@@ -12,7 +12,7 @@ from ..client import (
     ScicatCommError,
 )
 
-from ..model import (
+from pyscicat.model import (
     Attachment,
     Datablock,
     DataFile,
