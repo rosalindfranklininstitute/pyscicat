@@ -3,9 +3,9 @@ import urllib
 import json
 
 import requests_mock
-from ..client import ScicatClient
+from pyscicat.client import ScicatClient
 
-from ..model import (
+from pyscicat.model import (
     DataFile,
     RawDataset,
     OrigDatablock,
