@@ -5,12 +5,13 @@ import base64
 import hashlib
 import logging
 import json
-import re
 from typing import Optional
 from urllib.parse import urljoin, quote_plus
 
 from pydantic import BaseModel
 import requests
+
+from deprecation import deprecated
 
 from pyscicat.model import (
     Attachment,
@@ -128,7 +129,6 @@ class ScicatClient:
             if (
                 allow_404
                 and response.status_code == 404
-                and re.match(r"Unknown (.+ )?id", err.get("message", ""))
             ):
                 # The operation failed but because the object does not exist in SciCat.
                 logger.error("Error in operation %s: %s", operation, err)
@@ -141,13 +141,18 @@ class ScicatClient:
         )
         return result
 
+    @deprecated(deprecated_in='1.0.0', details='this method no longer works with the new Scicat '
+                                        'backend, which does not have a method to '
+                                        'replaceOrCreate dataset. update_dataset or '
+                                        'upload_dataset should be used'
+                )
     def datasets_replace(self, dataset: Dataset) -> str:
         """
         Create a new dataset or update an existing one
         This function was renamed.
         It is still accessible with the original name for backward compatibility
         The original names were upload_dataset replace_datasets
-        This function is obsolete and it will be remove in next relesases
+        This function is obsoleteand it will be remove in next relesases
 
 
         Parameters
@@ -218,6 +223,12 @@ class ScicatClient:
     upload_new_dataset = datasets_create
     create_dataset = datasets_create
 
+    @deprecated(deprecated_in='1.0.0', details='this method no longer works with the new'
+                                        ' Scicat backend, which only has'
+                                        ' one end point for Datasets and does not'
+                                        ' retain separate RawDataset and'
+                                        ' DerivedDatasetEndpoints. update_dataset'
+                                        'or upload_dataset should be used')
     def datasets_raw_replace(self, dataset: Dataset) -> str:
         """
         Create a new raw dataset or update an existing one
@@ -255,10 +266,14 @@ class ScicatClient:
     upload_raw_dataset = datasets_raw_replace
     replace_raw_dataset = datasets_raw_replace
 
+    @deprecated(deprecated_in='1.0.0', details='this method no longer works with the new Scicat '
+                                        'backend,which only has one end point for '
+                                        'Datasets and does not retain separate RawDataset'
+                                        ' and DerivedDatasetEndpoints.'
+                                        'update_datsets or  upload_dataset should be used')
     def datasets_derived_replace(self, dataset: Dataset) -> str:
         """
-        Create a new derived dataset or update an existing one
-        This function was renamed.
+        Create a new derived dataset or update an existing one. This function was renamed.
         It is still accessible with the original name for backward compatibility
         The original names were replace_derived_dataset and upload_derived_dataset
 
@@ -321,6 +336,8 @@ class ScicatClient:
     """
     update_dataset = datasets_update
 
+    @deprecated(deprecated_in='1.0.0', details='this method no longer works with the new Scicat backend,'
+                                        ' function datasets_origdatablock should be used.')
     def datasets_datablock_create(
         self, datablock: Datablock, datasetType: str = "RawDatasets"
     ) -> dict:
