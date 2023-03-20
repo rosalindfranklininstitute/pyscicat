@@ -1,6 +1,3 @@
-from pathlib import Path
-from setuptools import setup, find_packages
-import sys
+from setuptools import setup
 
 setup()
-
