@@ -90,19 +90,27 @@ class ScicatClient:
             self._token = get_token(self._base_url, self._username, self._password)
             self._headers["Authorization"] = "Bearer {}".format(self._token)
 
-    def _send_to_scicat(self, cmd: str, endpoint: str, data: BaseModel = None):
+
+    def _send_to_scicat(
+        self, 
+        cmd: str, 
+        endpoint: str, 
+        data: BaseModel = None,
+        exclude_fields: set = {},
+    ):
         """sends a command to the SciCat API server using url and token, returns the response JSON
         Get token with the getToken method"""
         return requests.request(
             method=cmd,
             url=urljoin(self._base_url, endpoint),
-            json=data.dict(exclude_none=True) if data is not None else None,
+            json=data.dict(exclude=exclude_fields,exclude_none=True,exclude_unset=True) if data is not None else None,
             params={"access_token": self._token},
             headers=self._headers,
             timeout=self._timeout_seconds,
             stream=False,
             verify=True,
         )
+
 
     def _call_endpoint(
         self,
@@ -111,8 +119,9 @@ class ScicatClient:
         data: BaseModel = None,
         operation: str = "",
         allow_404=False,
+        exclude_fields: set = {},
     ) -> Optional[dict]:
-        response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data)
+        response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data, exclude_fields=exclude_fields)
         result = response.json()
         if not response.ok:
             err = result.get("error", {})
@@ -162,7 +171,7 @@ class ScicatClient:
             )
         return self._call_endpoint(
             cmd="post", endpoint=dataset_url, data=dataset, operation="datasets_replace"
-        ).get("pid")
+        )
 
     """
         Upload or create a new dataset
@@ -196,7 +205,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="post", endpoint="Datasets", data=dataset, operation="datasets_create"
-        ).get("pid")
+        )
 
     """
         Upload a new dataset
@@ -233,7 +242,7 @@ class ScicatClient:
             endpoint="RawDataSets/replaceOrCreate",
             data=dataset,
             operation="datasets_raw_replace",
-        ).get("pid")
+        )
 
     """
         Upload a raw dataset
@@ -270,7 +279,7 @@ class ScicatClient:
             endpoint="DerivedDataSets/replaceOrCreate",
             data=dataset,
             operation="datasets_derived_replace",
-        ).get("pid")
+        )
 
     def datasets_update(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
@@ -300,7 +309,7 @@ class ScicatClient:
             endpoint=f"Datasets/{quote_plus(pid)}",
             data=dataset,
             operation="datasets_update",
-        ).get("pid")
+        )
 
     """
         Update a dataset
