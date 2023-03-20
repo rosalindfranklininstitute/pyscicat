@@ -1,10 +1,10 @@
 from datetime import datetime
 import enum
-
 import base64
 import hashlib
 import logging
 import json
+import re
 from typing import Optional
 from urllib.parse import urljoin, quote_plus
 
@@ -129,6 +129,8 @@ class ScicatClient:
             if (
                 allow_404
                 and response.status_code == 404
+                and re.match(r"Unknown (.+ )?id", err.get("message", ""))
+
             ):
                 # The operation failed but because the object does not exist in SciCat.
                 logger.error("Error in operation %s: %s", operation, err)
