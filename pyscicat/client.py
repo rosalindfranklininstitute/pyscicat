@@ -204,7 +204,11 @@ class ScicatClient:
             Raises if a non-20x message is returned
         """
         return self._call_endpoint(
-            cmd="post", endpoint="Datasets", data=dataset, operation="datasets_create"
+            cmd="post", 
+            endpoint="Datasets", 
+            data=dataset, 
+            operation="datasets_create",
+            exclude_fields={'pid'},
         )
 
     """
@@ -326,7 +330,7 @@ class ScicatClient:
         It is still accessible with the original name for backward compatibility
         The original names were create_dataset_datablock and upload_datablock
         This function is obsolete and will be removed in future releases
-        Function datasets_origdatablock_create should be used.
+        Function datasets_datablock_create should be used.
 
         Parameters
         ----------
@@ -387,6 +391,7 @@ class ScicatClient:
             endpoint=endpoint,
             data=origdatablock,
             operation="datasets_origdatablock_create",
+            exclude_fields={'id','datasetId','ownerGroup','accessGroups'},
         )
 
     """
@@ -461,7 +466,7 @@ class ScicatClient:
             endpoint="Samples",
             data=sample,
             operation="samples_create",
-        ).get("sampleId")
+        )
 
     upload_sample = samples_create
 
@@ -498,7 +503,7 @@ class ScicatClient:
             endpoint=f"Samples/{quote_plus(sampleId)}",
             data=sample,
             operation="samples_update",
-        ).get("sampleId")
+        )
 
     def instruments_create(self, instrument: Instrument):
         """
@@ -528,7 +533,7 @@ class ScicatClient:
             endpoint="Instruments",
             data=instrument,
             operation="instruments_create",
-        ).get("pid")
+        )
 
     upload_instrument = instruments_create
 
@@ -567,7 +572,7 @@ class ScicatClient:
             endpoint=f"Instruments/{quote_plus(pid)}",
             data=instrument,
             operation="instruments_update",
-        ).get("pid")
+        )
 
     def proposals_create(self, proposal: Proposal):
         """
@@ -597,7 +602,7 @@ class ScicatClient:
             endpoint="Proposals",
             data=proposal,
             operation="proposals_create",
-        ).get("proposalId")
+        )
 
     upload_proposal = proposals_create
 
@@ -635,7 +640,7 @@ class ScicatClient:
             endpoint=f"Proposals/{quote_plus(proposalId)}",
             data=proposal,
             operation="proposals_update",
-        ).get("proposalId")
+        )
 
     def datasets_find(
         self, skip: int = 0, limit: int = 25, query_fields: Optional[dict] = None
