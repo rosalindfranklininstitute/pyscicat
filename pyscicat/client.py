@@ -101,16 +101,30 @@ class ScicatClient:
     ):
         """sends a command to the SciCat API server using url and token, returns the response JSON
         Get token with the getToken method"""
-        return requests.request(
-            method=cmd,
-            url=urljoin(self._base_url, endpoint),
-            json=data.dict(exclude=exclude_fields,exclude_none=True,exclude_unset=True) if data is not None else None,
-            params={"access_token": self._token},
-            headers=self._headers,
-            timeout=self._timeout_seconds,
-            stream=False,
-            verify=True,
-        )
+        if type(data) == dict:
+            return requests.request(
+                method=cmd,
+                url=urljoin(self._base_url, endpoint),
+                json=data if data is not None else None,
+                params={"access_token": self._token},
+                headers=self._headers,
+                timeout=self._timeout_seconds,
+                stream=False,
+                verify=True,
+            )
+
+        else:
+
+            return requests.request(
+                method=cmd,
+                url=urljoin(self._base_url, endpoint),
+                json=data.dict(exclude=exclude_fields,exclude_none=True,exclude_unset=True) if data is not None else None,
+                params={"access_token": self._token},
+                headers=self._headers,
+                timeout=self._timeout_seconds,
+                stream=False,
+                verify=True,
+            )
 
 
     def _call_endpoint(
@@ -1024,9 +1038,9 @@ def get_token(base_url, username, password):
     if response.ok:
         return response.json()["id"]  # not sure if semantically correct
 
-    response = _log_in_via_auth_msad(base_url, username, password)
-    if response.ok:
-        return response.json()["access_token"]
+    # response = _log_in_via_auth_msad(base_url, username, password)
+    # if response.ok:
+    #     return response.json()["access_token"]
 
     err = response.json()["error"]
     logger.error(

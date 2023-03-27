@@ -115,7 +115,7 @@ class Dataset(Ownable):
     creationTime: str  # datetime
     datasetName: Optional[str]
     description: Optional[str]
-    history: Optional[List[dict]]  # list of foreigh key ids to the Messages table
+    history: Optional[List[dict]]  # list of foreign key ids to the Messages table
     instrumentId: Optional[str]
     isPublished: Optional[bool] = False
     keywords: Optional[List[str]]
@@ -131,10 +131,11 @@ class Dataset(Ownable):
     sourceFolder: str
     sourceFolderHost: Optional[str]
     techniques: Optional[List[dict]]  # with {'pid':pid, 'name': name} as entries
-    type: DatasetType
+    type: str
     validationStatus: Optional[str]
     version: Optional[str]
     scientificMetadata: Optional[Dict]
+
 
 
 class RawDataset(Dataset):
