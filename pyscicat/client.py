@@ -88,7 +88,10 @@ class ScicatClient:
                 self._password is not None
             ), "SciCat login credentials (username, password) must be provided if token is not provided"
             self._token = get_token(self._base_url, self._username, self._password)
-            self._headers["Authorization"] = "Bearer {}".format(self._token)
+        if not self._token:
+            logger.error("Token not provided")
+            raise ScicatCommError("Token not provided")
+        self._headers["Authorization"] = "Bearer {}".format(self._token)
 
 
     def _send_to_scicat(
