@@ -78,7 +78,8 @@ def test_update_dataset():
                             username=os.environ["SCICAT_USER"],
                             password=os.environ["SCICAT_PASSWORD"])
 
-    pid = "PID.SAMPLE.PREFIX48a8f164-166a-4557-bafc-5a7362e39fe7"
+    datasets = sci_clie.get_datasets({})
+    pid = datasets[0]["pid"]
     payload = RawDataset(
         size=142,
         owner="slartibartfast",
