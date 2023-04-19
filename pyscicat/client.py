@@ -706,7 +706,7 @@ class ScicatClient:
         if not filter_fields:
             filter_fields = {}
         filter_fields = json.dumps(filter_fields)
-        endpoint = f'/Datasets/?filter={{"where":{filter_fields}}}'
+        endpoint = f'Datasets?filter={{"where":{filter_fields}}}'
         return self._call_endpoint(
             cmd="get", endpoint=endpoint, operation="datasets_get_many", allow_404=True
         )
@@ -879,7 +879,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="get",
-            endpoint=f"/Datasets/{quote_plus(pid)}/origdatablocks",
+            endpoint=f"Datasets/{quote_plus(pid)}/origdatablocks",
             operation="datasets_origdatablocks_get_one",
             allow_404=True,
         )
@@ -904,7 +904,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="delete",
-            endpoint=f"/Datasets/{quote_plus(pid)}",
+            endpoint=f"Datasets/{quote_plus(pid)}",
             operation="datasets_delete",
             allow_404=True,
         )
