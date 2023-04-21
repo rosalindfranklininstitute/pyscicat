@@ -45,6 +45,7 @@ jobs:
         -  run: |
             set -vxeuo pipefail
             python -m pip install -r requirements-dev.txt
+            python -m pip install h5py
             python -m pip list
 
         - run: |
