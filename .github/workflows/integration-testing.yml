@@ -18,7 +18,7 @@ jobs:
         image: ghcr/scicat-project/backend-next
         ports:
           - 3000:3000
-        environment:
+        env:
           MONGODB_URI: mongodb://mongo:27017/scicat
           EXPRESS_SESSION_SECRET: "${EXPRESS_SESSION_SECRET}"
           JWT_SECRET: "${JWT_SECRET}"
