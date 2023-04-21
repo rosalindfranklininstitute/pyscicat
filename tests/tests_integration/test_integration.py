@@ -2,7 +2,6 @@ from pyscicat.client import ScicatClient
 from pyscicat.model import RawDataset, Ownable
 from datetime import datetime
 import os
-import requests
 
 
 """
