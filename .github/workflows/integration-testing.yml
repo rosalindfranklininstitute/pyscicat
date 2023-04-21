@@ -15,7 +15,7 @@ jobs:
         ports:
           - 27107:27107
       scicat-backend:
-        image: ghcr/scicat-project/backend-next
+        image: ghcr.io/scicatproject/scicat-backend-next:stable
         ports:
           - 3000:3000
         env:
