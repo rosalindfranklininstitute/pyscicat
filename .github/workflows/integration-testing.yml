@@ -7,18 +7,18 @@ on:
 
 jobs:
   container_job:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     services:
       mongo:
-        image: scimongo
+        image: mongo
         ports:
           - 27107:27107
       scicat-backend:
         image: ghcr/scicat-project/backend-next
         ports:
           - 3000:3000
-        environmentVariables:
+        env:
           MONGODB_URI: mongodb://mongo:27017/scicat
           EXPRESS_SESSION_SECRET: "${EXPRESS_SESSION_SECRET}"
           JWT_SECRET: "${JWT_SECRET}"
@@ -33,7 +33,7 @@ jobs:
           METADATA_PARENT_INSTANCES_RETURN_LIMIT: 100
           ADMIN_GROUPS: admin,ingestor
 
-      steps:
+    steps:
         - uses: actions/checkout@v2
         - uses: actions/setup-python@v2
           with:
