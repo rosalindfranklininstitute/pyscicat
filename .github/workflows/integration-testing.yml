@@ -33,7 +33,7 @@ jobs:
           METADATA_PARENT_INSTANCES_RETURN_LIMIT: 100
           ADMIN_GROUPS: admin,ingestor
 
-      steps:
+    steps:
         - uses: actions/checkout@v2
         - uses: actions/setup-python@v2
           with:
