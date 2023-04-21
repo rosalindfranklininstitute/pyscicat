@@ -62,7 +62,7 @@ def test_upload_dataset():
     sci_clie.upload_new_dataset(payload)
 
 
-def test_get_dataset(subtests):
+def test_get_dataset():
 
     datasets = sci_clie.get_datasets({"ownerGroup": "ingestor"})
 
