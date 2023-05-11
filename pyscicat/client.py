@@ -218,10 +218,6 @@ class ScicatClient:
     """
     update_dataset = datasets_update
 
-
-    upload_datablock = datasets_datablock_create
-    create_dataset_datablock = datasets_datablock_create
-
     def datasets_origdatablock_create(self, origdatablock: OrigDatablock) -> dict:
         """
         Create a new SciCat Dataset OrigDatablock
