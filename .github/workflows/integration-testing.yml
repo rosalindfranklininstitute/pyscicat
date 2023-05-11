@@ -46,11 +46,11 @@ jobs:
             set -vxeuo pipefail
             python -m pip install .
             python -m pip install .[dev]
+            python -m pip install .[hdf5]
             python -m pip list
 
         - run: |
             set -vxeuo pipefail
-            coverage -m pytest -k tests_integration -v 
             coverage run -m pytest -k tests_integration -v 
             coverage report
           env:
