@@ -53,7 +53,7 @@ jobs:
         - name: run tests
           env:
             BASE_URL: http://localhost:3000/api/v3
-            SCICAT_USERNAME: ingestor
+            SCICAT_USER: ingestor
             SCICAT_PASSWORD: aman
           run: |
             set -vxeuo pipefail
