@@ -14,13 +14,10 @@ import requests
 
 from pyscicat.model import (
     Attachment,
-    Datablock,
     Dataset,
-    DerivedDataset,
     Instrument,
     OrigDatablock,
     Proposal,
-    RawDataset,
     Sample,
 )
 
@@ -90,27 +87,27 @@ class ScicatClient:
             self._token = get_token(self._base_url, self._username, self._password)
             self._headers["Authorization"] = "Bearer {}".format(self._token)
 
-
     def _send_to_scicat(
-        self, 
-        cmd: str, 
-        endpoint: str, 
+        self,
+        cmd: str,
+        endpoint: str,
         data: BaseModel = None,
         exclude_fields: set = {},
     ):
-        """sends a command to the SciCat API server using url and token, returns the response JSON
+        """sends a command to the SciCat API server using url and token, returns the response JSON.
         Get token with the getToken method"""
         return requests.request(
             method=cmd,
             url=urljoin(self._base_url, endpoint),
-            json=data.dict(exclude=exclude_fields,exclude_none=True,exclude_unset=True) if data is not None else None,
+            json=data.dict(exclude=exclude_fields,
+                           exclude_none=True,
+                           exclude_unset=True) if data is not None else None,
             params={"access_token": self._token},
             headers=self._headers,
             timeout=self._timeout_seconds,
             stream=False,
             verify=True,
         )
-
 
     def _call_endpoint(
         self,
@@ -142,7 +139,6 @@ class ScicatClient:
         )
         return result
 
-
     def datasets_create(self, dataset: Dataset) -> str:
         """
         Upload a new dataset. Uses the generic dataset endpoint.
@@ -167,9 +163,9 @@ class ScicatClient:
             Raises if a non-20x message is returned
         """
         return self._call_endpoint(
-            cmd="post", 
-            endpoint="Datasets", 
-            data=dataset, 
+            cmd="post",
+            endpoint="Datasets",
+            data=dataset,
             operation="datasets_create",
             exclude_fields={'pid'},
         )
@@ -180,7 +176,6 @@ class ScicatClient:
     """
     upload_new_dataset = datasets_create
     create_dataset = datasets_create
-
 
     def datasets_update(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
@@ -247,7 +242,7 @@ class ScicatClient:
             endpoint=endpoint,
             data=origdatablock,
             operation="datasets_origdatablock_create",
-            exclude_fields={'id','datasetId','ownerGroup','accessGroups'},
+            exclude_fields={'id', 'datasetId', 'ownerGroup', 'accessGroups'},
         )
 
     """
