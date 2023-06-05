@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import requests_mock
-from ..client import (
+from pyscicat.client import (
     from_credentials,
     from_token,
     encode_thumbnail,
@@ -12,7 +12,7 @@ from ..client import (
     ScicatCommError,
 )
 
-from ..model import (
+from pyscicat.model import (
     Attachment,
     Datablock,
     DataFile,
@@ -28,7 +28,7 @@ local_url = "http://localhost:3000/api/v3/"
 
 def add_mock_requests(mock_request):
     mock_request.post(
-        local_url + "Users/login",
+        local_url + "auth/login",
         json={"id": "a_token"},
     )
 
