@@ -46,7 +46,6 @@ jobs:
             set -vxeuo pipefail
             python -m pip install .
             python -m pip install .[dev]
-            python -m pip install .[hdf5]
             python -m pip list
 
         - run: |
