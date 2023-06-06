@@ -245,7 +245,7 @@ class ScicatClient:
     create_dataset_origdatablock = datasets_origdatablock_create
 
     def datasets_attachment_create(
-        self, attachment: Attachment, datasetType: str = "RawDatasets"
+        self, attachment: Attachment, datasetType: str = "Datasets"
     ) -> dict:
         """
         Create a new Attachment for a dataset.
