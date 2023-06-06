@@ -2,7 +2,6 @@ from pyscicat.client import ScicatClient
 from pyscicat.model import RawDataset, Ownable
 from datetime import datetime
 import os
-import requests
 
 
 """
@@ -23,15 +22,14 @@ sci_clie = ScicatClient(base_url=os.environ["BASE_URL"],
                         token=None,
                         username=os.environ["SCICAT_USER"],
                         password=os.environ["SCICAT_PASSWORD"])
+
+
 def test_client():
 
     assert type(sci_clie) == ScicatClient
 
 
-
 def test_upload_dataset():
-
-
     ownable = Ownable(ownerGroup="ingestor", accessGroups=[])
     payload = RawDataset(
         datasetName="a new guide book",
@@ -66,10 +64,8 @@ def test_get_dataset():
 
     datasets = sci_clie.get_datasets({"ownerGroup": "ingestor"})
 
-
     for dataset in datasets:
-
-            assert dataset["ownerGroup"] == "ingestor"
+        assert dataset["ownerGroup"] == "ingestor"
 
 
 def test_update_dataset():

@@ -15,13 +15,10 @@ import requests
 
 from pyscicat.model import (
     Attachment,
-    Datablock,
     Dataset,
-    DerivedDataset,
     Instrument,
     OrigDatablock,
     Proposal,
-    RawDataset,
     Sample,
 )
 
@@ -133,7 +130,6 @@ class ScicatClient:
         )
         return result
 
-
     def datasets_create(self, dataset: Dataset) -> str:
         """
         Upload a new dataset. Uses the generic dataset endpoint.
@@ -167,8 +163,6 @@ class ScicatClient:
     """
     upload_new_dataset = datasets_create
     create_dataset = datasets_create
-
-
 
     def datasets_update(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
