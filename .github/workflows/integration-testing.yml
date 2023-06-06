@@ -50,7 +50,7 @@ jobs:
 
         - run: |
             set -vxeuo pipefail
-            coverage run -m pytest -k tests_integration -v 
+            coverage run -m pytest tests/tests_integration/tests_integration.py
             coverage report
           env:
             BASE_URL: http://localhost:3000/api/v3
