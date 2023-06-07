@@ -12,15 +12,13 @@ from urllib.parse import urljoin, quote_plus
 from pydantic import BaseModel
 import requests
 
+
 from pyscicat.model import (
     Attachment,
-    Datablock,
     Dataset,
-    DerivedDataset,
     Instrument,
     OrigDatablock,
     Proposal,
-    RawDataset,
     Sample,
 )
 
@@ -132,45 +130,6 @@ class ScicatClient:
         )
         return result
 
-    def datasets_replace(self, dataset: Dataset) -> str:
-        """
-        Create a new dataset or update an existing one
-        This function was renamed.
-        It is still accessible with the original name for backward compatibility
-        The original names were upload_dataset replace_datasets
-        This function is obsolete and it will be remove in next relesases
-
-
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to create or update
-
-        Returns
-        -------
-        str
-            pid of the dataset
-        """
-
-        if isinstance(dataset, RawDataset):
-            dataset_url = "RawDataSets/replaceOrCreate"
-        elif isinstance(dataset, DerivedDataset):
-            dataset_url = "DerivedDatasets/replaceOrCreate"
-        else:
-            raise TypeError(
-                "Dataset type not recognized (not Derived or Raw dataset instances)"
-            )
-        return self._call_endpoint(
-            cmd="post", endpoint=dataset_url, data=dataset, operation="datasets_replace"
-        ).get("pid")
-
-    """
-        Upload or create a new dataset
-        Original name, kept for for backward compatibility
-    """
-    upload_dataset = datasets_replace
-    replace_dataset = datasets_replace
-
     def datasets_create(self, dataset: Dataset) -> str:
         """
         Upload a new dataset. Uses the generic dataset endpoint.
@@ -204,73 +163,6 @@ class ScicatClient:
     """
     upload_new_dataset = datasets_create
     create_dataset = datasets_create
-
-    def datasets_raw_replace(self, dataset: Dataset) -> str:
-        """
-        Create a new raw dataset or update an existing one
-        This function was renamed.
-        It is still accessible with the original name for backward compatibility
-        The original names were repalce_raw_dataset and upload_raw_dataset
-        This function is obsolete and it will be removed in future releases
-
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to load
-
-        Returns
-        -------
-        str
-            pid (or unique identifier) of the newly created dataset
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self._call_endpoint(
-            cmd="post",
-            endpoint="RawDataSets/replaceOrCreate",
-            data=dataset,
-            operation="datasets_raw_replace",
-        ).get("pid")
-
-    """
-        Upload a raw dataset
-        Original name, kept for for backward compatibility
-    """
-    upload_raw_dataset = datasets_raw_replace
-    replace_raw_dataset = datasets_raw_replace
-
-    def datasets_derived_replace(self, dataset: Dataset) -> str:
-        """
-        Create a new derived dataset or update an existing one
-        This function was renamed.
-        It is still accessible with the original name for backward compatibility
-        The original names were replace_derived_dataset and upload_derived_dataset
-
-
-        Parameters
-        ----------
-        dataset : Dataset
-            Dataset to upload
-
-        Returns
-        -------
-        str
-            pid (or unique identifier) of the newly created dataset
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        return self._call_endpoint(
-            cmd="post",
-            endpoint="DerivedDataSets/replaceOrCreate",
-            data=dataset,
-            operation="datasets_derived_replace",
-        ).get("pid")
 
     def datasets_update(self, dataset: Dataset, pid: str) -> str:
         """Updates an existing dataset
@@ -307,47 +199,6 @@ class ScicatClient:
         Original name, kept for for backward compatibility
     """
     update_dataset = datasets_update
-
-    def datasets_datablock_create(
-        self, datablock: Datablock, datasetType: str = "RawDatasets"
-    ) -> dict:
-        """
-        Create a new datablock for a dataset.
-        The dataset can be both Raw or Derived.
-        It is still accessible with the original name for backward compatibility
-        The original names were create_dataset_datablock and upload_datablock
-        This function is obsolete and will be removed in future releases
-        Function datasets_origdatablock_create should be used.
-
-        Parameters
-        ----------
-        datablock : Datablock
-            Datablock to upload
-
-        Returns
-        -------
-        datablock : Datablock
-            The created Datablock with id
-
-        Raises
-        ------
-        ScicatCommError
-            Raises if a non-20x message is returned
-        """
-        endpoint = f"{datasetType}/{quote_plus(datablock.datasetId)}/origdatablocks"
-        return self._call_endpoint(
-            cmd="post",
-            endpoint=endpoint,
-            data=datablock,
-            operation="datasets_datablock_create",
-        )
-
-    """
-        Upload a Datablock
-        Original name, kept for for backward compatibility
-    """
-    upload_datablock = datasets_datablock_create
-    create_dataset_datablock = datasets_datablock_create
 
     def datasets_origdatablock_create(self, origdatablock: OrigDatablock) -> dict:
         """
@@ -388,7 +239,7 @@ class ScicatClient:
     create_dataset_origdatablock = datasets_origdatablock_create
 
     def datasets_attachment_create(
-        self, attachment: Attachment, datasetType: str = "RawDatasets"
+        self, attachment: Attachment, datasetType: str = "Datasets"
     ) -> dict:
         """
         Create a new Attachment for a dataset.
@@ -706,7 +557,7 @@ class ScicatClient:
         if not filter_fields:
             filter_fields = {}
         filter_fields = json.dumps(filter_fields)
-        endpoint = f'/Datasets/?filter={{"where":{filter_fields}}}'
+        endpoint = f'Datasets?filter={{"where":{filter_fields}}}'
         return self._call_endpoint(
             cmd="get", endpoint=endpoint, operation="datasets_get_many", allow_404=True
         )
@@ -879,7 +730,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="get",
-            endpoint=f"/Datasets/{quote_plus(pid)}/origdatablocks",
+            endpoint=f"Datasets/{quote_plus(pid)}/origdatablocks",
             operation="datasets_origdatablocks_get_one",
             allow_404=True,
         )
@@ -904,7 +755,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="delete",
-            endpoint=f"/Datasets/{quote_plus(pid)}",
+            endpoint=f"Datasets/{quote_plus(pid)}",
             operation="datasets_delete",
             allow_404=True,
         )

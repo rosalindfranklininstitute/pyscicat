@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import requests_mock
-from ..client import (
+from pyscicat.client import (
     from_credentials,
     from_token,
     encode_thumbnail,
@@ -12,7 +12,7 @@ from ..client import (
     ScicatCommError,
 )
 
-from ..model import (
+from pyscicat.model import (
     Attachment,
     Datablock,
     DataFile,
@@ -49,15 +49,15 @@ def add_mock_requests(mock_request):
         json={"pid": "42"},
     )
     mock_request.post(
-        local_url + "RawDatasets/42/origdatablocks",
+        local_url + "Datasets/42/origdatablocks",
         json={"response": "random"},
     )
     mock_request.post(
-        local_url + "RawDatasets/42/attachments",
+        local_url + "Datasets/42/attachments",
         json={"response": "random"},
     )
 
-    mock_request.post(local_url + "Datasets", json={"pid": "17"})
+    mock_request.post(local_url + "Datasets", json={"pid": "42"})
 
 
 def test_scicat_ingest():
@@ -128,7 +128,7 @@ def test_scicat_ingest():
             sampleId="gargleblaster",
             **ownable.dict()
         )
-        dataset_id = scicat.upload_raw_dataset(dataset)
+        dataset_id = scicat.upload_new_dataset(dataset)
         assert dataset_id == "42"
 
         # Update record
@@ -145,7 +145,7 @@ def test_scicat_ingest():
             dataFileList=[data_file],
             **ownable.dict()
         )
-        scicat.upload_datablock(data_block)
+        scicat.upload_dataset_origdatablock(data_block)
 
         # Attachment
         attachment = Attachment(
