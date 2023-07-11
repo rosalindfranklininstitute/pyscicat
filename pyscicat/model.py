@@ -73,6 +73,10 @@ class Sample(Ownable):
     description: Optional[str]
     sampleCharacteristics: Optional[dict]
     isPublished: bool = False
+    datasetsId: Optional[str]
+    datasetId: Optional[str]
+    rawDatasetId: Optional[str]
+    derivedDatasetId: Optional[str]
 
 
 class Job(MongoQueryable):
