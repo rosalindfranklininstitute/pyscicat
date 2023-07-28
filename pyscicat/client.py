@@ -978,7 +978,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="delete",
-            endpoint=f"/Datasets/{quote_plus(pid)}",
+            endpoint=f"Datasets/{quote_plus(pid)}",
             operation="datasets_delete",
             allow_404=True,
         )
