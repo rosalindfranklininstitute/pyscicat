@@ -22,6 +22,8 @@ from pyscicat.model import (
     Proposal,
     RawDataset,
     Sample,
+    Ownable,
+    MongoQueryable,
 )
 
 logger = logging.getLogger("splash_ingest")
@@ -82,6 +84,9 @@ class ScicatClient:
         self._password = password  # default password
         self._token = token  # store token here
         self._headers = {}  # store headers
+        self._exclude_fields = {
+            'default': set(MongoQueryable.__fields__.keys())
+        }
 
         if not self._token:
             assert (self._username is not None) and (
@@ -125,8 +130,10 @@ class ScicatClient:
         exclude_fields: set = {},
     ) -> Optional[dict]:
         response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data, exclude_fields=exclude_fields)
-        result = response.json()
+        #print(response)
+        #print(response.text)
         if not response.ok:
+            result = response.json()
             err = result.get("error", {})
             if (
                 allow_404
@@ -137,6 +144,7 @@ class ScicatClient:
                 logger.error("Error in operation %s: %s", operation, err)
                 return None
             raise ScicatCommError(f"Error in operation {operation}: {err}")
+        result = response.json()
         logger.info(
             "Operation '%s' successful%s",
             operation,
@@ -211,7 +219,7 @@ class ScicatClient:
             endpoint="Datasets", 
             data=dataset, 
             operation="datasets_create",
-            exclude_fields={'pid'},
+            exclude_fields=self._exclude_fields['default'],
         )
 
     """
@@ -469,6 +477,7 @@ class ScicatClient:
             endpoint="Samples",
             data=sample,
             operation="samples_create",
+            exclude_fields=self._exclude_fields['default'],
         )
 
     upload_sample = samples_create
@@ -536,6 +545,7 @@ class ScicatClient:
             endpoint="Instruments",
             data=instrument,
             operation="instruments_create",
+            exclude_fields=self._exclude_fields['default'],
         )
 
     upload_instrument = instruments_create
@@ -694,7 +704,14 @@ class ScicatClient:
     get_datasets_full_query = datasets_find
     find_datasets_full_query = datasets_find
 
-    def datasets_get_many(self, filter_fields: Optional[dict] = None) -> Optional[dict]:
+    def datasets_get_many(
+            self, 
+            full_filter: Optional[dict] = None,
+            filter_fields: Optional[dict] = None,
+            where: Optional[dict] = None,
+            fields: Optional[list] = None,
+            limits: Optional[dict] = None
+    ) -> Optional[dict]:
         """
         Gets datasets using the simple fiter mechanism. This
         is appropriate when you do not require paging or text search, but
@@ -717,15 +734,55 @@ class ScicatClient:
 
         Parameters
         ----------
+        full_filter : dict
+            Dictionary with all the options included.
+            This parameter has precendence on the others, if specified, the others are ignored
+
         filter_fields : dict
             Dictionary of filtering fields. Must be json serializable.
+            This parameter is deprecated and will be removed in future releases.
+            Please use where parameter
+
+        where : dict
+            Dictionary containing the where conditions to apply in the search
+
+        fields : list
+            List of the fields to be returned in the results
+
+        limits : dict
+            List of the limits to apply in the search.
+            This parameter can contain the following fields:
+            - limit : number indicating how many results have to be returned
+            - skip : number indicating how many items needs to be skipped in the beginning of the list
+            - order : enumeration (ascending or descending) indicating the order of the results
         """
-        if not filter_fields:
-            filter_fields = {}
-        filter_fields = json.dumps(filter_fields)
-        endpoint = f'/Datasets/?filter={{"where":{filter_fields}}}'
+        
+        #if not filter_fields:
+        #    filter_fields = {}
+        #filter_fields = json.dumps(filter_fields)
+
+        filter_dict = {}
+        if full_filter:
+            filter_dict = full_filter
+        else:
+            if where:
+                filter_dict['where'] = where
+            elif filter_fields:
+                filter_dict['where'] = filter_fields
+    
+            if fields:
+                filter_dict['fields'] = fields
+    
+            if limits:
+                filter_dict['limits'] = limits
+
+        filter_string = json.dumps(filter_dict) if filter_dict else ""
+        endpoint = 'Datasets' + f'?filter={filter_string}' if filter_string else ""
         return self._call_endpoint(
-            cmd="get", endpoint=endpoint, operation="datasets_get_many", allow_404=True
+            cmd="get", 
+            endpoint=endpoint, 
+            operation="datasets_get_many", 
+            allow_404=True
         )
 
     """
@@ -927,6 +984,39 @@ class ScicatClient:
         )
 
     delete_dataset = datasets_delete
+
+    def origdatablocks_create(self, origdatablock: OrigDatablock) -> dict:
+        """
+        Create a new SciCat Dataset OrigDatablock
+        This function has been renamed.
+        It is still accessible with the original name for backward compatibility
+        The original names were create_dataset_origdatablock and upload_dataset_origdatablock
+
+        Parameters
+        ----------
+        origdatablock :
+            The OrigDatablock to create
+
+        Returns
+        -------
+        dict
+            The created OrigDatablock with id
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+
+        """
+        endpoint = f"origdatablocks"
+        return self._call_endpoint(
+            cmd="post",
+            endpoint=endpoint,
+            data=origdatablock,
+            operation="origdatablock_create",
+            exclude_fields=self._exclude_fields['default'],
+        )
+
 
 
 def get_file_size(pathobj):

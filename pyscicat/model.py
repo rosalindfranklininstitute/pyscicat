@@ -100,6 +100,7 @@ class Instrument(MongoQueryable):
     """
 
     pid: Optional[str]
+    uniqueName: str
     name: str
     customMetadata: Optional[dict]
 
