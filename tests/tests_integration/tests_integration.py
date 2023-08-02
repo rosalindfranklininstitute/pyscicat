@@ -25,8 +25,7 @@ sci_clie = ScicatClient(base_url=os.environ["BASE_URL"],
 
 
 def test_client():
-
-    assert type(sci_clie) == ScicatClient
+    assert type(sci_clie) == ScicatClient  # noqa: E721
 
 
 def test_upload_dataset():

@@ -140,7 +140,7 @@ def test_scicat_ingest():
         data_file = DataFile(path="/foo/bar", size=42)
         data_block = Datablock(
             size=42,
-            version=1,
+            version="1",
             datasetId=dataset_id,
             dataFileList=[data_file],
             **ownable.dict()
