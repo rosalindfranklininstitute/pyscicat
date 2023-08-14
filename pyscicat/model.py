@@ -4,7 +4,27 @@ import enum
 from typing import List, Dict, Optional
 
 from pydantic import BaseModel
+from pydantic.main import ModelMetaclass
 
+#
+# creates update models where all the fields are optional
+class _AllOptional(ModelMetaclass):
+    def __new__(self, name, bases, namespaces, **kwargs):
+        annotations = namespaces.get('__annotations__', {})
+
+        for base in bases:
+            #annotations.update(base.__annotations__)
+            for base_ in base.__mro__:
+                if base_ is BaseModel:
+                    break
+
+                annotations.update(base_.__annotations__)
+
+        for field in annotations:
+            if not field.startswith('__'):
+                annotations[field] = Optional[annotations[field]]
+        namespaces['__annotations__'] = annotations
+        return super().__new__(self, name, bases, namespaces, **kwargs)
 
 class DatasetType(str, enum.Enum):
     """type of Dataset"""
@@ -137,6 +157,8 @@ class Dataset(Ownable):
     version: Optional[str]
     scientificMetadata: Optional[Dict]
 
+class UpdateDataset(Dataset, metaclass=_AllOptional):
+    pass
 
 class RawDataset(Dataset):
     """
@@ -151,6 +173,9 @@ class RawDataset(Dataset):
     sampleId: Optional[str]
     proposalId: Optional[str]
 
+class UpdateRawDataset(Dataset, metaclass=_AllOptional):
+    pass
+
 
 class DerivedDataset(Dataset):
     """
@@ -164,6 +189,8 @@ class DerivedDataset(Dataset):
     jobLogData: Optional[str]
     type: DatasetType = DatasetType.derived
 
+class UpdateDerivedDataset(DerivedDataset, metaclass=_AllOptional):
+    pass
 
 class DataFile(MongoQueryable):
     """

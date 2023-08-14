@@ -16,11 +16,14 @@ from pyscicat.model import (
     Attachment,
     Datablock,
     Dataset,
+    RawDataset,
     DerivedDataset,
+    UpdateDataset,
+    UpdateRawDataset,
+    UpdateDerivedDataset,
     Instrument,
     OrigDatablock,
     Proposal,
-    RawDataset,
     Sample,
     Ownable,
     MongoQueryable,
@@ -296,7 +299,7 @@ class ScicatClient:
             operation="datasets_derived_replace",
         )
 
-    def datasets_update(self, dataset: Dataset, pid: str) -> str:
+    def datasets_update(self, dataset: UpdateDataset, pid: str) -> str:
         """Updates an existing dataset
         This function was renamed.
         It is still accessible with the original name for backward compatibility
@@ -304,7 +307,7 @@ class ScicatClient:
 
         Parameters
         ----------
-        dataset : Dataset
+        dataset : UpdateDataset
             Dataset to update
 
         pid
