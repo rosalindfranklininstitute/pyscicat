@@ -781,7 +781,7 @@ class ScicatClient:
 
         filter_string = json.dumps(filter_dict) if filter_dict else ""
         endpoint = 'Datasets' + f'?filter={filter_string}' if filter_string else ""
-        print(endpoint)
+        #print(endpoint)
         return self._call_endpoint(
             cmd="get", 
             endpoint=endpoint, 
