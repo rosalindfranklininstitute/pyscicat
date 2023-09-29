@@ -113,16 +113,16 @@ class ScicatClient:
         response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data)
         result = response.json()
         if not response.ok:
-            err = result.get("error", {})
+            # err = result.get("error", {})
             if (
                 allow_404
                 and response.status_code == 404
-                and re.match(r"Unknown (.+ )?id", err.get("message", ""))
+                and re.match(r"Unknown (.+ )?id", result)
             ):
                 # The operation failed but because the object does not exist in SciCat.
-                logger.error("Error in operation %s: %s", operation, err)
+                logger.error("Error in operation %s: %s", operation, result)
                 return None
-            raise ScicatCommError(f"Error in operation {operation}: {err}")
+            raise ScicatCommError(f"Error in operation {operation}: {result}")
         logger.info(
             "Operation '%s' successful%s",
             operation,
