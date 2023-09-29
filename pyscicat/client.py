@@ -108,21 +108,11 @@ class ScicatClient:
         endpoint: str,
         data: BaseModel = None,
         operation: str = "",
-        allow_404=False,
     ) -> Optional[dict]:
         response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data)
 
         result = response.json() if len(response.content) > 0 else None
         if not response.ok:
-            # err = result.get("error", {})
-            if (
-                allow_404
-                and response.status_code == 404
-                and re.match(r"Unknown (.+ )?id", result)
-            ):
-                # The operation failed but because the object does not exist in SciCat.
-                logger.error("Error in operation %s: %s", operation, result)
-                return None
             raise ScicatCommError(f"Error in operation {operation}: {result}")
             
         logger.info(
@@ -522,7 +512,6 @@ class ScicatClient:
             cmd="get",
             endpoint=f"Datasets/fullquery?{query}",
             operation="datasets_find",
-            allow_404=True,
         )
 
     """
@@ -563,7 +552,7 @@ class ScicatClient:
         filter_fields = json.dumps(filter_fields)
         endpoint = f'Datasets?filter={{"where":{filter_fields}}}'
         return self._call_endpoint(
-            cmd="get", endpoint=endpoint, operation="datasets_get_many", allow_404=True
+            cmd="get", endpoint=endpoint, operation="datasets_get_many"
         )
 
     """
@@ -599,7 +588,6 @@ class ScicatClient:
             cmd="get",
             endpoint=endpoint,
             operation="published_data_get_many",
-            allow_404=True,
         )
 
     """
@@ -624,7 +612,6 @@ class ScicatClient:
             cmd="get",
             endpoint=f"Datasets/{quote_plus(pid)}",
             operation="datasets_get_one",
-            allow_404=True,
         )
 
     get_dataset_by_pid = datasets_get_one
@@ -663,7 +650,6 @@ class ScicatClient:
             cmd="get",
             endpoint=endpoint,
             operation="instruments_get_one",
-            allow_404=True,
         )
 
     get_instrument = instruments_get_one
@@ -689,7 +675,6 @@ class ScicatClient:
             cmd="get",
             endpoint=f"Samples/{quote_plus(pid)}",
             operation="samples_get_one",
-            allow_404=True,
         )
 
     get_sample = samples_get_one
@@ -711,7 +696,7 @@ class ScicatClient:
             The proposal with the requested pid
         """
         return self._call_endpoint(
-            cmd="get", endpoint=f"Proposals/{quote_plus(pid)}", allow_404=True
+            cmd="get", endpoint=f"Proposals/{quote_plus(pid)}"
         )
 
     get_proposal = proposals_get_one
@@ -736,7 +721,6 @@ class ScicatClient:
             cmd="get",
             endpoint=f"Datasets/{quote_plus(pid)}/origdatablocks",
             operation="datasets_origdatablocks_get_one",
-            allow_404=True,
         )
 
     get_dataset_origdatablocks = datasets_origdatablocks_get_one
@@ -761,7 +745,6 @@ class ScicatClient:
             cmd="delete",
             endpoint=f"Datasets/{quote_plus(pid)}",
             operation="datasets_delete",
-            allow_404=True,
         )
 
     delete_dataset = datasets_delete
