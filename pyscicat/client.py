@@ -15,9 +15,9 @@ import requests
 
 from pyscicat.model import (
     Attachment,
+    CreateDatasetOrigDatablockDto,
     Dataset,
     Instrument,
-    OrigDatablock,
     Proposal,
     Sample,
 )
@@ -111,7 +111,8 @@ class ScicatClient:
         allow_404=False,
     ) -> Optional[dict]:
         response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data)
-        result = response.json()
+
+        result = response.json() if len(response.content) > 0 else None
         if not response.ok:
             # err = result.get("error", {})
             if (
@@ -123,6 +124,7 @@ class ScicatClient:
                 logger.error("Error in operation %s: %s", operation, result)
                 return None
             raise ScicatCommError(f"Error in operation {operation}: {result}")
+            
         logger.info(
             "Operation '%s' successful%s",
             operation,
@@ -200,7 +202,9 @@ class ScicatClient:
     """
     update_dataset = datasets_update
 
-    def datasets_origdatablock_create(self, origdatablock: OrigDatablock) -> dict:
+    def datasets_origdatablock_create(
+        self, dataset_id: str, datablockDto: CreateDatasetOrigDatablockDto
+    ) -> dict:
         """
         Create a new SciCat Dataset OrigDatablock
         This function has been renamed.
@@ -223,11 +227,11 @@ class ScicatClient:
             Raises if a non-20x message is returned
 
         """
-        endpoint = f"Datasets/{quote_plus(origdatablock.datasetId)}/origdatablocks"
+        endpoint = f"Datasets/{quote_plus(dataset_id)}/origdatablocks"
         return self._call_endpoint(
             cmd="post",
             endpoint=endpoint,
-            data=origdatablock,
+            data=datablockDto,
             operation="datasets_origdatablock_create",
         )
 
