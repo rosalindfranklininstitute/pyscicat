@@ -219,8 +219,3 @@ def test_initializers():
 
         client = from_token(local_url, "let me in!")
         assert client._token == "let me in!"
-
-def test_real():
-    client = from_token(base_url="http://localhost:3000/api/wer3", token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTE1ZGYwNWM4OGNhMzNkODkzNjA3NjkiLCJ1c2VybmFtZSI6ImluZ2VzdG9yIiwiZW1haWwiOiJzY2ljYXRpbmdlc3RvckB5b3VyLnNpdGUiLCJhdXRoU3RyYXRlZ3kiOiJsb2NhbCIsIl9fdiI6MCwiaWQiOiI2NTE1ZGYwNWM4OGNhMzNkODkzNjA3NjkiLCJpYXQiOjE2OTU5OTMyMTcsImV4cCI6MTY5NTk5NjgxN30.Dc-K39ikfSixMGXzURrJ0Z4lHwZGOzRWlpeU2u5fdIA")
-    response = client.datasets_get_one("sdfsdfl")
-    print(response)

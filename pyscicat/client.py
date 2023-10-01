@@ -5,7 +5,6 @@ import base64
 import hashlib
 import logging
 import json
-import re
 from typing import Optional
 from urllib.parse import urljoin, quote_plus
 
@@ -114,11 +113,11 @@ class ScicatClient:
         result = response.json() if len(response.content) > 0 else None
         if not response.ok:
             raise ScicatCommError(f"Error in operation {operation}: {result}")
-            
+
         logger.info(
             "Operation '%s' successful%s",
             operation,
-            f"pid={result['pid']}" if "pid" in result else "",
+            f"pid={result['pid']}" if result and "pid" in result else "",
         )
         return result
 
