@@ -809,9 +809,8 @@ def _log_in_via_auth_msad(base_url, username, password):
         verify=True,
     )
     if not response.ok:
-        err = response.json()["error"]
         logger.error(
-            f'Error retrieving token for user: {err["name"]}, {err["statusCode"]}: {err["message"]}'
+            f'Error retrieving token for user: {response.json()}'
         )
         raise ScicatLoginError(response.content)
 
@@ -834,6 +833,6 @@ def get_token(base_url, username, password):
 
     err = response.json()["error"]
     logger.error(
-        f' Failed log in:  {err["name"]}, {err["statusCode"]}: {err["message"]}'
+        f' Failed log in:  {response.json()}'
     )
     raise ScicatLoginError(response.content)
