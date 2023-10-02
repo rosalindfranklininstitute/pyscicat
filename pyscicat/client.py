@@ -831,7 +831,6 @@ def get_token(base_url, username, password):
     if response.ok:
         return response.json()["access_token"]
 
-    err = response.json()["error"]
     logger.error(
         f' Failed log in:  {response.json()}'
     )
