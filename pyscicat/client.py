@@ -957,7 +957,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="get",
-            endpoint=f"/Datasets/{quote_plus(pid)}/origdatablocks",
+            endpoint=f"Datasets/{quote_plus(pid)}/origdatablocks",
             operation="datasets_origdatablocks_get_one",
             allow_404=True,
         )
