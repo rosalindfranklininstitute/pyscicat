@@ -1021,6 +1021,33 @@ class ScicatClient:
             exclude_fields=self._exclude_fields['default'],
         )
 
+    def origdatablocks_delete(self, oid: str) -> Optional[dict]:
+        """
+        Delete existing SciCat Dataset OrigDatablock
+
+        Parameters
+        ----------
+        oid :
+            The OrigDatablock id to be deleted
+
+        Returns
+        -------
+        dict
+            The OrigDatablock that has been deleted
+
+        Raises
+        ------
+        ScicatCommError
+            Raises if a non-20x message is returned
+
+        """
+        endpoint = f"origdatablocks/{oid}"
+        return self._call_endpoint(
+            cmd="delete",
+            endpoint=endpoint,
+            operation="origdatablock_delete",
+            allow_404=True,
+        )
 
 
 def get_file_size(pathobj):
