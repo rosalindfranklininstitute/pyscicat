@@ -10,3 +10,5 @@ python -m pip install --upgrade pip setuptools wheel numpy
 git fetch --tags --force
 python -m pip install '.[hdf5]'
 python -m pip list
+
+ls pyscicat
