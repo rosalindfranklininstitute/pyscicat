@@ -36,7 +36,6 @@ jobs:
       run: |
         set -vxeuo pipefail
         python -m pip install .[dev]
-        python -m pip install .[hdf5]
         python -m pip list
     
     - name: Lint with flake8
