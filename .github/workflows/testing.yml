@@ -48,5 +48,6 @@ jobs:
       shell: bash -l {0}
       run: |
         set -vxeuo pipefail
+        ls pyscicat
         coverage run -m pytest --ignore tests_integration -v 
         coverage report
