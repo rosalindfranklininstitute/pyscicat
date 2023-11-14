@@ -1,3 +1,59 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "pyscicat"
+description = "a python API to communicate with the Scicat API"
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+  { name = "Scicat Project Contributors", email = "dmcreynolds@lbl.gov" },
+]
+maintainers = [
+  { name = "Scicat Project Team", email = "dmcreynolds@lbl.gov" },
+]
+requires-python = ">=3.9"
+dependencies = [
+  "pydantic",
+  "requests"
+]
+classifiers= [
+        "Development Status :: 2 - Pre-Alpha",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.7"
+]
+dynamic = ["version"]
+[project.urls]
+Homepage = "https://github.com/scicatproject/pyscicat"
+
+[project.optional-dependencies]
+hdf5 = [
+    "hdf5plugin",
+    "h5py",
+]
+dev = [
+    "codecov",
+    "coverage",
+    "flake8",
+    "pytest",
+    "sphinx",
+    "twine",
+    "black",
+    "requests_mock",
+]
+docs = [
+    "ipython",
+    "matplotlib",
+    "mistune <2.0.0",  # temporary while sphinx sorts this out
+    "myst-parser",
+    "numpydoc",
+    "sphinx-click",
+    "sphinx-copybutton",
+    "sphinxcontrib.openapi",
+    "sphinx_rtd_theme",
+]
+
 [tool.black]
 include = '\.pyi?$'
 exclude = '''
@@ -17,3 +73,8 @@ exclude = '''
   | tests/data
 )/
 '''
+
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "pyscicat/_version.py"

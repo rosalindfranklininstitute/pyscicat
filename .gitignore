@@ -85,3 +85,4 @@ target/
 
 .vscode/
 
+pyscicat/_version.py
