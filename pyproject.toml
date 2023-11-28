@@ -58,26 +58,11 @@ docs = [
 
 [tool.black]
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-
-  # The following are specific to Black, you probably don't want those.
-  | blib2to3
-  | tests/data
-)/
-'''
+extend_exclude = 'pyscicat/_version.py'
 
 [tool.isort]
 profile = "black"
+skip_glob = ["__pycache__", "pyscicat/_version.py"]
 
 [tool.hatch]
 version.source = "vcs"
@@ -85,4 +70,4 @@ build.hooks.vcs.version-file = "pyscicat/_version.py"
 
 [tool.mypy]
 # TODO Add type annotations and include this file
-exclude = "pyscicat/hdf5/scientific_metadata.py"
+exclude = ["pyscicat/_version.py", "pyscicat/hdf5/scientific_metadata.py"]
