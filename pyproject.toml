@@ -43,6 +43,7 @@ dev = [
     "requests_mock",
     "isort",
     "mypy",
+    "types-requests",
 ]
 docs = [
     "ipython",
