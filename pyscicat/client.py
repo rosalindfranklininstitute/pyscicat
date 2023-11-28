@@ -5,6 +5,7 @@ import json
 import logging
 from datetime import datetime
 from typing import Optional
+from pathlib import Path
 from urllib.parse import quote_plus, urljoin
 
 import requests
@@ -777,13 +778,13 @@ class ScicatClient:
     delete_dataset = datasets_delete
 
 
-def get_file_size(pathobj):
+def get_file_size(pathobj: Path):
     filesize = pathobj.lstat().st_size
     return filesize
 
 
-def get_checksum(pathobj):
-    with open(pathobj) as file_to_check:
+def get_checksum(pathobj: Path):
+    with open(pathobj,'rb') as file_to_check:
         # pipe contents of the file through
         return hashlib.md5(file_to_check.read()).hexdigest()
 
@@ -798,7 +799,7 @@ def encode_thumbnail(filename, imType="jpg"):
     return header + dataStr
 
 
-def get_file_mod_time(pathobj):
+def get_file_mod_time(pathobj: Path):
     # may only work on WindowsPath objects...
     # timestamp = pathobj.lstat().st_mtime
     return str(datetime.fromtimestamp(pathobj.lstat().st_mtime))

@@ -82,3 +82,7 @@ profile = "black"
 [tool.hatch]
 version.source = "vcs"
 build.hooks.vcs.version-file = "pyscicat/_version.py"
+
+[tool.mypy]
+# TODO Add type annotations and include this file
+exclude = "pyscicat/hdf5/scientific_metadata.py"
