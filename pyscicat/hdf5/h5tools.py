@@ -3,10 +3,11 @@
 # author: Sofya Laskina, Brian R. Pauw, I. Bressler
 # date: 2022.01.10
 
-import h5py  # type: ignore
 import logging
-import numpy as np
 from pathlib import Path
+
+import h5py  # type: ignore
+import numpy as np
 
 
 def h5Get(filename, h5path: str, default="none", leaveAsArray=False):

@@ -41,6 +41,8 @@ dev = [
     "twine",
     "black",
     "requests_mock",
+    "isort",
+    "mypy",
 ]
 docs = [
     "ipython",
@@ -74,6 +76,8 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
 
 [tool.hatch]
 version.source = "vcs"

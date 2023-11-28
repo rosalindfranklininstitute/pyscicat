@@ -1,8 +1,8 @@
-from pyscicat.client import ScicatClient
-from pyscicat.model import RawDataset, Ownable
-from datetime import datetime
 import os
+from datetime import datetime
 
+from pyscicat.client import ScicatClient
+from pyscicat.model import Ownable, RawDataset
 
 """
 These test_pyscicat do not use mocks and are designed to connect

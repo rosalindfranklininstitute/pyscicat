@@ -3,25 +3,25 @@ from pathlib import Path
 
 import pytest
 import requests_mock
+
 from pyscicat.client import (
-    from_credentials,
-    from_token,
-    encode_thumbnail,
-    get_file_mod_time,
-    get_file_size,
     ScicatClient,
     ScicatCommError,
+    encode_thumbnail,
+    from_credentials,
+    from_token,
+    get_file_mod_time,
+    get_file_size,
 )
-
 from pyscicat.model import (
     Attachment,
     CreateDatasetOrigDatablockDto,
     DataFile,
     Instrument,
+    Ownable,
     Proposal,
     RawDataset,
     Sample,
-    Ownable,
 )
 
 local_url = "http://localhost:3000/api/v3/"

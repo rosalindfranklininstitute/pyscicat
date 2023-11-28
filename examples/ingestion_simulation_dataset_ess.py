@@ -18,9 +18,9 @@
 
 # libraries
 import json
+
 import pyscicat.client as pyScClient
 import pyscicat.model as pyScModel
-
 
 # scicat configuration file
 # includes scicat instance URL

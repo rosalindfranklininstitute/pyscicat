@@ -1,16 +1,14 @@
-from datetime import datetime
-import enum
-
 import base64
+import enum
 import hashlib
-import logging
 import json
+import logging
+from datetime import datetime
 from typing import Optional
-from urllib.parse import urljoin, quote_plus
+from urllib.parse import quote_plus, urljoin
 
-from pydantic import BaseModel
 import requests
-
+from pydantic import BaseModel
 
 from pyscicat.model import (
     Attachment,

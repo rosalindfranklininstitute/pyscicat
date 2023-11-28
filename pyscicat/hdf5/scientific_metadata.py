@@ -3,15 +3,17 @@
 # author: Sofya Laskina, Brian R. Pauw
 # date: 2022.01.10
 
+import logging
+from collections import abc
+from pathlib import Path
+
 # from unittest import skip # not sure where this import comes from
 import h5py
 
 # flake8: noqa: F401
 import hdf5plugin  # ESRF's library that extends the read functionality of HDF5 files
+
 from pyscicat.hdf5.h5tools import h5py_casting
-import logging
-from pathlib import Path
-from collections import abc
 
 
 def update_deep(dictionary: dict, path_update: dict) -> dict:
