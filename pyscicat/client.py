@@ -4,8 +4,8 @@ import hashlib
 import json
 import logging
 from datetime import datetime
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 from urllib.parse import quote_plus, urljoin
 
 import requests
@@ -784,7 +784,7 @@ def get_file_size(pathobj: Path):
 
 
 def get_checksum(pathobj: Path):
-    with open(pathobj,'rb') as file_to_check:
+    with open(pathobj, "rb") as file_to_check:
         # pipe contents of the file through
         return hashlib.md5(file_to_check.read()).hexdigest()
 
