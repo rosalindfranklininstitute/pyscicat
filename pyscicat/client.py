@@ -50,12 +50,12 @@ class ScicatClient:
     def __init__(
         self,
         base_url: str,
-        token: str = False,
-        username: str = None,
-        password: str = None,
-        timeout_seconds: int = None,
+        token: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        timeout_seconds: Optional[int] = None,
     ):
-        """Initialize a new instance. This method attempts to create a tokenad_a
+        """Initialize a new instance. This method attempts to create a token
         from the provided username and password
 
         Parameters
@@ -87,7 +87,9 @@ class ScicatClient:
             self._token = get_token(self._base_url, self._username, self._password)
         self._headers["Authorization"] = "Bearer {}".format(self._token)
 
-    def _send_to_scicat(self, cmd: str, endpoint: str, data: BaseModel = None):
+    def _send_to_scicat(
+        self, cmd: str, endpoint: str, data: Optional[BaseModel] = None
+    ):
         """sends a command to the SciCat API server using url and token, returns the response JSON
         Get token with the getToken method"""
         return requests.request(
@@ -105,7 +107,7 @@ class ScicatClient:
         self,
         cmd: str,
         endpoint: str,
-        data: BaseModel = None,
+        data: Optional[BaseModel] = None,
         operation: str = "",
     ) -> Optional[dict]:
         response = self._send_to_scicat(cmd=cmd, endpoint=endpoint, data=data)
@@ -144,9 +146,11 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="post", endpoint="Datasets", data=dataset, operation="datasets_create"
-        ).get("pid")
+        )
+        assert result and "pid" in result and isinstance(result["pid"], str)
+        return result["pid"]
 
     """
         Upload a new dataset
@@ -178,12 +182,14 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="patch",
             endpoint=f"Datasets/{quote_plus(pid)}",
             data=dataset,
             operation="datasets_update",
-        ).get("pid")
+        )
+        assert result and "pid" in result and isinstance(result["pid"], str)
+        return result["pid"]
 
     """
         Update a dataset
@@ -217,12 +223,14 @@ class ScicatClient:
 
         """
         endpoint = f"Datasets/{quote_plus(dataset_id)}/origdatablocks"
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="post",
             endpoint=endpoint,
             data=datablockDto,
             operation="datasets_origdatablock_create",
         )
+        assert isinstance(result, dict)
+        return result
 
     """
         Create a new SciCat Dataset OrigDatablock
@@ -255,12 +263,14 @@ class ScicatClient:
             Raises if a non-20x message is returned
         """
         endpoint = f"{datasetType}/{quote_plus(attachment.datasetId)}/attachments"
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="post",
             endpoint=endpoint,
             data=attachment,
             operation="datasets_attachment_create",
         )
+        assert isinstance(result, dict)
+        return result
 
     """
         Create a new attachement for a dataset
@@ -291,16 +301,18 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="post",
             endpoint="Samples",
             data=sample,
             operation="samples_create",
-        ).get("sampleId")
+        )
+        assert result and "sampleId" in result and isinstance(result["sampleId"], str)
+        return result["sampleId"]
 
     upload_sample = samples_create
 
-    def samples_update(self, sample: Sample, sampleId: str = None) -> str:
+    def samples_update(self, sample: Sample, sampleId: Optional[str] = None) -> str:
         """Updates an existing sample
 
         Parameters
@@ -328,12 +340,14 @@ class ScicatClient:
             assert sample.sampleId is not None, "sampleId should not be None"
             sampleId = sample.sampleId
         sample.sampleId = None
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="patch",
             endpoint=f"Samples/{quote_plus(sampleId)}",
             data=sample,
             operation="samples_update",
-        ).get("sampleId")
+        )
+        assert result and "sampleId" in result and isinstance(result["sampleId"], str)
+        return result["sampleId"]
 
     def instruments_create(self, instrument: Instrument):
         """
@@ -358,16 +372,20 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="post",
             endpoint="Instruments",
             data=instrument,
             operation="instruments_create",
-        ).get("pid")
+        )
+        assert result and "pid" in result and isinstance(result["pid"], str)
+        return result["pid"]
 
     upload_instrument = instruments_create
 
-    def instruments_update(self, instrument: Instrument, pid: str = None) -> str:
+    def instruments_update(
+        self, instrument: Instrument, pid: Optional[str] = None
+    ) -> str:
         """Updates an existing instrument.
         Note that in SciCat admin rights are required to upload instruments.
 
@@ -397,12 +415,14 @@ class ScicatClient:
             assert instrument.pid is not None, "pid should not be None"
             pid = instrument.pid
         instrument.pid = None
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="patch",
             endpoint=f"Instruments/{quote_plus(pid)}",
             data=instrument,
             operation="instruments_update",
-        ).get("pid")
+        )
+        assert result and "pid" in result and isinstance(result["pid"], str)
+        return result["pid"]
 
     def proposals_create(self, proposal: Proposal):
         """
@@ -427,16 +447,22 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
-        return self._call_endpoint(
+        result = self._call_endpoint(
             cmd="post",
             endpoint="Proposals",
             data=proposal,
             operation="proposals_create",
-        ).get("proposalId")
+        )
+        assert (
+            result and "proposalId" in result and isinstance(result["proposalId"], str)
+        )
+        return result["proposalId"]
 
     upload_proposal = proposals_create
 
-    def proposals_update(self, proposal: Proposal, proposalId: str = None) -> str:
+    def proposals_update(
+        self, proposal: Proposal, proposalId: Optional[str] = None
+    ) -> str:
         """Updates an existing proposal.
         Note that in SciCat admin rights are required to upload proposals.
 
@@ -464,13 +490,17 @@ class ScicatClient:
         if proposalId is None:
             assert proposal.proposalId is not None, "proposalId should not be None"
             proposalId = proposal.proposalId
-        proposal.proposalId = None
-        return self._call_endpoint(
+        proposal.proposalId = ""
+        result = self._call_endpoint(
             cmd="patch",
             endpoint=f"Proposals/{quote_plus(proposalId)}",
             data=proposal,
             operation="proposals_update",
-        ).get("proposalId")
+        )
+        assert (
+            result and "proposalId" in result and isinstance(result["proposalId"], str)
+        )
+        return result["proposalId"]
 
     def datasets_find(
         self, skip: int = 0, limit: int = 25, query_fields: Optional[dict] = None
@@ -504,8 +534,8 @@ class ScicatClient:
         """
         if not query_fields:
             query_fields = {}
-        query_fields = json.dumps(query_fields)
-        query = f'fields={query_fields}&limits={{"skip":{skip},"limit":{limit},"order":"creationTime:desc"}}'
+        query_field_str = json.dumps(query_fields)
+        query = f'fields={query_field_str}&limits={{"skip":{skip},"limit":{limit},"order":"creationTime:desc"}}'
 
         return self._call_endpoint(
             cmd="get",
@@ -546,10 +576,10 @@ class ScicatClient:
         filter_fields : dict
             Dictionary of filtering fields. Must be json serializable.
         """
-        if not filter_fields:
+        if filter_fields is None:
             filter_fields = {}
-        filter_fields = json.dumps(filter_fields)
-        endpoint = f'Datasets?filter={{"where":{filter_fields}}}'
+        filter_field_str = json.dumps(filter_fields)
+        endpoint = f'Datasets?filter={{"where":{filter_field_str}}}'
         return self._call_endpoint(
             cmd="get", endpoint=endpoint, operation="datasets_get_many"
         )
@@ -615,7 +645,9 @@ class ScicatClient:
 
     get_dataset_by_pid = datasets_get_one
 
-    def instruments_get_one(self, pid: str = None, name: str = None) -> Optional[dict]:
+    def instruments_get_one(
+        self, pid: Optional[str] = None, name: Optional[str] = None
+    ) -> Optional[dict]:
         """
         Get an instrument by pid or by name.
         If pid is provided it takes priority over name.
@@ -678,7 +710,7 @@ class ScicatClient:
 
     get_sample = samples_get_one
 
-    def proposals_get_one(self, pid: str = None) -> Optional[dict]:
+    def proposals_get_one(self, pid: str) -> Optional[dict]:
         """
         Get proposal by pid.
         This function has been renamed. Previous name has been maintained for backward compatibility.
@@ -694,9 +726,7 @@ class ScicatClient:
         dict
             The proposal with the requested pid
         """
-        return self._call_endpoint(
-            cmd="get", endpoint=f"Proposals/{quote_plus(pid)}"
-        )
+        return self._call_endpoint(cmd="get", endpoint=f"Proposals/{quote_plus(pid)}")
 
     get_proposal = proposals_get_one
 
@@ -761,7 +791,7 @@ def get_checksum(pathobj):
 
 
 def encode_thumbnail(filename, imType="jpg"):
-    logging.info(f"Creating thumbnail for dataset: {filename}")
+    logger.info(f"Creating thumbnail for dataset: {filename}")
     header = "data:image/{imType};base64,".format(imType=imType)
     with open(filename, "rb") as f:
         data = f.read()
@@ -809,9 +839,7 @@ def _log_in_via_auth_msad(base_url, username, password):
         verify=True,
     )
     if not response.ok:
-        logger.error(
-            f'Error retrieving token for user: {response.json()}'
-        )
+        logger.error(f"Error retrieving token for user: {response.json()}")
         raise ScicatLoginError(response.content)
 
 
@@ -831,7 +859,5 @@ def get_token(base_url, username, password):
     if response.ok:
         return response.json()["access_token"]
 
-    logger.error(
-        f' Failed log in:  {response.json()}'
-    )
+    logger.error(f" Failed log in:  {response.json()}")
     raise ScicatLoginError(response.content)

@@ -68,7 +68,7 @@ origDataBlock = pyScModel.OrigDatablock(
         pyScModel.DataFile(**file)
         for file in dataset_information["orig_datablock"]["dataFileList"]
     ],
-    **ownable.dict()
+    **ownable.dict(),
 )
 
 # create origDatablock associated with dataset in SciCat

@@ -3,13 +3,13 @@
 # author: Sofya Laskina, Brian R. Pauw, I. Bressler
 # date: 2022.01.10
 
-import h5py
+import h5py  # type: ignore
 import logging
 import numpy as np
 from pathlib import Path
 
 
-def h5Get(filename, h5path: str = None, default="none", leaveAsArray=False):
+def h5Get(filename, h5path: str, default="none", leaveAsArray=False):
     """
     Gets a single value or attribute from an HDF5 file, with added error checking and default handling.
     h5path is the string representation of the location in the hdf5 file, e.g. '/sasentry1/sasdata1/I'.
