@@ -194,7 +194,7 @@ class Datablock(Ownable):
 
     packedSize: Optional[int] = None
     chkAlg: Optional[int] = None
-    version: str = ""
+    version: str
     instrumentGroup: Optional[str] = None
     datasetId: str
 
