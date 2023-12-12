@@ -3,25 +3,25 @@ from pathlib import Path
 
 import pytest
 import requests_mock
+
 from pyscicat.client import (
-    from_credentials,
-    from_token,
-    encode_thumbnail,
-    get_file_mod_time,
-    get_file_size,
     ScicatClient,
     ScicatCommError,
+    encode_thumbnail,
+    from_credentials,
+    from_token,
+    get_file_mod_time,
+    get_file_size,
 )
-
 from pyscicat.model import (
     Attachment,
     CreateDatasetOrigDatablockDto,
     DataFile,
     Instrument,
+    Ownable,
     Proposal,
     RawDataset,
     Sample,
-    Ownable,
 )
 
 local_url = "http://localhost:3000/api/v3/"
@@ -94,7 +94,7 @@ def test_scicat_ingest():
             proposalId="deepthought",
             title="Deepthought",
             email="deepthought@viltvodle.com",
-            **ownable.dict()
+            **ownable.dict(),
         )
         assert scicat.upload_proposal(proposal) == "deepthought"
         assert scicat.proposals_create(proposal) == "deepthought"
@@ -105,7 +105,7 @@ def test_scicat_ingest():
             sampleId="gargleblaster",
             description="Gargleblaster",
             sampleCharacteristics={"a": "field"},
-            **ownable.dict()
+            **ownable.dict(),
         )
         assert scicat.upload_sample(sample) == "gargleblaster"
         assert scicat.samples_create(sample) == "gargleblaster"
@@ -127,7 +127,7 @@ def test_scicat_ingest():
             sourceFolder="/foo/bar",
             scientificMetadata={"a": "field"},
             sampleId="gargleblaster",
-            **ownable.dict()
+            **ownable.dict(),
         )
         dataset_id = scicat.upload_new_dataset(dataset)
         assert dataset_id == "42"
@@ -143,7 +143,6 @@ def test_scicat_ingest():
             size=42,
             datasetId=dataset_id,
             dataFileList=[data_file],
-
         )
         scicat.upload_dataset_origdatablock(dataset_id, data_block_dto)
 
@@ -152,7 +151,7 @@ def test_scicat_ingest():
             datasetId=dataset_id,
             thumbnail=encode_thumbnail(thumb_path),
             caption="scattering image",
-            **ownable.dict()
+            **ownable.dict(),
         )
         scicat.upload_attachment(attachment)
 
@@ -186,11 +185,7 @@ def test_get_dataset():
 
 def test_get_nonexistent_dataset():
     with requests_mock.Mocker() as mock_request:
-        mock_request.get(
-            local_url + "datasets/74",
-            status_code=200,
-            content=b''
-        )
+        mock_request.get(local_url + "datasets/74", status_code=200, content=b"")
         client = from_token(base_url=local_url, token="a_token")
         assert client.datasets_get_one("74") is None
 
@@ -220,12 +215,12 @@ def test_initializers():
 
         client = from_token(local_url, "a_token")
         assert client._token == "a_token"
-        assert client._headers['Authorization'] == "Bearer a_token"
+        assert client._headers["Authorization"] == "Bearer a_token"
 
         client = from_credentials(local_url, "Zaphod", "heartofgold")
         assert client._token == "a_token"
-        assert client._headers['Authorization'] == "Bearer a_token"
+        assert client._headers["Authorization"] == "Bearer a_token"
 
         client = ScicatClient(local_url, "a_token")
         assert client._token == "a_token"
-        assert client._headers['Authorization'] == "Bearer a_token"
+        assert client._headers["Authorization"] == "Bearer a_token"

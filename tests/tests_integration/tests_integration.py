@@ -1,8 +1,8 @@
-from pyscicat.client import ScicatClient
-from pyscicat.model import RawDataset, Ownable
-from datetime import datetime
 import os
+from datetime import datetime
 
+from pyscicat.client import ScicatClient
+from pyscicat.model import Ownable, RawDataset
 
 """
 These test_pyscicat do not use mocks and are designed to connect
@@ -18,10 +18,12 @@ SCICAT_USER - the name of your scicat user.
 SCICAT_PASSWORD - the password for your scicat user.
 """
 
-sci_clie = ScicatClient(base_url=os.environ["BASE_URL"],
-                        token=None,
-                        username=os.environ["SCICAT_USER"],
-                        password=os.environ["SCICAT_PASSWORD"])
+sci_clie = ScicatClient(
+    base_url=os.environ["BASE_URL"],
+    token=None,
+    username=os.environ["SCICAT_USER"],
+    password=os.environ["SCICAT_PASSWORD"],
+)
 
 
 def test_client():
@@ -53,14 +55,13 @@ def test_upload_dataset():
         techniques=[],
         numberOfFiles=0,
         numberOfFilesArchived=0,
-        **ownable.dict()
+        **ownable.dict(),
     )
 
     sci_clie.upload_new_dataset(payload)
 
 
 def test_get_dataset():
-
     datasets = sci_clie.get_datasets({"ownerGroup": "ingestor"})
 
     for dataset in datasets:
@@ -68,10 +69,12 @@ def test_get_dataset():
 
 
 def test_update_dataset():
-    sci_clie = ScicatClient(base_url=os.environ["BASE_URL"],
-                            token=None,
-                            username=os.environ["SCICAT_USER"],
-                            password=os.environ["SCICAT_PASSWORD"])
+    sci_clie = ScicatClient(
+        base_url=os.environ["BASE_URL"],
+        token=None,
+        username=os.environ["SCICAT_USER"],
+        password=os.environ["SCICAT_PASSWORD"],
+    )
 
     datasets = sci_clie.get_datasets({})
     pid = datasets[0]["pid"]
@@ -89,6 +92,6 @@ def test_update_dataset():
         sourceFolder="/foo/bar",
         scientificMetadata={"a": "field"},
         sampleId="gargleblaster",
-        accessGroups=["Vogons"]
+        accessGroups=["Vogons"],
     )
     sci_clie.update_dataset(payload, pid)

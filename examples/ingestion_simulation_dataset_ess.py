@@ -18,9 +18,9 @@
 
 # libraries
 import json
+
 import pyscicat.client as pyScClient
 import pyscicat.model as pyScModel
-
 
 # scicat configuration file
 # includes scicat instance URL
@@ -68,7 +68,7 @@ origDataBlock = pyScModel.OrigDatablock(
         pyScModel.DataFile(**file)
         for file in dataset_information["orig_datablock"]["dataFileList"]
     ],
-    **ownable.dict()
+    **ownable.dict(),
 )
 
 # create origDatablock associated with dataset in SciCat

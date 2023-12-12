@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from pyscicat.client import encode_thumbnail, ScicatClient
+from pyscicat.client import ScicatClient, encode_thumbnail
 from pyscicat.model import Attachment, Datablock, DataFile, Dataset, Ownable
 
 # Create a client object. The account used should have the ingestor role in SciCat
@@ -31,7 +31,7 @@ dataset = Dataset(
     sourceFolder="/foo/bar",
     scientificMetadata={"a": "field"},
     sampleId="gargleblaster",
-    **ownable.dict()
+    **ownable.dict(),
 )
 dataset_id = scicat.upload_raw_dataset(dataset)
 
@@ -47,6 +47,6 @@ attachment = Attachment(
     datasetId=dataset_id,
     thumbnail=encode_thumbnail(thumb_path),
     caption="scattering image",
-    **ownable.dict()
+    **ownable.dict(),
 )
 scicat.upload_attachment(attachment)

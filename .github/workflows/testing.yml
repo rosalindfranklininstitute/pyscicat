@@ -43,6 +43,18 @@ jobs:
       run: |
         set -vxeuo pipefail
         python -m flake8
+    
+    - name: Lint with black
+      shell: bash -l {0}
+      run: black --check .
+      
+    - name: Lint with isort
+      shell: bash -l {0}
+      run: isort --check .
+      
+    - name: Lint with mypy
+      shell: bash -l {0}
+      run: mypy --check pyscicat
       
     - name: Test with pytest
       shell: bash -l {0}

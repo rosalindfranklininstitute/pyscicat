@@ -1,7 +1,7 @@
 import enum
 
 # from re import L
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -194,7 +194,7 @@ class Datablock(Ownable):
 
     packedSize: Optional[int] = None
     chkAlg: Optional[int] = None
-    version: str = None
+    version: str
     instrumentGroup: Optional[str] = None
     datasetId: str
 
