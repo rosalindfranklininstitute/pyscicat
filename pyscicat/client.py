@@ -20,7 +20,7 @@ from pyscicat.model import (
     Sample,
 )
 
-logger = logging.getLogger("splash_ingest")
+logger = logging.getLogger("pyscicat")
 can_debug = logger.isEnabledFor(logging.DEBUG)
 
 
