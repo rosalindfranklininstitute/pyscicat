@@ -232,3 +232,5 @@ def test_append_slash_base_url():
         slashless_url = local_url[:-1]
         client = from_token(slashless_url, "a_token")
         assert client._base_url == local_url
+        client = from_credentials(slashless_url, "Zaphod", "heartofgold")
+        assert client._base_url == local_url

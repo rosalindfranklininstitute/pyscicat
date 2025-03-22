@@ -814,6 +814,9 @@ def from_token(base_url: str, token: str):
 
 
 def from_credentials(base_url: str, username: str, password: str):
+    if not base_url.endswith('/'):
+        base_url += '/'
+        logger.warning(f"Base URL should end with a slash. Appending one to {base_url}")
     token = get_token(base_url, username, password)
     return from_token(base_url, token)
 
