@@ -73,8 +73,6 @@ class Sample(Ownable):
     description: Optional[str] = None
     sampleCharacteristics: Optional[dict] = None
     isPublished: bool = False
-    # Following were added, possibly by mistake. They do
-    # not match the current model in the SciCat backend.
     datasetsId: Optional[str] = None
     datasetId: Optional[str] = None
     rawDatasetId: Optional[str] = None
