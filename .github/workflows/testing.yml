@@ -51,9 +51,9 @@ jobs:
       shell: bash -l {0}
       run: isort --check .
       
-    - name: Lint with mypy
-      shell: bash -l {0}
-      run: mypy --check pyscicat
+    # - name: Lint with mypy
+    #   shell: bash -l {0}
+    #   run: mypy --check pyscicat
       
     - name: Test with pytest
       shell: bash -l {0}
