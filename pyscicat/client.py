@@ -807,15 +807,15 @@ def get_file_mod_time(pathobj: Path):
 
 
 def from_token(base_url: str, token: str):
-    if not base_url.endswith('/'):
-        base_url += '/'
+    if not base_url.endswith("/"):
+        base_url += "/"
         logger.warning(f"Base URL should end with a slash. Appending one to {base_url}")
     return ScicatClient(base_url, token)
 
 
 def from_credentials(base_url: str, username: str, password: str):
-    if not base_url.endswith('/'):
-        base_url += '/'
+    if not base_url.endswith("/"):
+        base_url += "/"
         logger.warning(f"Base URL should end with a slash. Appending one to {base_url}")
     token = get_token(base_url, username, password)
     return from_token(base_url, token)
@@ -851,8 +851,8 @@ def get_token(base_url, username, password):
 
 if __name__ == "__main__":
     import os
+
     client = from_credentials(
-        os.getenv("SCICAT_URL"),
-        os.getenv("SCICAT_USER"),
-        os.getenv("SCICAT_PASSWORD"))
+        os.getenv("SCICAT_URL"), os.getenv("SCICAT_USER"), os.getenv("SCICAT_PASSWORD")
+    )
     print(client.datasets_find())

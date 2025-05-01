@@ -57,9 +57,9 @@ class Proposal(Ownable):
     abstract: Optional[str] = None
     startTime: Optional[str] = None
     endTime: Optional[str] = None
-    MeasurementPeriodList: Optional[
-        List[dict]
-    ] = None  # may need updating with the measurement period model
+    MeasurementPeriodList: Optional[List[dict]] = (
+        None  # may need updating with the measurement period model
+    )
 
 
 class Sample(Ownable):
@@ -94,9 +94,9 @@ class Job(MongoQueryable):
     executionTime: Optional[str] = None
     jobParams: Optional[dict] = None
     jobStatusMessage: Optional[str] = None
-    datasetList: Optional[
-        dict
-    ] = None  # documentation says dict, but should maybe be list?
+    datasetList: Optional[dict] = (
+        None  # documentation says dict, but should maybe be list?
+    )
     jobResultObject: Optional[dict] = None  # ibid.
 
 
@@ -121,9 +121,9 @@ class Dataset(Ownable):
     creationTime: str  # datetime
     datasetName: Optional[str] = None
     description: Optional[str] = None
-    history: Optional[
-        List[dict]
-    ] = None  # list of foreigh key ids to the Messages table
+    history: Optional[List[dict]] = (
+        None  # list of foreigh key ids to the Messages table
+    )
     instrumentId: Optional[str] = None
     isPublished: Optional[bool] = False
     keywords: Optional[List[str]] = None
