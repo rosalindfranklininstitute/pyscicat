@@ -53,7 +53,7 @@ class ScicatClient:
         username: Optional[str] = None,
         password: Optional[str] = None,
         timeout_seconds: Optional[int] = None,
-        auto_login = True,
+        auto_login=True,
     ):
         """Initialize a new instance. This method attempts to create a token
         from the provided username and password
@@ -105,13 +105,11 @@ class ScicatClient:
             verify=True,
         )
 
-
     def login(self):
         """Attempts to authenticate using the stored username and password.
         Does not check if authentication has already occured."""
         self._token = get_token(self._base_url, self._username, self._password, self._headers)
         self._headers["Authorization"] = "Bearer {}".format(self._token)
-
 
     def _call_endpoint(
         self,
