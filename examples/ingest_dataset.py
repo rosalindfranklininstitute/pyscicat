@@ -10,7 +10,7 @@ scicat = ScicatClient(
 )
 
 # Create an Ownable that will get reused for several other Model objects
-ownable = Ownable(ownerGroup="magrathea", accessGroups=["deep_though"])
+ownable = Ownable(ownerGroup="magrathea", accessGroups=["deep_thought"])
 thumb_path = Path(__file__).parent.parent / "test/data/SciCatLogo.png"
 
 
