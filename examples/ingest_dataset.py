@@ -31,14 +31,14 @@ dataset = Dataset(
     sourceFolder="/foo/bar",
     scientificMetadata={"a": "field"},
     sampleId="gargleblaster",
-    **ownable.dict(),
+    **ownable.model_dump(),
 )
 dataset_id = scicat.upload_raw_dataset(dataset)
 
 # Create Datablock with DataFiles
 data_file = DataFile(path="file.h5", size=42)
 data_block = Datablock(
-    size=42, version=1, datasetId=dataset_id, dataFileList=[data_file], **ownable.dict()
+    size=42, version=1, datasetId=dataset_id, dataFileList=[data_file], **ownable.model_dump()
 )
 scicat.upload_datablock(data_block)
 
@@ -47,6 +47,6 @@ attachment = Attachment(
     datasetId=dataset_id,
     thumbnail=encode_thumbnail(thumb_path),
     caption="scattering image",
-    **ownable.dict(),
+    **ownable.model_dump(),
 )
 scicat.upload_attachment(attachment)

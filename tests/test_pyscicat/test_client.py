@@ -94,7 +94,7 @@ def test_scicat_ingest():
             proposalId="deepthought",
             title="Deepthought",
             email="deepthought@viltvodle.com",
-            **ownable.dict(),
+            **ownable.model_dump(),
         )
         assert scicat.upload_proposal(proposal) == "deepthought"
         assert scicat.proposals_create(proposal) == "deepthought"
@@ -105,7 +105,7 @@ def test_scicat_ingest():
             sampleId="gargleblaster",
             description="Gargleblaster",
             sampleCharacteristics={"a": "field"},
-            **ownable.dict(),
+            **ownable.model_dump(),
         )
         assert scicat.upload_sample(sample) == "gargleblaster"
         assert scicat.samples_create(sample) == "gargleblaster"
@@ -127,7 +127,7 @@ def test_scicat_ingest():
             sourceFolder="/foo/bar",
             scientificMetadata={"a": "field"},
             sampleId="gargleblaster",
-            **ownable.dict(),
+            **ownable.model_dump(),
         )
         dataset_id = scicat.upload_new_dataset(dataset)
         assert dataset_id == "42"
@@ -151,7 +151,7 @@ def test_scicat_ingest():
             datasetId=dataset_id,
             thumbnail=encode_thumbnail(thumb_path),
             caption="scattering image",
-            **ownable.dict(),
+            **ownable.model_dump(),
         )
         scicat.upload_attachment(attachment)
 

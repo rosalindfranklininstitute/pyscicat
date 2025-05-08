@@ -164,7 +164,7 @@ Make sure to select the correct dataset: raw or derived. In our case, we are cre
 ```python
 dataset = pyScModel.RawDataset(
     **dataset_information['dataset'],
-    **ownable.dict()
+    **ownable.model_dump()
 )
 ```
 
@@ -210,7 +210,7 @@ origDataBlock = pyScModel.OrigDatablock(
         for file
         in dataset_information['orig_datablock']['dataFileList']
     ],
-    **ownable.dict()
+    **ownable.model_dump()
 )
 ```
 

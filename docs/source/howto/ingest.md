@@ -53,8 +53,8 @@ dataset = Dataset(
     sourceFolder="/foo/bar",
     scientificMetadata={"a": "field"},
     sampleId="gargleblaster",
-    **ownable.dict())
 dataset_id = scicat.upload_raw_dataset(dataset)
+    **ownable.model_dump())
 ```
 Now we can create a Dataset instance and upload it! Notice how we passed the fields of the `ownable` instance there at the end.
 
@@ -70,7 +70,7 @@ sample = Sample(
     description="A legendary drink.",
     sampleCharacteristics={"Flavour": "Unknown, but potent"},
     isPublished=False,
-    **ownable.dict()
+    **ownable.model_dump()
 )
 sample_id = client.upload_sample(sample)  # sample_id == "gargleblaster"
 ```
@@ -84,7 +84,7 @@ data_block = Datablock(size=42,
                        version=1,
                        datasetId=dataset_id,
                        dataFileList=[data_file],
-                       **ownable.dict())
+                       **ownable.model_dump())
 scicat.upload_datablock(data_block)
 ```
 The `Datablock` is a container for `DataFile` instances. We are not loading the files, rather we are creating references that are used (and displayed) in SciCat. 
@@ -99,7 +99,7 @@ attachment = Attachment(
     datasetId=dataset_id,
     thumbnail=encode_thumbnail(thumb_path),
     caption="scattering image",
-    **ownable.dict()
+    **ownable.model_dump()
 )
 scicat.upload_attachment(attachment)
 ```
@@ -146,8 +146,8 @@ dataset = Dataset(
     sourceFolder="/foo/bar",
     scientificMetadata={"a": "field"},
     sampleId="gargleblaster",
-    **ownable.dict())
 dataset_id = scicat.upload_raw_dataset(dataset)
+    **ownable.model_dump())
 
 # Create Datablock with DataFiles
 data_file = DataFile(path="file.h5", size=42)
@@ -155,7 +155,7 @@ data_block = Datablock(size=42,
                        version=1,
                        datasetId=dataset_id,
                        dataFileList=[data_file],
-                       **ownable.dict())
+                       **ownable.model_dump())
 scicat.upload_datablock(data_block)
 
 #Create Attachment
@@ -163,7 +163,7 @@ attachment = Attachment(
     datasetId=dataset_id,
     thumbnail=encode_thumbnail(thumb_path),
     caption="scattering image",
-    **ownable.dict()
+    **ownable.model_dump()
 )
 scicat.upload_attachment(attachment)
 

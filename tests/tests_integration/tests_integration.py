@@ -55,7 +55,7 @@ def test_upload_dataset():
         techniques=[],
         numberOfFiles=0,
         numberOfFilesArchived=0,
-        **ownable.dict(),
+        **ownable.model_dump(),
     )
 
     sci_clie.upload_new_dataset(payload)

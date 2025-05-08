@@ -52,7 +52,7 @@ ownable = pyScModel.Ownable(**dataset_information["ownable"])
 
 # create dataset object from the pyscicat model
 # includes ownable from previous step
-dataset = pyScModel.RawDataset(**dataset_information["dataset"], **ownable.dict())
+dataset = pyScModel.RawDataset(**dataset_information["dataset"], **ownable.model_dump())
 
 
 # create dataset entry in scicat
@@ -68,7 +68,7 @@ origDataBlock = pyScModel.OrigDatablock(
         pyScModel.DataFile(**file)
         for file in dataset_information["orig_datablock"]["dataFileList"]
     ],
-    **ownable.dict(),
+    **ownable.model_dump(),
 )
 
 # create origDatablock associated with dataset in SciCat
