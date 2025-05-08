@@ -841,7 +841,11 @@ def _log_in_via_users_login(base_url, username, password, headers={}):
         verify=True,
     )
     if not response.ok:
-        logger.info(f" Failed to log in via endpoint Users/login: {response.json()}")
+        try:
+            response_text = response.json()
+        except json.decoder.JSONDecodeError:
+            response_text = response.text
+        logger.info(f" Failed to log in via endpoint Users/login: {response_text}")
     return response
 
 
@@ -857,7 +861,11 @@ def get_token(base_url, username, password, headers={}):
     if response.ok:
         return response.json()["id"]  # not sure if semantically correct
 
-    logger.error(f" Failed log in:  {response.json()}")
+    try:
+        response_text = response.json()
+    except json.decoder.JSONDecodeError:
+        response_text = response.text
+    logger.error(f" Failed log in:  {response_text}")
     raise ScicatLoginError(response.content)
 
 
