@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pyscicat.client import ScicatClient, encode_thumbnail
-from pyscicat.model import Attachment, Datablock, DataFile, Dataset, Ownable
+from pyscicat.model import Attachment, Datablock, DataFile, Ownable, RawDataset
 
 # Create a client object. The account used should have the ingestor role in SciCat
 scicat = ScicatClient(
@@ -10,19 +10,19 @@ scicat = ScicatClient(
 )
 
 # Create an Ownable that will get reused for several other Model objects
-ownable = Ownable(ownerGroup="magrathea", accessGroups=["deep_though"])
+ownable = Ownable(ownerGroup="magrathea", accessGroups=["deep_thought"])
 thumb_path = Path(__file__).parent.parent / "test/data/SciCatLogo.png"
 
 
 # Create a RawDataset object with settings for your choosing. Notice how
 # we pass the `ownable` instance.
-dataset = Dataset(
+dataset = RawDataset(
     path="/foo/bar",
     size=42,
     owner="slartibartfast",
     contactEmail="slartibartfast@magrathea.org",
     creationLocation="magrathea",
-    creationTime=str(datetime.now()),
+    creationTime=str(datetime.now().isoformat()),
     type="raw",
     instrumentId="earth",
     proposalId="deepthought",
@@ -31,14 +31,18 @@ dataset = Dataset(
     sourceFolder="/foo/bar",
     scientificMetadata={"a": "field"},
     sampleId="gargleblaster",
-    **ownable.dict(),
+    **ownable.model_dump(),
 )
-dataset_id = scicat.upload_raw_dataset(dataset)
+dataset_id = scicat.datasets_create(dataset)
 
 # Create Datablock with DataFiles
 data_file = DataFile(path="file.h5", size=42)
 data_block = Datablock(
-    size=42, version=1, datasetId=dataset_id, dataFileList=[data_file], **ownable.dict()
+    size=42,
+    version=1,
+    datasetId=dataset_id,
+    dataFileList=[data_file],
+    **ownable.model_dump(),
 )
 scicat.upload_datablock(data_block)
 
@@ -47,6 +51,6 @@ attachment = Attachment(
     datasetId=dataset_id,
     thumbnail=encode_thumbnail(thumb_path),
     caption="scattering image",
-    **ownable.dict(),
+    **ownable.model_dump(),
 )
 scicat.upload_attachment(attachment)

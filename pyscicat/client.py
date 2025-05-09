@@ -53,6 +53,7 @@ class ScicatClient:
         username: Optional[str] = None,
         password: Optional[str] = None,
         timeout_seconds: Optional[int] = None,
+        auto_login=True,
     ):
         """Initialize a new instance. This method attempts to create a token
         from the provided username and password
@@ -83,8 +84,10 @@ class ScicatClient:
             assert (self._username is not None) and (
                 self._password is not None
             ), "SciCat login credentials (username, password) must be provided if token is not provided"
-            self._token = get_token(self._base_url, self._username, self._password)
-        self._headers["Authorization"] = "Bearer {}".format(self._token)
+            if auto_login:
+                self.login()
+        else:
+            self._headers["Authorization"] = "Bearer {}".format(self._token)
 
     def _send_to_scicat(
         self, cmd: str, endpoint: str, data: Optional[BaseModel] = None
@@ -101,6 +104,14 @@ class ScicatClient:
             stream=False,
             verify=True,
         )
+
+    def login(self):
+        """Attempts to authenticate using the stored username and password.
+        Does not check if authentication has already occured."""
+        self._token = get_token(
+            self._base_url, self._username, self._password, self._headers
+        )
+        self._headers["Authorization"] = "Bearer {}".format(self._token)
 
     def _call_endpoint(
         self,
@@ -821,19 +832,24 @@ def from_credentials(base_url: str, username: str, password: str):
     return from_token(base_url, token)
 
 
-def _log_in_via_users_login(base_url, username, password):
+def _log_in_via_users_login(base_url, username, password, headers={}):
     response = requests.post(
         urljoin(base_url, "auth/login"),
         json={"username": username, "password": password},
+        headers=headers,
         stream=False,
         verify=True,
     )
     if not response.ok:
-        logger.info(f" Failed to log in via endpoint Users/login: {response.json()}")
+        try:
+            response_text = response.json()
+        except json.decoder.JSONDecodeError:
+            response_text = response.text
+        logger.info(f" Failed to log in via endpoint Users/login: {response_text}")
     return response
 
 
-def get_token(base_url, username, password):
+def get_token(base_url, username, password, headers={}):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
     # Users/login only works for functional accounts and auth/msad for regular users.
@@ -841,11 +857,15 @@ def get_token(base_url, username, password):
     # feasible solution right now.
     logger.info(" Getting new token")
 
-    response = _log_in_via_users_login(base_url, username, password)
+    response = _log_in_via_users_login(base_url, username, password, headers)
     if response.ok:
         return response.json()["id"]  # not sure if semantically correct
 
-    logger.error(f" Failed log in:  {response.json()}")
+    try:
+        response_text = response.json()
+    except json.decoder.JSONDecodeError:
+        response_text = response.text
+    logger.error(f" Failed log in:  {response_text}")
     raise ScicatLoginError(response.content)
 
 
