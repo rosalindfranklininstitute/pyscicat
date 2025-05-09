@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pyscicat.client import ScicatClient, encode_thumbnail
-from pyscicat.model import Attachment, Datablock, DataFile, RawDataset, Ownable
+from pyscicat.model import Attachment, Datablock, DataFile, Ownable, RawDataset
 
 # Create a client object. The account used should have the ingestor role in SciCat
 scicat = ScicatClient(
