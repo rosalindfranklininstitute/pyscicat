@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pyscicat.client import ScicatClient, encode_thumbnail
-from pyscicat.model import Attachment, Datablock, DataFile, Dataset, Ownable
+from pyscicat.model import Attachment, Datablock, DataFile, RawDataset, Ownable
 
 # Create a client object. The account used should have the ingestor role in SciCat
 scicat = ScicatClient(
@@ -16,7 +16,7 @@ thumb_path = Path(__file__).parent.parent / "test/data/SciCatLogo.png"
 
 # Create a RawDataset object with settings for your choosing. Notice how
 # we pass the `ownable` instance.
-dataset = Dataset(
+dataset = RawDataset(
     path="/foo/bar",
     size=42,
     owner="slartibartfast",
@@ -33,12 +33,16 @@ dataset = Dataset(
     sampleId="gargleblaster",
     **ownable.model_dump(),
 )
-dataset_id = scicat.upload_raw_dataset(dataset)
+dataset_id = scicat.datasets_create(dataset)
 
 # Create Datablock with DataFiles
 data_file = DataFile(path="file.h5", size=42)
 data_block = Datablock(
-    size=42, version=1, datasetId=dataset_id, dataFileList=[data_file], **ownable.model_dump()
+    size=42,
+    version=1,
+    datasetId=dataset_id,
+    dataFileList=[data_file],
+    **ownable.model_dump(),
 )
 scicat.upload_datablock(data_block)
 

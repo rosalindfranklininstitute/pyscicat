@@ -131,9 +131,9 @@ class Dataset(Ownable):
     numberOfFiles: Optional[int] = None
     numberOfFilesArchived: Optional[int] = None
     orcidOfOwner: Optional[str] = None
-    packedSize: Optional[int] = None
     owner: str
     ownerEmail: Optional[str] = None
+    packedSize: Optional[int] = None
     sharedWith: Optional[List[str]] = None
     size: Optional[int] = None
     sourceFolder: str
