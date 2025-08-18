@@ -570,15 +570,15 @@ class ScicatClient:
 
         For example, a search for Datasets of a given proposalId would have
         ```python
-        filterField = {"proposalId": "1234"}
+        filter_fields = {"proposalId": "1234"}
         ```
         A search for Datasets  with no proposalId would be:
         ```python
-        filterField = {"proposalId": ""}
+        filter_fields = {"proposalId": ""}
         ```
         If you want to search on partial strings, you can use "like":
         ```python
-        filterField = {"proposalId": {"like":"123"}}
+        filter_fields = {"proposalId": {"like":"123"}}
         ```
 
         Parameters
@@ -613,15 +613,15 @@ class ScicatClient:
 
         For example, a search for Samples of a given ownerGroup would have
         ```python
-        filterField = {"ownerGroup": "1234"}
+        filter_fields = {"ownerGroup": "1234"}
         ```
         If you want to search on partial strings, you can use "like":
         ```python
-        filterField = {"ownerGroup": {"like":"123"}}
+        filter_fields = {"ownerGroup": {"like":"123"}}
         ```
         To search within the JSON metadata, join sub-fields with ".":
         ```python
-        filterField = {"sampleCharacteristics.myCustomObject.myField": "1234"}
+        filter_fields = {"sampleCharacteristics.myCustomObject.myField": "1234"}
         ```
 
         Parameters
