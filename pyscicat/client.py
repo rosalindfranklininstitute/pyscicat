@@ -560,7 +560,11 @@ class ScicatClient:
     get_datasets_full_query = datasets_find
     find_datasets_full_query = datasets_find
 
-    def datasets_get_many(self, filter_fields: Optional[dict] = None, include_fields: Optional[list] = None) -> Optional[dict]:
+    def datasets_get_many(
+        self,
+        filter_fields: Optional[dict] = None,
+        include_fields: Optional[list] = None,
+    ) -> Optional[dict]:
         """
         Gets datasets using the simple filter mechanism. This
         is appropriate when you do not require paging or text search, but
@@ -591,9 +595,9 @@ class ScicatClient:
             filter["where"] = filter_fields
         if include_fields is not None:
             # When we switch to the v4 API, there will be no need to wrap these in "relation" objects like this.
-            filter["include"] = [{"relation":r} for r in include_fields]
+            filter["include"] = [{"relation": r} for r in include_fields]
         filter_str = json.dumps(filter)
-        endpoint = f'Datasets?filter={filter_str}'
+        endpoint = f"Datasets?filter={filter_str}"
         return self._call_endpoint(
             cmd="get", endpoint=endpoint, operation="datasets_get_many"
         )
