@@ -143,7 +143,7 @@ def test_scicat_ingest():
             datasetId=dataset_id,
             dataFileList=[data_file],
         )
-        scicat.upload_dataset_origdatablock(dataset_id, data_block_dto)
+        scicat.datasets_origdatablock_create(dataset_id, data_block_dto)
 
         # Attachment
         attachment = Attachment(

@@ -237,7 +237,7 @@ origDataBlock = pyScModel.OrigDatablock(
 With the original datablock object created, it is time to submit th erequest to SciCat.
 
 ```python
-created_orig_datablock = scClient.upload_dataset_origdatablock(origDataBlock)
+created_orig_datablock = scClient.datasets_origdatablock_create(origDataBlock)
 ```
 
 Similarly to the dataset creation function, this call will return the same information provided as argument, with the addition of the pid assigned to the entry by SciCat
