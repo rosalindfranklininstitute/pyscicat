@@ -194,12 +194,12 @@ class Datablock(Ownable):
     """
 
     id: Optional[str] = None
-    # archiveId: str = None  listed in catamel model, but comes back invalid?
-
+    archiveId: Optional[str] = None
+    size: Optional[int] = None
     packedSize: Optional[int] = None
-    chkAlg: Optional[int] = None
+    chkAlg: Optional[str] = None
     version: str
-    instrumentGroup: Optional[str] = None
+    dataFileList: List[DataFile]
     datasetId: str
 
 
@@ -208,9 +208,9 @@ class CreateDatasetOrigDatablockDto(BaseModel):
     DTO for creating a new dataset with an original datablock
     """
 
-    chkAlg: Optional[int] = None
-    dataFileList: List[DataFile]
     size: int
+    chkAlg: Optional[str] = None
+    dataFileList: List[DataFile]
 
 
 class OrigDatablock(Ownable, CreateDatasetOrigDatablockDto):
@@ -219,7 +219,6 @@ class OrigDatablock(Ownable, CreateDatasetOrigDatablockDto):
     """
 
     id: Optional[str] = None
-    instrumentGroup: Optional[str] = None
     datasetId: str
 
 
