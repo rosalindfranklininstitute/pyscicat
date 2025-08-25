@@ -21,6 +21,7 @@ from pyscicat.model import (
     Ownable,
     Proposal,
     RawDataset,
+    DatasetType,
     Sample,
 )
 
@@ -118,7 +119,7 @@ def test_scicat_ingest():
             contactEmail="slartibartfast@magrathea.org",
             creationLocation="magrathea",
             creationTime=str(datetime.now().isoformat()),
-            type="raw",
+            type=DatasetType.raw,
             instrumentId="earth",
             proposalId="deepthought",
             dataFormat="planet",
@@ -140,7 +141,6 @@ def test_scicat_ingest():
         data_file = DataFile(path="/foo/bar", size=42)
         data_block_dto = CreateDatasetOrigDatablockDto(
             size=42,
-            datasetId=dataset_id,
             dataFileList=[data_file],
         )
         scicat.datasets_origdatablock_create(dataset_id, data_block_dto)
