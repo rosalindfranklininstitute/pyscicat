@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from pyscicat.client import ScicatClient, encode_thumbnail
-from pyscicat.model import Attachment, Datablock, DataFile, Ownable, RawDataset
+from pyscicat.model import Attachment, CreateDatasetOrigDatablockDto, DataFile, Ownable, RawDataset, DatasetType
 
 # Create a client object. The account used should have the ingestor role in SciCat
 scicat = ScicatClient(
@@ -22,7 +22,7 @@ dataset = RawDataset(
     contactEmail="slartibartfast@magrathea.org",
     creationLocation="magrathea",
     creationTime=str(datetime.now().isoformat()),
-    type="raw",
+    type=DatasetType.raw,
     instrumentId="earth",
     proposalId="deepthought",
     dataFormat="planet",
@@ -36,14 +36,12 @@ dataset_id = scicat.datasets_create(dataset)
 
 # Create Datablock with DataFiles
 data_file = DataFile(path="file.h5", size=42)
-data_block = Datablock(
+data_block = CreateDatasetOrigDatablockDto(
     size=42,
-    version=1,
-    datasetId=dataset_id,
     dataFileList=[data_file],
     **ownable.model_dump(),
 )
-scicat.upload_datablock(data_block)
+scicat.datasets_origdatablock_create(dataset_id, data_block)
 
 # Create Attachment
 attachment = Attachment(
