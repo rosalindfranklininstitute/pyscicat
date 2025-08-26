@@ -17,11 +17,11 @@ from pyscicat.model import (
     Attachment,
     CreateDatasetOrigDatablockDto,
     DataFile,
+    DatasetType,
     Instrument,
     Ownable,
     Proposal,
     RawDataset,
-    DatasetType,
     Sample,
 )
 

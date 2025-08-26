@@ -73,4 +73,6 @@ origDataBlock = pyScModel.CreateDatasetOrigDatablockDto(
 
 # create origDatablock associated with dataset in SciCat
 # it returns the full object including SciCat id assigned when created
-created_orig_datablock = scClient.datasets_origdatablock_create(dataset_id=createdDatasetPid, datablockDto=origDataBlock)
+created_orig_datablock = scClient.datasets_origdatablock_create(
+    dataset_id=createdDatasetPid, datablockDto=origDataBlock
+)
