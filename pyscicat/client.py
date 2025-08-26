@@ -989,7 +989,7 @@ if __name__ == "__main__":
     import os
 
     client = from_credentials(
-        os.getenv("SCICAT_URL") or "",
+        os.getenv("SCICAT_URL") or "localhost",
         os.getenv("SCICAT_USER") or "",
         os.getenv("SCICAT_PASSWORD") or "",
     )
