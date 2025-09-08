@@ -280,6 +280,7 @@ class ScicatClient:
         ScicatCommError
             Raises if a non-20x message is returned
         """
+        assert isinstance(attachment.datasetId, str)
         endpoint = f"{datasetType}/{quote_plus(attachment.datasetId)}/attachments"
         result = self._call_endpoint(
             cmd="post",
@@ -743,6 +744,24 @@ class ScicatClient:
         )
 
     get_dataset_by_pid = datasets_get_one
+
+    def datasets_attachments_get_one(self, pid: str) -> Optional[list[dict]]:
+        """
+        Gets external links for the dataset with the pid provided.
+
+        Parameters
+        ----------
+        pid : string
+            pid of the dataset requested.
+        """
+        return cast(
+            Optional[list[dict]],
+            self._call_endpoint(
+                cmd="get",
+                endpoint=f"Datasets/{quote_plus(pid)}/attachments",
+                operation="datasets_get_one",
+            ),
+        )
 
     def datasets_externallinks_get_one(self, pid: str) -> Optional[list[dict]]:
         """
