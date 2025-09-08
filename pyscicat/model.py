@@ -225,12 +225,15 @@ class OrigDatablock(Ownable, CreateDatasetOrigDatablockDto):
 class Attachment(Ownable):
     """
     Attachments can be any base64 encoded string...thumbnails are attachments
+    They can be associated with proposals, samples, or datasets.
     """
 
     id: Optional[str] = None
-    thumbnail: str
-    caption: Optional[str] = None
-    datasetId: str
+    datasetId: Optional[str] = None
+    proposalId: Optional[str] = None
+    sampleid: Optional[str] = None
+    thumbnail: Optional[str] = None
+    caption: str
 
 
 class PublishedData:
