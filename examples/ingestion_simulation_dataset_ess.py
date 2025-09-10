@@ -57,13 +57,12 @@ dataset = pyScModel.RawDataset(**dataset_information["dataset"], **ownable.model
 
 # create dataset entry in scicat
 # it returns the full dataset information, including the dataset pid assigned automatically by scicat
-created_dataset = scClient.upload_new_dataset(dataset)
+createdDatasetPid = scClient.upload_new_dataset(dataset)
 
 
 # create origdatablock object from pyscicat model
-origDataBlock = pyScModel.OrigDatablock(
+origDataBlock = pyScModel.CreateDatasetOrigDatablockDto(
     size=dataset_information["orig_datablock"]["size"],
-    datasetId=created_dataset["pid"],
     dataFileList=[
         pyScModel.DataFile(**file)
         for file in dataset_information["orig_datablock"]["dataFileList"]
@@ -71,6 +70,9 @@ origDataBlock = pyScModel.OrigDatablock(
     **ownable.model_dump(),
 )
 
+
 # create origDatablock associated with dataset in SciCat
 # it returns the full object including SciCat id assigned when created
-created_orig_datablock = scClient.upload_dataset_origdatablock(origDataBlock)
+created_orig_datablock = scClient.datasets_origdatablock_create(
+    dataset_id=createdDatasetPid, datablockDto=origDataBlock
+)

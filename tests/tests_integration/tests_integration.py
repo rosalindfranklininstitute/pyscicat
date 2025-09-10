@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from pyscicat.client import ScicatClient
-from pyscicat.model import Ownable, RawDataset
+from pyscicat.model import DatasetType, Ownable, RawDataset
 
 """
 These test_pyscicat do not use mocks and are designed to connect
@@ -47,7 +47,7 @@ def test_upload_dataset():
         sourceFolder="/foo/bar",
         scientificMetadata={"type": "string", "value": {"a": "field"}},
         sampleId="gargleblaster",
-        type="raw",
+        type=DatasetType.raw,
         ownerEmail="scicatingestor@your.site",
         sourceFolderHost="s3.heartofgold.org",
         endTime=datetime.isoformat(datetime.now()),
@@ -62,7 +62,7 @@ def test_upload_dataset():
 
 def test_get_dataset():
     datasets = sci_clie.get_datasets({"ownerGroup": "ingestor"})
-
+    assert datasets is not None
     for dataset in datasets:
         assert dataset["ownerGroup"] == "ingestor"
 
@@ -76,6 +76,7 @@ def test_update_dataset():
     )
 
     datasets = sci_clie.get_datasets({})
+    assert datasets is not None
     pid = datasets[0]["pid"]
     payload = RawDataset(
         size=142,
