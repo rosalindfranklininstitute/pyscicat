@@ -84,7 +84,10 @@ def test_scicat_ingest():
 
         # Instrument
         instrument = Instrument(
-            pid="earth", name="Earth", customMetadata={"a": "field"}
+            pid="earth",
+            name="Earth",
+            customMetadata={"a": "field"},
+            uniqueName="earth426",
         )
         assert scicat.upload_instrument(instrument) == "earth"
         assert scicat.instruments_create(instrument) == "earth"
@@ -123,6 +126,7 @@ def test_scicat_ingest():
             instrumentId="earth",
             proposalId="deepthought",
             dataFormat="planet",
+            datasetName="Douglas' Dataset",
             principalInvestigator="A. Mouse",
             sourceFolder="/foo/bar",
             scientificMetadata={"a": "field"},
@@ -134,7 +138,7 @@ def test_scicat_ingest():
 
         # Update record
         dataset.principalInvestigator = "B. Turtle"
-        dataset_id_2 = scicat.update_dataset(dataset, dataset_id)
+        dataset_id_2 = scicat.datasets_update(dataset, dataset_id)
         assert dataset_id_2 == dataset_id
 
         # Datablock with DataFiles
@@ -166,6 +170,7 @@ def test_get_dataset():
             instrumentId="earth",
             proposalId="deepthought",
             dataFormat="planet",
+            datasetName="Douglas' Dataset",
             principalInvestigator="A. Mouse",
             sourceFolder="/foo/bar",
             scientificMetadata={"a": "field"},
