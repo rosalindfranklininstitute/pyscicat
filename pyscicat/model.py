@@ -7,8 +7,10 @@ from pydantic import BaseModel
 from pydantic._internal._model_construction import ModelMetaclass
 
 # creates update models where all the fields are optional
-# Might want to consider alternative approaches for better maintainability: 
+# Might want to consider alternative approaches for better maintainability:
 # https://github.com/pydantic/pydantic/issues/6381
+
+
 class _AllOptional(ModelMetaclass):
     def __new__(self, name, bases, namespaces, **kwargs):
         annotations = namespaces.get('__annotations__', {})
@@ -26,6 +28,7 @@ class _AllOptional(ModelMetaclass):
                 annotations[field] = Optional[annotations[field]]
         namespaces['__annotations__'] = annotations
         return super().__new__(self, name, bases, namespaces, **kwargs)
+
 
 class DatasetType(str, enum.Enum):
     """type of Dataset"""
@@ -158,8 +161,10 @@ class Dataset(Ownable):
     version: Optional[str] = None
     scientificMetadata: Optional[Dict] = None
 
+
 class UpdateDataset(Dataset, metaclass=_AllOptional):
     pass
+
 
 class RawDataset(Dataset):
     """
@@ -173,6 +178,7 @@ class RawDataset(Dataset):
     endTime: Optional[str] = None  # datetime
     sampleId: Optional[str] = None
     proposalId: Optional[str] = None
+
 
 class UpdateRawDataset(Dataset, metaclass=_AllOptional):
     pass
@@ -190,8 +196,10 @@ class DerivedDataset(Dataset):
     jobParameters: Optional[dict] = None
     jobLogData: Optional[str] = None
 
+
 class UpdateDerivedDataset(DerivedDataset, metaclass=_AllOptional):
     pass
+
 
 class DataFile(MongoQueryable):
     """
@@ -224,6 +232,7 @@ class Datablock(Ownable):
     chkAlg: Optional[int] = None
     instrumentGroup: Optional[str] = None
 
+
 class OrigDatablock(Ownable):
     """
     An Original Datablock maps between a Dataset and contains DataFiles
@@ -235,6 +244,7 @@ class OrigDatablock(Ownable):
     datasetId: str
     id: Optional[str] = None
     # archiveId: str = None  listed in catamel model, but comes back invalid?
+
 
 class Attachment(Ownable):
     """
