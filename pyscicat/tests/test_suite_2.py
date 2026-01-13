@@ -25,7 +25,7 @@ test_datasets = {}
 
 def set_up_test_environment(mock_request):
 
-    global test_datasets
+    # global test_datasets
 
     # load test data
     for name, path in test_dataset_files.items():
