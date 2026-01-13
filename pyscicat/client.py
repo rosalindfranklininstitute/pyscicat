@@ -19,13 +19,10 @@ from pyscicat.model import (
     RawDataset,
     DerivedDataset,
     UpdateDataset,
-    UpdateRawDataset,
-    UpdateDerivedDataset,
     Instrument,
     OrigDatablock,
     Proposal,
     Sample,
-    Ownable,
     MongoQueryable,
 )
 
