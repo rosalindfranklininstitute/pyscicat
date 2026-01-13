@@ -16,7 +16,7 @@ class _AllOptional(ModelMetaclass):
         annotations = namespaces.get('__annotations__', {})
 
         for base in bases:
-            #annotations.update(base.__annotations__)
+            # annotations.update(base.__annotations__)
             for base_ in base.__mro__:
                 if base_ is BaseModel:
                     break
