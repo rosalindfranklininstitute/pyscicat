@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union, cast
-from urllib.parse import urljoin, quote_plus
+from urllib.parse import quote_plus, urljoin
 
 import requests
 from pydantic import BaseModel
