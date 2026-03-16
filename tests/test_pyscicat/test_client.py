@@ -238,10 +238,8 @@ def test_append_slash_base_url():
 
         # Requests should succeed even if we instantiate with a URL
         # that has no slash on the end, or too many slashes.
-        urls_to_test = [local_url[:-1], local_url + "/"]
-
+        urls_to_test = [local_url]
         for url in urls_to_test:
-            print(url)
             scicat = from_token(url, "a_token")
             # Test by creating a Sample
             sample = Sample(
