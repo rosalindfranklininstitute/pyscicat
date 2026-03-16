@@ -25,7 +25,7 @@ from pyscicat.model import (
     Sample,
 )
 
-local_url = "http://localhost:3000/api/v3/"
+local_url = "http://localhost/api/v3/"
 
 
 def add_mock_requests(mock_request):
@@ -60,6 +60,7 @@ def add_mock_requests(mock_request):
     )
 
     mock_request.post(local_url + "Datasets", json={"pid": "42"})
+    #mock_request.post(local_url + "v3/auth/login", json={"response": "201"})
 
 
 def test_scicat_ingest():
@@ -240,6 +241,7 @@ def test_append_slash_base_url():
         urls_to_test = [local_url[:-1], local_url + "/"]
 
         for url in urls_to_test:
+            print(url)
             scicat = from_token(url, "a_token")
             # Test by creating a Sample
             sample = Sample(

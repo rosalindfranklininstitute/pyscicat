@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union, cast
-from urllib.parse import quote_plus
+from urllib.parse import urljoin, quote_plus
 
 import requests
 from pydantic import BaseModel
@@ -1214,6 +1214,7 @@ def _log_in_via_users_login(base_url, username, password, headers={}):
         logger.info(f" Failed to log in via endpoint Users/login: {response_text}")
     return response
 
+
 def _log_in_via_auth_login(base_url, username, password):  
     response = requests.post(
         urljoin(base_url, "auth/login"),
@@ -1224,6 +1225,7 @@ def _log_in_via_auth_login(base_url, username, password):
     if not response.ok:
         logger.info(f" Failed to log in via endpoint auth/login: {response.json()}")
     return response
+
 
 def _log_in_via_auth_msad(base_url, username, password):
     import re
@@ -1242,6 +1244,7 @@ def _log_in_via_auth_msad(base_url, username, password):
         )
         raise ScicatLoginError(response.content)
 
+
 def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
@@ -1253,11 +1256,9 @@ def get_token(base_url, username, password):
     response = _log_in_via_auth_login(base_url, username, password)
     if response.ok:
         return response.json()["id"]
-    
     response = _log_in_via_users_login(base_url, username, password)
     if response.ok:
         return response.json()["id"]  # not sure if semantically correct
-
     response = _log_in_via_auth_msad(base_url, username, password)
     if response.ok:
         return response.json()["access_token"]
