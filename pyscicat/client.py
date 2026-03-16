@@ -603,7 +603,7 @@ class ScicatClient:
         if proposalId is None:
             assert proposal.proposalId is not None, "proposalId should not be None"
             proposalId = proposal.proposalId
-        # TODO updates should allow partial proposals, where all fields are optional. See #58
+        # 'TO do: updates should allow partial proposals, where all fields are optional. See #58
         proposal.proposalId = None  # type: ignore [assignment]
 
         result = cast(
@@ -1215,7 +1215,7 @@ def _log_in_via_users_login(base_url, username, password, headers={}):
     return response
 
 
-def _log_in_via_auth_login(base_url, username, password):  
+def _log_in_via_auth_login(base_url, username, password):
     response = requests.post(
         urljoin(base_url, "auth/login"),
         json={"username": username, "password": password},
