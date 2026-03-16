@@ -98,8 +98,8 @@ class ScicatClient:
         data: Optional[BaseModel] = None,
         send_token_as_param: bool = True,
     ):
-        """sends a command to the SciCat API server using url and token, returns the response JSON
-        Get token with the getToken method"""
+        """sends a command to the SciCat API server using url and token,
+        returns the response JSON Get token with the getToken method"""
         endpoint_url = "/".join(s.strip("/") for s in [self._base_url, endpoint])
         if send_token_as_param:
             return requests.request(
@@ -145,9 +145,7 @@ class ScicatClient:
     def login(self):
         """Attempts to authenticate using the stored username and password.
         Does not check if authentication has already occured."""
-        self._token = get_token(
-            self._base_url, self._username, self._password
-        )
+        self._token = get_token(self._base_url, self._username, self._password)
         self._headers["Authorization"] = "Bearer {}".format(self._token)
 
     def _call_endpoint(
@@ -1239,9 +1237,7 @@ def _log_in_via_auth_msad(base_url, username, password):
         verify=True,
     )
     if not response.ok:
-        logger.error(
-            f'Error retrieving token for user: {response.json()}'
-        )
+        logger.error(f"Error retrieving token for user: {response.json()}")
         raise ScicatLoginError(response.content)
 
 
@@ -1263,9 +1259,7 @@ def get_token(base_url, username, password):
     if response.ok:
         return response.json()["access_token"]
 
-    logger.error(
-        f' Failed log in:  {response.json()}'
-    )
+    logger.error(f" Failed log in:  {response.json()}")
     raise ScicatLoginError(response.content)
 
 
