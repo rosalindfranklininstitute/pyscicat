@@ -146,7 +146,7 @@ class ScicatClient:
         """Attempts to authenticate using the stored username and password.
         Does not check if authentication has already occured."""
         self._token = get_token(
-            self._base_url, self._username, self._password, self._headers
+            self._base_url, self._username, self._password
         )
         self._headers["Authorization"] = "Bearer {}".format(self._token)
 
