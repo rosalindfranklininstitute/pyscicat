@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union, cast
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urljoin
 
 import requests
 from pydantic import BaseModel
@@ -98,8 +98,8 @@ class ScicatClient:
         data: Optional[BaseModel] = None,
         send_token_as_param: bool = True,
     ):
-        """sends a command to the SciCat API server using url and token, returns the response JSON
-        Get token with the getToken method"""
+        """sends a command to the SciCat API server using url and token,
+        returns the response JSON Get token with the getToken method"""
         endpoint_url = "/".join(s.strip("/") for s in [self._base_url, endpoint])
         if send_token_as_param:
             return requests.request(
@@ -145,9 +145,7 @@ class ScicatClient:
     def login(self):
         """Attempts to authenticate using the stored username and password.
         Does not check if authentication has already occured."""
-        self._token = get_token(
-            self._base_url, self._username, self._password, self._headers
-        )
+        self._token = get_token(self._base_url, self._username, self._password)
         self._headers["Authorization"] = "Bearer {}".format(self._token)
 
     def _call_endpoint(
@@ -603,7 +601,7 @@ class ScicatClient:
         if proposalId is None:
             assert proposal.proposalId is not None, "proposalId should not be None"
             proposalId = proposal.proposalId
-        # TODO updates should allow partial proposals, where all fields are optional. See #58
+        # TODO: updates should allow partial proposals, where all fields are optional. See #58
         proposal.proposalId = None  # type: ignore [assignment]
 
         result = cast(
@@ -1215,7 +1213,35 @@ def _log_in_via_users_login(base_url, username, password, headers={}):
     return response
 
 
-def get_token(base_url, username, password, headers={}):
+def _log_in_via_auth_login(base_url, username, password):
+    response = requests.post(
+        urljoin(base_url, "auth/login"),
+        json={"username": username, "password": password},
+        stream=False,
+        verify=True,
+    )
+    if not response.ok:
+        logger.info(f" Failed to log in via endpoint auth/login: {response.json()}")
+    return response
+
+
+def _log_in_via_auth_msad(base_url, username, password):
+    import re
+
+    # Strip the api/vn suffix
+    base_url = re.sub(r"/api/v\d+/?", "", base_url)
+    response = requests.post(
+        urljoin(base_url, "auth/msad"),
+        json={"username": username, "password": password},
+        stream=False,
+        verify=True,
+    )
+    if not response.ok:
+        logger.error(f"Error retrieving token for user: {response.json()}")
+        raise ScicatLoginError(response.content)
+
+
+def get_token(base_url, username, password):
     """logs in using the provided username / password combination
     and receives token for further communication use"""
     # Users/login only works for functional accounts and auth/msad for regular users.
@@ -1223,15 +1249,17 @@ def get_token(base_url, username, password, headers={}):
     # feasible solution right now.
     logger.info(" Getting new token")
 
-    response = _log_in_via_users_login(base_url, username, password, headers)
+    response = _log_in_via_auth_login(base_url, username, password)
+    if response.ok:
+        return response.json()["id"]
+    response = _log_in_via_users_login(base_url, username, password)
     if response.ok:
         return response.json()["id"]  # not sure if semantically correct
+    response = _log_in_via_auth_msad(base_url, username, password)
+    if response.ok:
+        return response.json()["access_token"]
 
-    try:
-        response_text = response.json()
-    except json.decoder.JSONDecodeError:
-        response_text = response.text
-    logger.error(f" Failed log in:  {response_text}")
+    logger.error(f" Failed log in:  {response.json()}")
     raise ScicatLoginError(response.content)
 
 
