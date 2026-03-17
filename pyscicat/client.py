@@ -601,7 +601,7 @@ class ScicatClient:
         if proposalId is None:
             assert proposal.proposalId is not None, "proposalId should not be None"
             proposalId = proposal.proposalId
-        # 'TO do: updates should allow partial proposals, where all fields are optional. See #58
+        # TODO: updates should allow partial proposals, where all fields are optional. See #58
         proposal.proposalId = None  # type: ignore [assignment]
 
         result = cast(
